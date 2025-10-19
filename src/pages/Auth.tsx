@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import LanguageSelector from "@/components/LanguageSelector";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -102,9 +101,6 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-bg">
       <Card className="w-full max-w-md p-8 shadow-candy border-2">
-        <div className="absolute top-4 right-4">
-          <LanguageSelector />
-        </div>
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2 gradient-text">{t('app.name')}</h1>
           <p className="text-muted-foreground">

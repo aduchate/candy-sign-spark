@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
-import LanguageSelector from "@/components/LanguageSelector";
 import { getTranslatedLessons } from "@/data/translatedLessons";
 
 interface LessonProgress {
@@ -108,7 +107,6 @@ const Dashboard = () => {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <LanguageSelector />
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
