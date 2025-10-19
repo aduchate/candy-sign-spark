@@ -7,7 +7,7 @@ import { ArrowLeft, Volume2, CheckCircle2, XCircle, Loader2 } from "lucide-react
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
-import { getTranslatedLessons } from "@/data/translatedLessons";
+import { lessons } from "@/data/lessons";
 
 const Lesson = () => {
   const { id } = useParams();
@@ -38,7 +38,6 @@ const Lesson = () => {
     );
   }
 
-  const lessons = getTranslatedLessons();
   const lessonData = lessons[id || "1"];
 
   // Redirect if lesson doesn't exist

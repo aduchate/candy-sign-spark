@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
-import { getTranslatedLessons } from "@/data/translatedLessons";
+import { lessons as lessonsData } from "@/data/lessons";
 
 interface LessonProgress {
   id: number;
@@ -56,14 +56,13 @@ const Dashboard = () => {
       .select('*')
       .eq('user_id', userId);
 
-    const translatedLessons = getTranslatedLessons();
     const allLessons = [
-      { id: 1, title: translatedLessons["1"].title, progress: 0, locked: false, completed: false },
-      { id: 2, title: translatedLessons["2"].title, progress: 0, locked: false, completed: false },
-      { id: 3, title: translatedLessons["3"].title, progress: 0, locked: false, completed: false },
-      { id: 4, title: translatedLessons["4"].title, progress: 0, locked: false, completed: false },
-      { id: 5, title: t('lessons.foodDrinks.title', 'Food & Drinks'), progress: 0, locked: true, completed: false },
-      { id: 6, title: t('lessons.emotions.title', 'Emotions'), progress: 0, locked: true, completed: false },
+      { id: 1, title: lessonsData["1"].title, progress: 0, locked: false, completed: false },
+      { id: 2, title: lessonsData["2"].title, progress: 0, locked: false, completed: false },
+      { id: 3, title: lessonsData["3"].title, progress: 0, locked: false, completed: false },
+      { id: 4, title: lessonsData["4"].title, progress: 0, locked: false, completed: false },
+      { id: 5, title: "Nourriture & Boissons", progress: 0, locked: true, completed: false },
+      { id: 6, title: "Émotions", progress: 0, locked: true, completed: false },
     ];
 
     const lessonsWithProgress = allLessons.map(lesson => {
