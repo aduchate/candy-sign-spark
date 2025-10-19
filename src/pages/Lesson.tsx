@@ -37,6 +37,12 @@ const Lesson = () => {
 
   const lessonData = lessons[id || "1"];
 
+  // Redirect if lesson doesn't exist
+  if (!lessonData) {
+    navigate("/");
+    return null;
+  }
+
   const progress = ((currentQuestion + 1) / lessonData.questions.length) * 100;
   const question = lessonData.questions[currentQuestion];
 
