@@ -1,0 +1,121 @@
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Sparkles, Trophy, Target, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const Dashboard = () => {
+  const lessons = [
+    { id: 1, title: "Basic Greetings", progress: 100, locked: false },
+    { id: 2, title: "Family Signs", progress: 60, locked: false },
+    { id: 3, title: "Colors & Numbers", progress: 30, locked: false },
+    { id: 4, title: "Daily Activities", progress: 0, locked: false },
+    { id: 5, title: "Food & Drinks", progress: 0, locked: true },
+    { id: 6, title: "Emotions", progress: 0, locked: true },
+  ];
+
+  return (
+    <div className="min-h-screen">
+      <header className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-8 h-8 text-primary" />
+            <h1 className="text-2xl font-bold gradient-candy bg-clip-text text-transparent">
+              SignLearn
+            </h1>
+          </div>
+          <Link to="/stats">
+            <Button variant="outline" size="sm" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Stats
+            </Button>
+          </Link>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <Card className="p-6 shadow-candy mb-8 border-2">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-bold mb-1">Welcome back, Learner! 👋</h2>
+              <p className="text-muted-foreground">Keep up your streak!</p>
+            </div>
+            <div className="flex gap-4">
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center mb-1">
+                  <Trophy className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">7 day streak</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center mb-1">
+                  <Target className="w-6 h-6 text-accent-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">420 XP</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <h3 className="text-2xl font-bold mb-6">Your Learning Path</h3>
+
+        <div className="space-y-4">
+          {lessons.map((lesson, index) => (
+            <Card
+              key={lesson.id}
+              className={`p-6 transition-all duration-300 hover:scale-[1.02] border-2 ${
+                lesson.locked
+                  ? "opacity-60 cursor-not-allowed"
+                  : "shadow-candy hover:shadow-glow cursor-pointer"
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold ${
+                    lesson.locked
+                      ? "bg-muted text-muted-foreground"
+                      : lesson.progress === 100
+                      ? "gradient-success text-success-foreground"
+                      : lesson.progress > 0
+                      ? "gradient-accent text-accent-foreground"
+                      : "gradient-candy text-primary-foreground"
+                  }`}
+                >
+                  {lesson.locked ? "🔒" : lesson.progress === 100 ? "✓" : index + 1}
+                </div>
+
+                <div className="flex-1">
+                  <h4 className="text-lg font-semibold mb-2">{lesson.title}</h4>
+                  <div className="flex items-center gap-3">
+                    <Progress value={lesson.progress} className="flex-1" />
+                    <span className="text-sm text-muted-foreground min-w-[3rem]">
+                      {lesson.progress}%
+                    </span>
+                  </div>
+                </div>
+
+                {!lesson.locked && (
+                  <Link to={`/lesson/${lesson.id}`}>
+                    <Button
+                      className={`${
+                        lesson.progress === 100
+                          ? "gradient-success"
+                          : lesson.progress > 0
+                          ? "gradient-accent"
+                          : "gradient-candy"
+                      }`}
+                    >
+                      {lesson.progress === 100 ? "Review" : lesson.progress > 0 ? "Continue" : "Start"}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Dashboard;
