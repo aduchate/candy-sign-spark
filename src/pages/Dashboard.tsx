@@ -13,6 +13,7 @@ interface LessonProgress {
   title: string;
   progress: number;
   locked: boolean;
+  completed: boolean;
 }
 
 const Dashboard = () => {
@@ -53,19 +54,19 @@ const Dashboard = () => {
       .eq('user_id', userId);
 
     const allLessons = [
-      { id: 1, title: "Basic Greetings", progress: 0, locked: false },
-      { id: 2, title: "Family Signs", progress: 0, locked: false },
-      { id: 3, title: "Colors & Numbers", progress: 0, locked: false },
-      { id: 4, title: "Daily Activities", progress: 0, locked: false },
-      { id: 5, title: "Food & Drinks", progress: 0, locked: true },
-      { id: 6, title: "Emotions", progress: 0, locked: true },
+      { id: 1, title: "Basic Greetings", progress: 0, locked: false, completed: false },
+      { id: 2, title: "Family Signs", progress: 0, locked: false, completed: false },
+      { id: 3, title: "Colors & Numbers", progress: 0, locked: false, completed: false },
+      { id: 4, title: "Daily Activities", progress: 0, locked: false, completed: false },
+      { id: 5, title: "Food & Drinks", progress: 0, locked: true, completed: false },
+      { id: 6, title: "Emotions", progress: 0, locked: true, completed: false },
     ];
 
     const lessonsWithProgress = allLessons.map(lesson => {
       const userProgress = progressData?.find(p => p.lesson_id === lesson.id.toString());
       if (userProgress) {
         const progress = Math.round((userProgress.score / userProgress.total_questions) * 100);
-        return { ...lesson, progress };
+        return { ...lesson, progress, completed: userProgress.completed || progress === 100 };
       }
       return lesson;
     });
@@ -157,14 +158,14 @@ const Dashboard = () => {
                   className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold ${
                     lesson.locked
                       ? "bg-muted text-muted-foreground"
-                      : lesson.progress === 100
+                      : lesson.completed
                       ? "gradient-success text-success-foreground"
                       : lesson.progress > 0
                       ? "gradient-accent text-accent-foreground"
                       : "gradient-candy text-primary-foreground"
                   }`}
                 >
-                  {lesson.locked ? "🔒" : lesson.progress === 100 ? "✓" : index + 1}
+                  {lesson.locked ? "🔒" : lesson.completed ? "✓" : index + 1}
                 </div>
 
                 <div className="flex-1">
@@ -181,14 +182,14 @@ const Dashboard = () => {
                   <Link to={`/lesson/${lesson.id}`}>
                     <Button
                       className={`${
-                        lesson.progress === 100
+                        lesson.completed
                           ? "gradient-success"
                           : lesson.progress > 0
                           ? "gradient-accent"
                           : "gradient-candy"
                       }`}
                     >
-                      {lesson.progress === 100 ? "Review" : lesson.progress > 0 ? "Continue" : "Start"}
+                      {lesson.completed ? "Review" : lesson.progress > 0 ? "Continue" : "Start"}
                     </Button>
                   </Link>
                 )}
