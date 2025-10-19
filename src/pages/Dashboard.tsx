@@ -7,6 +7,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "@/components/LanguageSelector";
+import { getTranslatedLessons } from "@/data/translatedLessons";
 
 interface LessonProgress {
   id: number;
@@ -18,6 +21,7 @@ interface LessonProgress {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
@@ -53,13 +57,14 @@ const Dashboard = () => {
       .select('*')
       .eq('user_id', userId);
 
+    const translatedLessons = getTranslatedLessons();
     const allLessons = [
-      { id: 1, title: "Basic Greetings", progress: 0, locked: false, completed: false },
-      { id: 2, title: "Family Signs", progress: 0, locked: false, completed: false },
-      { id: 3, title: "Colors & Numbers", progress: 0, locked: false, completed: false },
-      { id: 4, title: "Daily Activities", progress: 0, locked: false, completed: false },
-      { id: 5, title: "Food & Drinks", progress: 0, locked: true, completed: false },
-      { id: 6, title: "Emotions", progress: 0, locked: true, completed: false },
+      { id: 1, title: translatedLessons["1"].title, progress: 0, locked: false, completed: false },
+      { id: 2, title: translatedLessons["2"].title, progress: 0, locked: false, completed: false },
+      { id: 3, title: translatedLessons["3"].title, progress: 0, locked: false, completed: false },
+      { id: 4, title: translatedLessons["4"].title, progress: 0, locked: false, completed: false },
+      { id: 5, title: t('lessons.foodDrinks.title', 'Food & Drinks'), progress: 0, locked: true, completed: false },
+      { id: 6, title: t('lessons.emotions.title', 'Emotions'), progress: 0, locked: true, completed: false },
     ];
 
     const lessonsWithProgress = allLessons.map(lesson => {
@@ -79,7 +84,7 @@ const Dashboard = () => {
     if (error) {
       toast.error("Error signing out");
     } else {
-      toast.success("Signed out successfully");
+      toast.success(t('dashboard.signedOut'));
       navigate("/auth");
     }
   };
@@ -99,19 +104,20 @@ const Dashboard = () => {
           <div className="flex items-center gap-2">
             <Sparkles className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold gradient-candy bg-clip-text text-transparent">
-              SignLearn
+              {t('app.name')}
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
-                Stats
+                {t('common.stats')}
               </Button>
             </Link>
             <Button variant="outline" size="sm" className="gap-2" onClick={handleLogout}>
               <LogOut className="w-4 h-4" />
-              Logout
+              {t('common.logout')}
             </Button>
           </div>
         </div>
@@ -121,15 +127,15 @@ const Dashboard = () => {
         <Card className="p-6 shadow-candy mb-8 border-2">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-bold mb-1">Welcome back, {user?.email?.split('@')[0]}! 👋</h2>
-              <p className="text-muted-foreground">Keep up your streak!</p>
+              <h2 className="text-xl font-bold mb-1">{t('dashboard.welcome', { name: user?.email?.split('@')[0] })}</h2>
+              <p className="text-muted-foreground">{t('dashboard.keepStreak')}</p>
             </div>
             <div className="flex gap-4">
               <div className="text-center">
                 <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center mb-1">
                   <Trophy className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <p className="text-xs text-muted-foreground">7 day streak</p>
+                <p className="text-xs text-muted-foreground">7 {t('dashboard.dayStreak')}</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center mb-1">
@@ -141,7 +147,7 @@ const Dashboard = () => {
           </div>
         </Card>
 
-        <h3 className="text-2xl font-bold mb-6">Your Learning Path</h3>
+        <h3 className="text-2xl font-bold mb-6">{t('dashboard.learningPath')}</h3>
 
         <div className="space-y-4">
           {lessons.map((lesson, index) => (
@@ -165,7 +171,7 @@ const Dashboard = () => {
                       : "gradient-candy text-primary-foreground"
                   }`}
                 >
-                  {lesson.locked ? "🔒" : lesson.completed ? "✓" : index + 1}
+                  {lesson.locked ? t('dashboard.locked') : lesson.completed ? "✓" : index + 1}
                 </div>
 
                 <div className="flex-1">
@@ -189,7 +195,7 @@ const Dashboard = () => {
                           : "gradient-candy"
                       }`}
                     >
-                      {lesson.completed ? "Review" : lesson.progress > 0 ? "Continue" : "Start"}
+                      {lesson.completed ? t('dashboard.review') : lesson.progress > 0 ? t('dashboard.continue') : t('dashboard.start')}
                     </Button>
                   </Link>
                 )}

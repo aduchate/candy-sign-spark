@@ -5,12 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Volume2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { lessons } from "@/data/lessons";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
+import { getTranslatedLessons } from "@/data/translatedLessons";
 
 const Lesson = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -36,6 +38,7 @@ const Lesson = () => {
     );
   }
 
+  const lessons = getTranslatedLessons();
   const lessonData = lessons[id || "1"];
 
   // Redirect if lesson doesn't exist
@@ -55,9 +58,9 @@ const Lesson = () => {
     
     if (index === question.correct) {
       setScore(score + 1);
-      toast.success("Correct! Well done! 🎉");
+      toast.success(t('lesson.correct'));
     } else {
-      toast.error("Not quite! Try again next time.");
+      toast.error(t('lesson.incorrect'));
     }
   };
 
@@ -69,7 +72,7 @@ const Lesson = () => {
       setShowVideo(false);
     } else {
       const finalScore = score;
-      toast.success(`Lesson complete! Score: ${finalScore}/${lessonData.questions.length} 🎊`);
+      toast.success(t('lesson.lessonComplete', { score: finalScore, total: lessonData.questions.length }));
       
       // Save progress to database
       const { data: { user } } = await supabase.auth.getUser();
@@ -126,13 +129,13 @@ const Lesson = () => {
             className="gap-2 mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
+            {t('common.back')}
           </Button>
           
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-2xl font-bold">{lessonData.title}</h1>
             <span className="text-sm text-muted-foreground">
-              {currentQuestion + 1} / {lessonData.questions.length}
+              {t('lesson.question', { current: currentQuestion + 1, total: lessonData.questions.length })}
             </span>
           </div>
           
@@ -156,7 +159,7 @@ const Lesson = () => {
                   Your browser does not support the video tag.
                 </video>
                 <p className="text-sm text-muted-foreground mt-4">
-                  This is how to sign it correctly
+                  {t('lesson.videoHelp')}
                 </p>
               </div>
             )}
@@ -169,7 +172,7 @@ const Lesson = () => {
                 onClick={() => setShowVideo(true)}
               >
                 <Volume2 className="w-4 h-4" />
-                Display Video
+                {t('lesson.displayVideo')}
               </Button>
             )}
           </div>
@@ -210,7 +213,7 @@ const Lesson = () => {
               className="w-full mt-6 gradient-candy"
               size="lg"
             >
-              {currentQuestion < lessonData.questions.length - 1 ? "Next Question" : "Complete Lesson"}
+              {currentQuestion < lessonData.questions.length - 1 ? t('lesson.nextQuestion') : t('lesson.completeLesson')}
             </Button>
           )}
         </Card>

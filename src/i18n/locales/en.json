@@ -1,0 +1,135 @@
+{
+  "app": {
+    "name": "SignLearn"
+  },
+  "common": {
+    "back": "Back to Dashboard",
+    "logout": "Logout",
+    "stats": "Stats",
+    "loading": "Loading..."
+  },
+  "auth": {
+    "welcomeBack": "Welcome back!",
+    "startJourney": "Start your LSFB journey",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "noAccount": "Don't have an account? ",
+    "haveAccount": "Already have an account? ",
+    "pleaseWait": "Please wait...",
+    "invalidCredentials": "Invalid email or password",
+    "emailRegistered": "This email is already registered. Please login instead.",
+    "accountCreated": "Account created! Welcome to SignLearn! 🎉",
+    "welcomeBackMessage": "Welcome back! 🎉"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}! 👋",
+    "keepStreak": "Keep up your streak!",
+    "dayStreak": "day streak",
+    "learningPath": "Your Learning Path",
+    "start": "Start",
+    "continue": "Continue",
+    "review": "Review",
+    "locked": "🔒",
+    "signedOut": "Signed out successfully"
+  },
+  "lesson": {
+    "question": "{{current}} / {{total}}",
+    "displayVideo": "Display Video",
+    "videoHelp": "This is how to sign it correctly",
+    "nextQuestion": "Next Question",
+    "completeLesson": "Complete Lesson",
+    "correct": "Correct! Well done! 🎉",
+    "incorrect": "Not quite! Try again next time.",
+    "lessonComplete": "Lesson complete! Score: {{score}}/{{total}} 🎊"
+  },
+  "stats": {
+    "title": "Your Progress",
+    "totalXP": "Total XP",
+    "dayStreak": "Day Streak",
+    "accuracy": "Accuracy",
+    "weeklyActivity": "Weekly Activity",
+    "achievements": "Achievements",
+    "personalBests": "Personal Bests",
+    "longestStreak": "Longest Streak",
+    "lessonsCompleted": "Lessons Completed",
+    "bestAccuracy": "Best Accuracy",
+    "days": "days",
+    "badges": {
+      "firstLesson": "First Lesson",
+      "weekWarrior": "Week Warrior",
+      "quickLearner": "Quick Learner",
+      "perfectScore": "Perfect Score",
+      "monthMaster": "Month Master",
+      "signExpert": "Sign Expert"
+    }
+  },
+  "lessons": {
+    "basicGreetings": {
+      "title": "Basic Greetings",
+      "q1": {
+        "question": "What is the sign for 'Hello'?",
+        "options": ["Wave hand", "Thumbs up", "Clap hands", "Point up"]
+      },
+      "q2": {
+        "question": "How do you sign 'Thank you'?",
+        "options": ["Wave", "Bow", "Touch chin then forward", "Clap"]
+      },
+      "q3": {
+        "question": "What does this sign mean?",
+        "options": ["Good", "Yes", "Okay", "All of the above"]
+      }
+    },
+    "familySigns": {
+      "title": "Family Signs",
+      "q1": {
+        "question": "What is the sign for 'Mother'?",
+        "options": ["Point to head", "Touch chin", "Wave hand", "Touch chest"]
+      },
+      "q2": {
+        "question": "How do you sign 'Father'?",
+        "options": ["Touch forehead", "Touch nose", "Wave hand", "Point up"]
+      },
+      "q3": {
+        "question": "What does this sign mean?",
+        "options": ["Child", "Baby", "Small", "Young"]
+      }
+    },
+    "colorsNumbers": {
+      "title": "Colors & Numbers",
+      "q1": {
+        "question": "What is the sign for 'Red'?",
+        "options": ["Touch lips", "Point to sky", "Touch nose", "Wave hand"]
+      },
+      "q2": {
+        "question": "How do you sign the number '5'?",
+        "options": ["Open hand", "Closed fist", "Two fingers", "Three fingers"]
+      },
+      "q3": {
+        "question": "What color is this sign for?",
+        "options": ["Green", "Blue", "Yellow", "Purple"]
+      }
+    },
+    "dailyActivities": {
+      "title": "Daily Activities",
+      "q1": {
+        "question": "What is the sign for 'Eat'?",
+        "options": ["Hand to mouth", "Rub stomach", "Point to plate", "Open mouth"]
+      },
+      "q2": {
+        "question": "How do you sign 'Sleep'?",
+        "options": ["Hands together near face", "Close eyes", "Lay down motion", "Yawn"]
+      },
+      "q3": {
+        "question": "What does this sign mean?",
+        "options": ["Walk", "Run", "Jump", "Dance"]
+      }
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "message": "Oops! Page not found",
+    "returnHome": "Return to Home"
+  }
+}

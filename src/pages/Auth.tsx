@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "@/components/LanguageSelector";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
@@ -16,6 +18,7 @@ const authSchema = z.object({
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -55,14 +58,14 @@ const Auth = () => {
 
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Invalid email or password");
+            toast.error(t('auth.invalidCredentials'));
           } else {
             toast.error(error.message);
           }
           return;
         }
 
-        toast.success("Welcome back! 🎉");
+        toast.success(t('auth.welcomeBackMessage'));
       } else {
         const redirectUrl = `${window.location.origin}/`;
         
@@ -76,14 +79,14 @@ const Auth = () => {
 
         if (error) {
           if (error.message.includes("already registered")) {
-            toast.error("This email is already registered. Please login instead.");
+            toast.error(t('auth.emailRegistered'));
           } else {
             toast.error(error.message);
           }
           return;
         }
 
-        toast.success("Account created! Welcome to SignLearn! 🎉");
+        toast.success(t('auth.accountCreated'));
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -99,16 +102,19 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-bg">
       <Card className="w-full max-w-md p-8 shadow-candy border-2">
+        <div className="absolute top-4 right-4">
+          <LanguageSelector />
+        </div>
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 gradient-text">SignLearn</h1>
+          <h1 className="text-4xl font-bold mb-2 gradient-text">{t('app.name')}</h1>
           <p className="text-muted-foreground">
-            {isLogin ? "Welcome back!" : "Start your LSFB journey"}
+            {isLogin ? t('auth.welcomeBack') : t('auth.startJourney')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('auth.email')}</Label>
             <Input
               id="email"
               type="email"
@@ -121,7 +127,7 @@ const Auth = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('auth.password')}</Label>
             <Input
               id="password"
               type="password"
@@ -143,10 +149,10 @@ const Auth = () => {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait...
+                {t('auth.pleaseWait')}
               </>
             ) : (
-              <>{isLogin ? "Sign In" : "Sign Up"}</>
+              <>{isLogin ? t('auth.signIn') : t('auth.signUp')}</>
             )}
           </Button>
         </form>
@@ -157,9 +163,9 @@ const Auth = () => {
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             disabled={loading}
           >
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
+            {isLogin ? t('auth.noAccount') : t('auth.haveAccount')}
             <span className="text-primary font-semibold">
-              {isLogin ? "Sign Up" : "Sign In"}
+              {isLogin ? t('auth.signUp') : t('auth.signIn')}
             </span>
           </button>
         </div>
