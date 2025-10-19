@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Volume2, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,6 @@ const Lesson = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
   const [score, setScore] = useState(0);
 
   useEffect(() => {
@@ -68,7 +67,6 @@ const Lesson = () => {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setShowResult(false);
-      setShowVideo(false);
     } else {
       const finalScore = score;
       toast.success(t('lesson.lessonComplete', { score: finalScore, total: lessonData.questions.length }));
@@ -145,35 +143,6 @@ const Lesson = () => {
           <div className="text-center mb-8">
             <div className="text-8xl mb-6 animate-bounce-slow">{question.image}</div>
             <h2 className="text-2xl font-bold mb-4">{question.question}</h2>
-            
-            {showVideo && (
-              <div className="mb-6">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  className="w-full max-w-md mx-auto rounded-lg shadow-candy border-2 border-primary/20"
-                  src={question.videoUrl}
-                >
-                  Your browser does not support the video tag.
-                </video>
-                <p className="text-sm text-muted-foreground mt-4">
-                  {t('lesson.videoHelp')}
-                </p>
-              </div>
-            )}
-            
-            {!showVideo && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="gap-2"
-                onClick={() => setShowVideo(true)}
-              >
-                <Volume2 className="w-4 h-4" />
-                {t('lesson.displayVideo')}
-              </Button>
-            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
