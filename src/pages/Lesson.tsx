@@ -68,7 +68,7 @@ const Lesson = () => {
       setShowResult(false);
       setShowVideo(false);
     } else {
-      const finalScore = score + 1;
+      const finalScore = score;
       toast.success(`Lesson complete! Score: ${finalScore}/${lessonData.questions.length} 🎊`);
       
       // Save progress to database
