@@ -1,10 +1,59 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, Trophy, Target, BarChart3 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Sparkles, Trophy, Target, BarChart3, LogOut, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import type { User } from "@supabase/supabase-js";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check authentication
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error signing out");
+    } else {
+      toast.success("Signed out successfully");
+      navigate("/auth");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   const lessons = [
     { id: 1, title: "Basic Greetings", progress: 100, locked: false },
     { id: 2, title: "Family Signs", progress: 60, locked: false },
@@ -24,12 +73,18 @@ const Dashboard = () => {
               SignLearn
             </h1>
           </div>
-          <Link to="/stats">
-            <Button variant="outline" size="sm" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Stats
+          <div className="flex items-center gap-2">
+            <Link to="/stats">
+              <Button variant="outline" size="sm" className="gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Stats
+              </Button>
+            </Link>
+            <Button variant="outline" size="sm" className="gap-2" onClick={handleLogout}>
+              <LogOut className="w-4 h-4" />
+              Logout
             </Button>
-          </Link>
+          </div>
         </div>
       </header>
 
@@ -37,7 +92,7 @@ const Dashboard = () => {
         <Card className="p-6 shadow-candy mb-8 border-2">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-bold mb-1">Welcome back, Learner! 👋</h2>
+              <h2 className="text-xl font-bold mb-1">Welcome back, {user?.email?.split('@')[0]}! 👋</h2>
               <p className="text-muted-foreground">Keep up your streak!</p>
             </div>
             <div className="flex gap-4">
