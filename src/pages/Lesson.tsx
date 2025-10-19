@@ -15,6 +15,7 @@ const Lesson = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
   const [score, setScore] = useState(0);
 
   useEffect(() => {
@@ -65,6 +66,7 @@ const Lesson = () => {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setShowResult(false);
+      setShowVideo(false);
     } else {
       toast.success(`Lesson complete! Score: ${score + 1}/${lessonData.questions.length} 🎊`);
       setTimeout(() => navigate("/"), 2000);
@@ -96,18 +98,11 @@ const Lesson = () => {
 
         <Card className="p-8 shadow-candy border-2">
           <div className="text-center mb-8">
-            {!showResult ? (
-              <>
-                <div className="text-8xl mb-6 animate-bounce-slow">{question.image}</div>
-                <h2 className="text-2xl font-bold mb-2">{question.question}</h2>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Volume2 className="w-4 h-4" />
-                  Play Audio
-                </Button>
-              </>
-            ) : (
+            <div className="text-8xl mb-6 animate-bounce-slow">{question.image}</div>
+            <h2 className="text-2xl font-bold mb-4">{question.question}</h2>
+            
+            {showVideo && (
               <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-4">{question.question}</h2>
                 <video
                   autoPlay
                   loop
@@ -121,6 +116,18 @@ const Lesson = () => {
                   This is how to sign it correctly
                 </p>
               </div>
+            )}
+            
+            {!showVideo && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2"
+                onClick={() => setShowVideo(true)}
+              >
+                <Volume2 className="w-4 h-4" />
+                Display Video
+              </Button>
             )}
           </div>
 
