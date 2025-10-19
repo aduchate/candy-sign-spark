@@ -61,14 +61,57 @@ const Lesson = () => {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestion < lessonData.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setShowResult(false);
       setShowVideo(false);
     } else {
-      toast.success(`Lesson complete! Score: ${score + 1}/${lessonData.questions.length} 🎊`);
+      const finalScore = score + 1;
+      toast.success(`Lesson complete! Score: ${finalScore}/${lessonData.questions.length} 🎊`);
+      
+      // Save progress to database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const progressPercentage = Math.round((finalScore / lessonData.questions.length) * 100);
+        
+        // Check if progress exists for this lesson
+        const { data: existingProgress } = await supabase
+          .from('user_progress')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('lesson_id', id)
+          .maybeSingle();
+
+        if (existingProgress) {
+          // Update existing progress only if new score is better
+          if (finalScore > existingProgress.score) {
+            await supabase
+              .from('user_progress')
+              .update({
+                score: finalScore,
+                total_questions: lessonData.questions.length,
+                completed: progressPercentage === 100,
+                completed_at: progressPercentage === 100 ? new Date().toISOString() : existingProgress.completed_at
+              })
+              .eq('id', existingProgress.id);
+          }
+        } else {
+          // Insert new progress
+          await supabase
+            .from('user_progress')
+            .insert({
+              user_id: user.id,
+              lesson_id: id || "1",
+              score: finalScore,
+              total_questions: lessonData.questions.length,
+              completed: progressPercentage === 100,
+              completed_at: progressPercentage === 100 ? new Date().toISOString() : null
+            });
+        }
+      }
+      
       setTimeout(() => navigate("/"), 2000);
     }
   };

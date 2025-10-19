@@ -8,10 +8,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 
+interface LessonProgress {
+  id: number;
+  title: string;
+  progress: number;
+  locked: boolean;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lessons, setLessons] = useState<LessonProgress[]>([]);
 
   useEffect(() => {
     // Check authentication
@@ -20,6 +28,7 @@ const Dashboard = () => {
         navigate("/auth");
       } else {
         setUser(session.user);
+        fetchUserProgress(session.user.id);
       }
       setLoading(false);
     });
@@ -30,11 +39,39 @@ const Dashboard = () => {
         navigate("/auth");
       } else {
         setUser(session.user);
+        fetchUserProgress(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const fetchUserProgress = async (userId: string) => {
+    const { data: progressData } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId);
+
+    const allLessons = [
+      { id: 1, title: "Basic Greetings", progress: 0, locked: false },
+      { id: 2, title: "Family Signs", progress: 0, locked: false },
+      { id: 3, title: "Colors & Numbers", progress: 0, locked: false },
+      { id: 4, title: "Daily Activities", progress: 0, locked: false },
+      { id: 5, title: "Food & Drinks", progress: 0, locked: true },
+      { id: 6, title: "Emotions", progress: 0, locked: true },
+    ];
+
+    const lessonsWithProgress = allLessons.map(lesson => {
+      const userProgress = progressData?.find(p => p.lesson_id === lesson.id.toString());
+      if (userProgress) {
+        const progress = Math.round((userProgress.score / userProgress.total_questions) * 100);
+        return { ...lesson, progress };
+      }
+      return lesson;
+    });
+
+    setLessons(lessonsWithProgress);
+  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -53,15 +90,6 @@ const Dashboard = () => {
       </div>
     );
   }
-
-  const lessons = [
-    { id: 1, title: "Basic Greetings", progress: 100, locked: false },
-    { id: 2, title: "Family Signs", progress: 60, locked: false },
-    { id: 3, title: "Colors & Numbers", progress: 30, locked: false },
-    { id: 4, title: "Daily Activities", progress: 0, locked: false },
-    { id: 5, title: "Food & Drinks", progress: 0, locked: true },
-    { id: 6, title: "Emotions", progress: 0, locked: true },
-  ];
 
   return (
     <div className="min-h-screen">
