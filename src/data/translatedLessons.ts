@@ -1,4 +1,4 @@
-import i18n from '@/i18n/config';
+import i18n from 'i18next';
 
 export interface Question {
   question: string;
