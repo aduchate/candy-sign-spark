@@ -44,7 +44,7 @@ export const lessons: Record<string, LessonData> = {
       },
       {
         question: "Quel est le signe pour 'S'il vous plaît' ?",
-        image: "🤲",
+        image: "",
         options: ["Main sur le cœur", "Main plate sur la poitrine qui fait un cercle", "Joindre les mains", "Tendre la main vers l'avant"],
         optionVideos: [
           "https://storage.coverr.co/videos/coverr-woman-with-her-hands-on-her-chest-in-gratitude-3616/preview?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Ijg3NjdFMzIzRjlGQzEzN0E4QTAyIiwiaWF0IjoxNjMxNjI5MjUyfQ.P8VLfCH9pZ3bg0hTJRvZ9c0LN6H8RM_OYGp0ByOmNqY",
@@ -184,7 +184,7 @@ export const lessons: Record<string, LessonData> = {
           "https://storage.coverr.co/videos/coverr-man-pointing-up-with-his-finger-4273/preview?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Ijg3NjdFMzIzRjlGQzEzN0E4QTAyIiwiaWF0IjoxNjg2OTY1ODQzfQ.d8R5EGtEfwE2JxXSEoLPJaTYJqhN4LJkRwGhCBnRqOQ",
           "https://storage.coverr.co/videos/coverr-woman-with-her-hands-on-her-chest-in-gratitude-3616/preview?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Ijg3NjdFMzIzRjlGQzEzN0E4QTAyIiwiaWF0IjoxNjMxNjI5MjUyfQ.P8VLfCH9pZ3bg0hTJRvZ9c0LN6H8RM_OYGp0ByOmNqY"
         ],
-        correct: 0,
+        correct: 1,
         videoUrl: "https://storage.coverr.co/videos/coverr-person-showing-thumbs-up-3847/preview?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6Ijg3NjdFMzIzRjlGQzEzN0E4QTAyIiwiaWF0IjoxNjMxNjI5MjUyfQ.P8VLfCH9pZ3bg0hTJRvZ9c0LN6H8RM_OYGp0ByOmNqY",
       },
     ],
