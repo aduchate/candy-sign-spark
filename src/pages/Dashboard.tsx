@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
 import { lessons as lessonsData } from "@/data/lessons";
+import ReactMarkdown from "react-markdown";
 
 interface LessonProgress {
   id: number;
@@ -341,8 +342,10 @@ const Dashboard = () => {
                   </Button>
                   {translation && (
                     <div className="mt-6 p-4 bg-muted rounded-md">
-                      <h4 className="font-semibold mb-2">Description des signes LSFB :</h4>
-                      <p className="text-sm whitespace-pre-wrap">{translation}</p>
+                      <h4 className="font-semibold mb-4">Description des signes LSFB :</h4>
+                      <div className="prose prose-sm max-w-none dark:prose-invert">
+                        <ReactMarkdown>{translation}</ReactMarkdown>
+                      </div>
                     </div>
                   )}
                   {!translation && !isTranslating && (
