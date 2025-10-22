@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction">("apprentissage");
 
   useEffect(() => {
     // Check authentication
@@ -96,109 +97,209 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold gradient-candy bg-clip-text text-transparent">
-              {t('app.name')}
-            </h1>
+    <div className="min-h-screen flex bg-background">
+      {/* Menu latéral */}
+      <aside className="w-80 bg-card border-r border-border flex flex-col">
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-6 h-6 text-primary" />
+            <h1 className="text-xl font-bold">Bienvenue {user?.email?.split('@')[0]}</h1>
           </div>
-          <div className="flex items-center gap-2">
+        </div>
+        
+        <nav className="flex-1 p-4">
+          <h2 className="text-2xl font-bold mb-6 px-2">MENU</h2>
+          <div className="space-y-3">
+            <Button
+              onClick={() => setActiveSection("apprentissage")}
+              variant={activeSection === "apprentissage" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Apprentissage
+            </Button>
+            <Button
+              onClick={() => setActiveSection("quizz")}
+              variant={activeSection === "quizz" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Quizz
+            </Button>
+            <Button
+              onClick={() => setActiveSection("traduction")}
+              variant={activeSection === "traduction" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Traduction
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="w-full justify-start text-lg h-14"
+            >
+              <LogOut className="w-5 h-5 mr-2" />
+              Quitter
+            </Button>
+          </div>
+        </nav>
+
+        <div className="p-4 border-t border-border">
+          <p className="text-sm text-muted-foreground text-center">
+            App Langue des Signes
+          </p>
+        </div>
+      </aside>
+
+      {/* Contenu principal */}
+      <main className="flex-1 overflow-auto">
+        <header className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-0 z-10">
+          <div className="px-8 py-4 flex items-center justify-between">
+            <h2 className="text-2xl font-bold">
+              {activeSection === "apprentissage" && "Section Apprentissage"}
+              {activeSection === "quizz" && "Section Quizz"}
+              {activeSection === "traduction" && "Section Traduction"}
+            </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
                 {t('common.stats')}
               </Button>
             </Link>
-            <Button variant="outline" size="sm" className="gap-2" onClick={handleLogout}>
-              <LogOut className="w-4 h-4" />
-              {t('common.logout')}
-            </Button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card className="p-6 shadow-candy mb-8 border-2">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-bold mb-1">{t('dashboard.welcome', { name: user?.email?.split('@')[0] })}</h2>
-              <p className="text-muted-foreground">{t('dashboard.keepStreak')}</p>
-            </div>
-            <div className="flex gap-4">
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center mb-1">
-                  <Trophy className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">7 {t('dashboard.dayStreak')}</p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center mb-1">
-                  <Target className="w-6 h-6 text-accent-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">420 XP</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <h3 className="text-2xl font-bold mb-6">{t('dashboard.learningPath')}</h3>
-
-        <div className="space-y-4">
-          {lessons.map((lesson, index) => (
-            <Card
-              key={lesson.id}
-              className={`p-6 transition-all duration-300 hover:scale-[1.02] border-2 ${
-                lesson.locked
-                  ? "opacity-60 cursor-not-allowed"
-                  : "shadow-candy hover:shadow-glow cursor-pointer"
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold ${
-                    lesson.locked
-                      ? "bg-muted text-muted-foreground"
-                      : lesson.completed
-                      ? "gradient-success text-success-foreground"
-                      : lesson.progress > 0
-                      ? "gradient-accent text-accent-foreground"
-                      : "gradient-candy text-primary-foreground"
-                  }`}
-                >
-                  {lesson.locked ? t('dashboard.locked') : lesson.completed ? "✓" : index + 1}
-                </div>
-
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold mb-2">{lesson.title}</h4>
-                  <div className="flex items-center gap-3">
-                    <Progress value={lesson.progress} className="flex-1" />
-                    <span className="text-sm text-muted-foreground min-w-[3rem]">
-                      {lesson.progress}%
-                    </span>
+        <div className="p-8">
+          {activeSection === "apprentissage" && (
+            <>
+              <Card className="p-6 shadow-candy mb-8 border-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">{t('dashboard.welcome', { name: user?.email?.split('@')[0] })}</h3>
+                    <p className="text-muted-foreground">{t('dashboard.keepStreak')}</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="text-center">
+                      <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center mb-1">
+                        <Trophy className="w-6 h-6 text-primary-foreground" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">7 {t('dashboard.dayStreak')}</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center mb-1">
+                        <Target className="w-6 h-6 text-accent-foreground" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">420 XP</p>
+                    </div>
                   </div>
                 </div>
+              </Card>
 
-                {!lesson.locked && (
-                  <Link to={`/lesson/${lesson.id}`}>
-                    <Button
-                      className={`${
-                        lesson.completed
-                          ? "gradient-success"
-                          : lesson.progress > 0
-                          ? "gradient-accent"
-                          : "gradient-candy"
-                      }`}
-                    >
-                      {lesson.completed ? t('dashboard.review') : lesson.progress > 0 ? t('dashboard.continue') : t('dashboard.start')}
-                    </Button>
-                  </Link>
-                )}
+              <h3 className="text-2xl font-bold mb-6">{t('dashboard.learningPath')}</h3>
+
+              <div className="space-y-4 max-w-4xl">
+                {lessons.map((lesson, index) => (
+                  <Card
+                    key={lesson.id}
+                    className={`p-6 transition-all duration-300 hover:scale-[1.02] border-2 ${
+                      lesson.locked
+                        ? "opacity-60 cursor-not-allowed"
+                        : "shadow-candy hover:shadow-glow cursor-pointer"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold ${
+                          lesson.locked
+                            ? "bg-muted text-muted-foreground"
+                            : lesson.completed
+                            ? "gradient-success text-success-foreground"
+                            : lesson.progress > 0
+                            ? "gradient-accent text-accent-foreground"
+                            : "gradient-candy text-primary-foreground"
+                        }`}
+                      >
+                        {lesson.locked ? t('dashboard.locked') : lesson.completed ? "✓" : index + 1}
+                      </div>
+
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold mb-2">{lesson.title}</h4>
+                        <div className="flex items-center gap-3">
+                          <Progress value={lesson.progress} className="flex-1" />
+                          <span className="text-sm text-muted-foreground min-w-[3rem]">
+                            {lesson.progress}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {!lesson.locked && (
+                        <Link to={`/lesson/${lesson.id}`}>
+                          <Button
+                            className={`${
+                              lesson.completed
+                                ? "gradient-success"
+                                : lesson.progress > 0
+                                ? "gradient-accent"
+                                : "gradient-candy"
+                            }`}
+                          >
+                            {lesson.completed ? t('dashboard.review') : lesson.progress > 0 ? t('dashboard.continue') : t('dashboard.start')}
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </Card>
+                ))}
               </div>
-            </Card>
-          ))}
+            </>
+          )}
+
+          {activeSection === "quizz" && (
+            <div className="max-w-4xl">
+              <Card className="p-8 text-center">
+                <h3 className="text-2xl font-bold mb-4">Section Quizz</h3>
+                <p className="text-muted-foreground mb-6">
+                  Testez vos connaissances de la langue des signes franco-belge avec nos quizz interactifs.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {lessons.filter(l => !l.locked).map((lesson) => (
+                    <Link key={lesson.id} to={`/lesson/${lesson.id}`}>
+                      <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
+                        <h4 className="font-bold mb-2">{lesson.title}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {lesson.completed ? "Refaire le quizz" : "Commencer le quizz"}
+                        </p>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {activeSection === "traduction" && (
+            <div className="max-w-4xl">
+              <Card className="p-8">
+                <h3 className="text-2xl font-bold mb-4">Section Traduction</h3>
+                <p className="text-muted-foreground mb-6">
+                  Traduisez du français vers la langue des signes franco-belge et vice versa.
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Texte à traduire</label>
+                    <textarea 
+                      className="w-full p-3 border border-border rounded-md bg-background min-h-[120px]"
+                      placeholder="Entrez votre texte ici..."
+                    />
+                  </div>
+                  <Button className="gradient-candy">Traduire</Button>
+                  <div className="mt-6 p-4 bg-muted rounded-md">
+                    <p className="text-sm text-muted-foreground">
+                      La traduction apparaîtra ici...
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
         </div>
       </main>
     </div>
