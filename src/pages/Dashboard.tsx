@@ -25,6 +25,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
   const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction">("apprentissage");
+  const [textToTranslate, setTextToTranslate] = useState("");
+  const [translation, setTranslation] = useState("");
+  const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -85,6 +88,36 @@ const Dashboard = () => {
     } else {
       toast.success(t('dashboard.signedOut'));
       navigate("/auth");
+    }
+  };
+
+  const handleTranslate = async () => {
+    if (!textToTranslate.trim()) {
+      toast.error("Veuillez entrer un texte à traduire");
+      return;
+    }
+
+    setIsTranslating(true);
+    setTranslation("");
+
+    try {
+      const { data, error } = await supabase.functions.invoke('translate-to-lsfb', {
+        body: { text: textToTranslate }
+      });
+
+      if (error) throw error;
+
+      if (data?.translation) {
+        setTranslation(data.translation);
+        toast.success("Traduction effectuée avec succès");
+      } else {
+        throw new Error("Aucune traduction reçue");
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      toast.error("Erreur lors de la traduction");
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -288,14 +321,37 @@ const Dashboard = () => {
                     <textarea 
                       className="w-full p-3 border border-border rounded-md bg-background min-h-[120px]"
                       placeholder="Entrez votre texte ici..."
+                      value={textToTranslate}
+                      onChange={(e) => setTextToTranslate(e.target.value)}
                     />
                   </div>
-                  <Button className="gradient-candy">Traduire</Button>
-                  <div className="mt-6 p-4 bg-muted rounded-md">
-                    <p className="text-sm text-muted-foreground">
-                      La traduction apparaîtra ici...
-                    </p>
-                  </div>
+                  <Button 
+                    className="gradient-candy" 
+                    onClick={handleTranslate}
+                    disabled={isTranslating || !textToTranslate.trim()}
+                  >
+                    {isTranslating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Traduction en cours...
+                      </>
+                    ) : (
+                      "Traduire"
+                    )}
+                  </Button>
+                  {translation && (
+                    <div className="mt-6 p-4 bg-muted rounded-md">
+                      <h4 className="font-semibold mb-2">Description des signes LSFB :</h4>
+                      <p className="text-sm whitespace-pre-wrap">{translation}</p>
+                    </div>
+                  )}
+                  {!translation && !isTranslating && (
+                    <div className="mt-6 p-4 bg-muted rounded-md">
+                      <p className="text-sm text-muted-foreground">
+                        La traduction apparaîtra ici...
+                      </p>
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>

@@ -1,1 +1,4 @@
 project_id = "mhingidepseiyozqyova"
+
+[functions.translate-to-lsfb]
+verify_jwt = false
