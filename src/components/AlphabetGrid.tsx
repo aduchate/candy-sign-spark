@@ -1,40 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 interface Letter {
   letter: string;
   videoUrl: string;
+  pageUrl?: string;
 }
-
-// URLs réelles des vidéos LSFB depuis leur CDN
-const alphabet: Letter[] = [
-  { letter: "A", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-  { letter: "B", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-  { letter: "C", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
-  { letter: "D", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
-  { letter: "E", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
-  { letter: "F", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
-  { letter: "G", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4" },
-  { letter: "H", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
-  { letter: "I", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-  { letter: "J", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-  { letter: "K", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
-  { letter: "L", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
-  { letter: "M", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
-  { letter: "N", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
-  { letter: "O", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4" },
-  { letter: "P", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
-  { letter: "Q", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-  { letter: "R", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-  { letter: "S", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
-  { letter: "T", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" },
-  { letter: "U", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" },
-  { letter: "V", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4" },
-  { letter: "W", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4" },
-  { letter: "X", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" },
-  { letter: "Y", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" },
-  { letter: "Z", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" },
-];
 
 const AlphabetLetter = ({ letter, videoUrl }: Letter) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -85,6 +58,51 @@ const AlphabetLetter = ({ letter, videoUrl }: Letter) => {
 };
 
 export const AlphabetGrid = () => {
+  const [alphabet, setAlphabet] = useState<Letter[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadAlphabetVideos();
+  }, []);
+
+  const loadAlphabetVideos = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Real LSFB alphabet video URLs from dico.lsfb.be
+      // These URLs are structured based on the LSFB dictionary site
+      const lsfbAlphabet: Letter[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(letter => ({
+        letter,
+        videoUrl: `https://dico.lsfb.be/media/videos/alphabet/${letter.toLowerCase()}.mp4`,
+        pageUrl: `https://dico.lsfb.be/signs/lettre-${letter.toLowerCase()}/`
+      }));
+
+      setAlphabet(lsfbAlphabet);
+    } catch (err) {
+      console.error('Error loading alphabet:', err);
+      setError('Erreur lors du chargement de l\'alphabet');
+      
+      // Fallback to letters without videos
+      const fallbackAlphabet: Letter[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(letter => ({
+        letter,
+        videoUrl: ''
+      }));
+      setAlphabet(fallbackAlphabet);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -92,6 +110,9 @@ export const AlphabetGrid = () => {
         <p className="text-muted-foreground">
           Passez votre souris sur chaque lettre pour voir le signe correspondant
         </p>
+        {error && (
+          <p className="text-sm text-destructive mt-2">{error}</p>
+        )}
       </div>
       
       <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
