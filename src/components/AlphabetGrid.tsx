@@ -9,22 +9,41 @@ interface Letter {
   pageUrl?: string;
 }
 
-const AlphabetLetter = ({ letter, videoUrl }: Letter) => {
+const AlphabetLetter = ({ letter, videoUrl, pageUrl }: Letter) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (isHovered && videoRef.current && !hasError) {
+    if (isHovered && pageUrl && !videoSrc && !loading) {
+      // Charger la vidéo depuis la page LSFB
+      setLoading(true);
+      supabase.functions
+        .invoke('fetch-lsfb-sign', {
+          body: { signUrl: pageUrl }
+        })
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Error fetching video:', error);
+          } else if (data?.videoUrl) {
+            setVideoSrc(data.videoUrl);
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [isHovered, pageUrl, videoSrc, loading]);
+
+  useEffect(() => {
+    if (isHovered && videoRef.current && videoSrc) {
       videoRef.current.play().catch(err => {
         console.log('Video play error:', err);
-        setHasError(true);
       });
     } else if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
-  }, [isHovered, hasError]);
+  }, [isHovered, videoSrc]);
 
   return (
     <Card
@@ -33,26 +52,24 @@ const AlphabetLetter = ({ letter, videoUrl }: Letter) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-        {!isHovered || hasError ? (
+        {!isHovered || !videoSrc ? (
           <span className="text-6xl font-bold gradient-text">{letter}</span>
         ) : (
           <video
             ref={videoRef}
-            src={videoUrl}
+            src={videoSrc}
             loop
             muted
             playsInline
-            crossOrigin="anonymous"
             className="w-full h-full object-cover"
-            onError={() => setHasError(true)}
           />
         )}
+        {isHovered && loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        )}
       </div>
-      {isHovered && hasError && (
-        <div className="absolute bottom-2 left-2 right-2 text-xs text-center text-muted-foreground bg-background/80 rounded px-2 py-1">
-          Vidéo de démonstration
-        </div>
-      )}
     </Card>
   );
 };
@@ -71,13 +88,35 @@ export const AlphabetGrid = () => {
       setLoading(true);
       setError(null);
 
-      // Real LSFB alphabet video URLs from dico.lsfb.be
-      // These URLs are structured based on the LSFB dictionary site
-      const lsfbAlphabet: Letter[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(letter => ({
-        letter,
-        videoUrl: `https://dico.lsfb.be/media/videos/alphabet/${letter.toLowerCase()}.mp4`,
-        pageUrl: `https://dico.lsfb.be/signs/lettre-${letter.toLowerCase()}/`
-      }));
+      // Vraies URLs LSFB pour chaque lettre de l'alphabet
+      const lsfbAlphabet: Letter[] = [
+        { letter: "A", videoUrl: "https://dico.lsfb.be/signs/a-3/", pageUrl: "https://dico.lsfb.be/signs/a-3/" },
+        { letter: "B", videoUrl: "https://dico.lsfb.be/signs/b-2/", pageUrl: "https://dico.lsfb.be/signs/b-2/" },
+        { letter: "C", videoUrl: "https://dico.lsfb.be/signs/c-2/", pageUrl: "https://dico.lsfb.be/signs/c-2/" },
+        { letter: "D", videoUrl: "https://dico.lsfb.be/signs/d-3/", pageUrl: "https://dico.lsfb.be/signs/d-3/" },
+        { letter: "E", videoUrl: "https://dico.lsfb.be/signs/e-2/", pageUrl: "https://dico.lsfb.be/signs/e-2/" },
+        { letter: "F", videoUrl: "https://dico.lsfb.be/signs/f-2/", pageUrl: "https://dico.lsfb.be/signs/f-2/" },
+        { letter: "G", videoUrl: "https://dico.lsfb.be/signs/g-2/", pageUrl: "https://dico.lsfb.be/signs/g-2/" },
+        { letter: "H", videoUrl: "https://dico.lsfb.be/signs/h-2/", pageUrl: "https://dico.lsfb.be/signs/h-2/" },
+        { letter: "I", videoUrl: "https://dico.lsfb.be/signs/i-2/", pageUrl: "https://dico.lsfb.be/signs/i-2/" },
+        { letter: "J", videoUrl: "https://dico.lsfb.be/signs/j-2/", pageUrl: "https://dico.lsfb.be/signs/j-2/" },
+        { letter: "K", videoUrl: "https://dico.lsfb.be/signs/k-2/", pageUrl: "https://dico.lsfb.be/signs/k-2/" },
+        { letter: "L", videoUrl: "https://dico.lsfb.be/signs/l-2/", pageUrl: "https://dico.lsfb.be/signs/l-2/" },
+        { letter: "M", videoUrl: "https://dico.lsfb.be/signs/m-2/", pageUrl: "https://dico.lsfb.be/signs/m-2/" },
+        { letter: "N", videoUrl: "https://dico.lsfb.be/signs/n-2/", pageUrl: "https://dico.lsfb.be/signs/n-2/" },
+        { letter: "O", videoUrl: "https://dico.lsfb.be/signs/o-2/", pageUrl: "https://dico.lsfb.be/signs/o-2/" },
+        { letter: "P", videoUrl: "https://dico.lsfb.be/signs/p-2/", pageUrl: "https://dico.lsfb.be/signs/p-2/" },
+        { letter: "Q", videoUrl: "https://dico.lsfb.be/signs/q-2/", pageUrl: "https://dico.lsfb.be/signs/q-2/" },
+        { letter: "R", videoUrl: "https://dico.lsfb.be/signs/r-2/", pageUrl: "https://dico.lsfb.be/signs/r-2/" },
+        { letter: "S", videoUrl: "https://dico.lsfb.be/signs/s-2/", pageUrl: "https://dico.lsfb.be/signs/s-2/" },
+        { letter: "T", videoUrl: "https://dico.lsfb.be/signs/t-2/", pageUrl: "https://dico.lsfb.be/signs/t-2/" },
+        { letter: "U", videoUrl: "https://dico.lsfb.be/signs/u-2/", pageUrl: "https://dico.lsfb.be/signs/u-2/" },
+        { letter: "V", videoUrl: "https://dico.lsfb.be/signs/v-2/", pageUrl: "https://dico.lsfb.be/signs/v-2/" },
+        { letter: "W", videoUrl: "https://dico.lsfb.be/signs/w-2/", pageUrl: "https://dico.lsfb.be/signs/w-2/" },
+        { letter: "X", videoUrl: "https://dico.lsfb.be/signs/x-2/", pageUrl: "https://dico.lsfb.be/signs/x-2/" },
+        { letter: "Y", videoUrl: "https://dico.lsfb.be/signs/y-2/", pageUrl: "https://dico.lsfb.be/signs/y-2/" },
+        { letter: "Z", videoUrl: "https://dico.lsfb.be/signs/z-2/", pageUrl: "https://dico.lsfb.be/signs/z-2/" },
+      ];
 
       setAlphabet(lsfbAlphabet);
     } catch (err) {
