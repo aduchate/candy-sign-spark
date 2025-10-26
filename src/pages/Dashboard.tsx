@@ -16,6 +16,9 @@ import lsfbGreetings from "@/assets/lsfb-greetings.jpg";
 import { AlphabetGrid } from "@/components/AlphabetGrid";
 import { LSFBDictionary } from "@/components/LSFBDictionary";
 import { SentenceTranslator } from "@/components/SentenceTranslator";
+import { ProfileSelector } from "@/components/ProfileSelector";
+import { LevelTabs } from "@/components/LevelTabs";
+import { LessonCard } from "@/components/LessonCard";
 
 interface LessonProgress {
   id: number;
@@ -36,6 +39,9 @@ const Dashboard = () => {
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translation, setTranslation] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
+  const [ageGroup, setAgeGroup] = useState<"enfant" | "adulte">("adulte");
+  const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
+  const [newLessons, setNewLessons] = useState<any[]>([]);
 
   useEffect(() => {
     // Check authentication
@@ -63,6 +69,7 @@ const Dashboard = () => {
   }, [navigate]);
 
   const fetchUserProgress = async (userId: string) => {
+    // Fetch old lessons data for backward compatibility
     const { data: progressData } = await supabase
       .from('user_progress')
       .select('*')
@@ -87,7 +94,29 @@ const Dashboard = () => {
     });
 
     setLessons(lessonsWithProgress);
+    
+    // Fetch new lessons structure
+    await fetchNewLessons(userId);
   };
+
+  const fetchNewLessons = async (userId: string) => {
+    const { data, error } = await supabase.functions.invoke('get-filtered-lessons', {
+      body: { ageGroup, level, userId }
+    });
+
+    if (error) {
+      console.error('Error fetching lessons:', error);
+      return;
+    }
+
+    setNewLessons(data?.lessons || []);
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchNewLessons(user.id);
+    }
+  }, [ageGroup, level, user]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -266,7 +295,33 @@ const Dashboard = () => {
                 </div>
               </Card>
 
-              <h3 className="text-2xl font-bold mb-6">{t('dashboard.learningPath')}</h3>
+              <ProfileSelector selected={ageGroup} onSelect={setAgeGroup} />
+              <LevelTabs selected={level} onSelect={setLevel} />
+
+              <h3 className="text-2xl font-bold mb-6">Leçons {level} - {ageGroup === "enfant" ? "Enfants" : "Adultes"}</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                {newLessons.map((lesson) => {
+                  const progressData = lesson.progress;
+                  const totalExercises = lesson.exercises?.length || 0;
+                  const completedExercises = progressData?.score || 0;
+                  const progress = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
+
+                  return (
+                    <LessonCard
+                      key={lesson.id}
+                      id={lesson.id}
+                      title={lesson.title}
+                      level={lesson.level}
+                      category={lesson.category}
+                      progress={progress}
+                      isCompleted={progressData?.completed || false}
+                    />
+                  );
+                })}
+              </div>
+
+              <h3 className="text-2xl font-bold mb-6 mt-12">Leçons Classiques</h3>
 
               <div className="space-y-4 max-w-4xl">
                 {lessons.map((lesson, index) => (

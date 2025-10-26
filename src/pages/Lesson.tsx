@@ -8,26 +8,56 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { lessons } from "@/data/lessons";
+import { SentenceOrderingExercise } from "@/components/SentenceOrderingExercise";
 
 const Lesson = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [currentExercise, setCurrentExercise] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
+  const [lessonData, setLessonData] = useState<any>(null);
+  const [isNewFormat, setIsNewFormat] = useState(false);
 
   useEffect(() => {
-    // Check authentication
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const loadLesson = async () => {
+      // Check authentication
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/auth");
+        return;
       }
+
+      // Try to load from new format first
+      const { data: newLesson, error } = await supabase
+        .from('lessons')
+        .select('*, exercises(*)')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (newLesson && !error) {
+        setLessonData(newLesson);
+        setIsNewFormat(true);
+      } else {
+        // Fallback to old format
+        const oldLesson = lessons[id || "1"];
+        if (oldLesson) {
+          setLessonData(oldLesson);
+          setIsNewFormat(false);
+        } else {
+          navigate("/");
+          return;
+        }
+      }
+
       setLoading(false);
-    });
-  }, [navigate]);
+    };
+
+    loadLesson();
+  }, [id, navigate]);
 
   if (loading) {
     return (
@@ -37,16 +67,177 @@ const Lesson = () => {
     );
   }
 
-  const lessonData = lessons[id || "1"];
-
-  // Redirect if lesson doesn't exist
   if (!lessonData) {
     navigate("/");
     return null;
   }
 
-  const progress = ((currentQuestion + 1) / lessonData.questions.length) * 100;
-  const question = lessonData.questions[currentQuestion];
+  // Handle new format with exercises
+  if (isNewFormat) {
+    const exercises = lessonData.exercises || [];
+    const progress = ((currentExercise + 1) / exercises.length) * 100;
+    const exercise = exercises[currentExercise];
+
+    const handleExerciseComplete = async (correct: boolean, timeSpent: number) => {
+      if (correct) {
+        setScore(score + 1);
+      }
+
+      if (currentExercise < exercises.length - 1) {
+        setTimeout(() => {
+          setCurrentExercise(currentExercise + 1);
+        }, 1500);
+      } else {
+        const finalScore = correct ? score + 1 : score;
+        toast.success(t('lesson.lessonComplete', { score: finalScore, total: exercises.length }));
+
+        // Save progress
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const progressPercentage = Math.round((finalScore / exercises.length) * 100);
+
+          const { data: existingProgress } = await supabase
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('lesson_id', id)
+            .maybeSingle();
+
+          if (existingProgress) {
+            if (finalScore > existingProgress.score) {
+              await supabase
+                .from('user_progress')
+                .update({
+                  score: finalScore,
+                  total_questions: exercises.length,
+                  completed: progressPercentage === 100,
+                  completed_at: progressPercentage === 100 ? new Date().toISOString() : existingProgress.completed_at,
+                  best_time: timeSpent
+                })
+                .eq('id', existingProgress.id);
+            }
+          } else {
+            await supabase
+              .from('user_progress')
+              .insert({
+                user_id: user.id,
+                lesson_id: id || "",
+                score: finalScore,
+                total_questions: exercises.length,
+                completed: progressPercentage === 100,
+                completed_at: progressPercentage === 100 ? new Date().toISOString() : null,
+                best_time: timeSpent
+              });
+          }
+        }
+
+        setTimeout(() => navigate("/"), 2000);
+      }
+    };
+
+    return (
+      <div className="min-h-screen p-4">
+        <div className="container mx-auto max-w-2xl">
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
+              className="gap-2 mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {t('common.back')}
+            </Button>
+
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-2xl font-bold">{lessonData.title}</h1>
+              <span className="text-sm text-muted-foreground">
+                {currentExercise + 1}/{exercises.length}
+              </span>
+            </div>
+
+            <Progress value={progress} className="h-3" />
+          </div>
+
+          <Card className="p-8 shadow-candy border-2">
+            {exercise.type === "sentence_ordering" && (
+              <SentenceOrderingExercise
+                exerciseId={exercise.id}
+                words={exercise.content.words}
+                correctOrder={exercise.content.correctOrder}
+                fullSentenceVideo={exercise.content.fullSentenceVideo}
+                onComplete={handleExerciseComplete}
+              />
+            )}
+
+            {exercise.type === "multiple_choice" && (
+              <div>
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold mb-4">{exercise.content.question}</h2>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {exercise.content.options.map((option: string, index: number) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (showResult) return;
+                        setSelectedAnswer(index);
+                        setShowResult(true);
+                        if (index === exercise.content.correct) {
+                          setScore(score + 1);
+                          toast.success(t('lesson.correct'));
+                        } else {
+                          toast.error(t('lesson.incorrect'));
+                        }
+                      }}
+                      disabled={showResult}
+                      className={`relative overflow-hidden rounded-lg border-4 transition-all hover:scale-105 ${
+                        showResult
+                          ? index === exercise.content.correct
+                            ? "border-success shadow-glow"
+                            : index === selectedAnswer
+                            ? "border-destructive"
+                            : "border-muted opacity-50"
+                          : "border-primary/20 hover:border-primary"
+                      }`}
+                    >
+                      <div className="p-6 text-center">
+                        <p className="text-lg font-semibold">{option}</p>
+                      </div>
+                      {showResult && index === exercise.content.correct && (
+                        <div className="absolute top-2 right-2 bg-success rounded-full p-2">
+                          <CheckCircle2 className="w-6 h-6 text-white" />
+                        </div>
+                      )}
+                      {showResult && index === selectedAnswer && index !== exercise.content.correct && (
+                        <div className="absolute top-2 right-2 bg-destructive rounded-full p-2">
+                          <XCircle className="w-6 h-6 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {showResult && (
+                  <Button
+                    onClick={() => handleExerciseComplete(selectedAnswer === exercise.content.correct, 0)}
+                    className="w-full mt-6 gradient-candy"
+                    size="lg"
+                  >
+                    {currentExercise < exercises.length - 1 ? t('lesson.nextQuestion') : t('lesson.completeLesson')}
+                  </Button>
+                )}
+              </div>
+            )}
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle old format with questions
+  const progress = ((currentExercise + 1) / lessonData.questions.length) * 100;
+  const question = lessonData.questions[currentExercise];
 
   const handleAnswer = (index: number) => {
     if (showResult) return;
@@ -63,8 +254,8 @@ const Lesson = () => {
   };
 
   const handleNext = async () => {
-    if (currentQuestion < lessonData.questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+    if (currentExercise < lessonData.questions.length - 1) {
+      setCurrentExercise(currentExercise + 1);
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
@@ -129,12 +320,12 @@ const Lesson = () => {
             {t('common.back')}
           </Button>
           
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-2xl font-bold">{lessonData.title}</h1>
-            <span className="text-sm text-muted-foreground">
-              {t('lesson.question', { current: currentQuestion + 1, total: lessonData.questions.length })}
-            </span>
-          </div>
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-2xl font-bold">{lessonData.title}</h1>
+              <span className="text-sm text-muted-foreground">
+                {t('lesson.question', { current: currentExercise + 1, total: lessonData.questions.length })}
+              </span>
+            </div>
           
           <Progress value={progress} className="h-3" />
         </div>
@@ -190,11 +381,11 @@ const Lesson = () => {
 
           {showResult && (
             <Button
-              onClick={handleNext}
-              className="w-full mt-6 gradient-candy"
-              size="lg"
-            >
-              {currentQuestion < lessonData.questions.length - 1 ? t('lesson.nextQuestion') : t('lesson.completeLesson')}
+                onClick={handleNext}
+                className="w-full mt-6 gradient-candy"
+                size="lg"
+              >
+                {currentExercise < lessonData.questions.length - 1 ? t('lesson.nextQuestion') : t('lesson.completeLesson')}
             </Button>
           )}
         </Card>
