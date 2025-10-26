@@ -8,6 +8,7 @@ import Lesson from "./pages/Lesson";
 import Stats from "./pages/Stats";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import { StarterPackVideoLoader } from "./components/StarterPackVideoLoader";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <StarterPackVideoLoader />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
