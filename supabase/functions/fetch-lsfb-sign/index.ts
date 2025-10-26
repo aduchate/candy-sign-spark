@@ -24,13 +24,52 @@ Deno.serve(async (req) => {
     const response = await fetch(signUrl);
     const html = await response.text();
 
-    // Extract video URL from the HTML
-    // Look for video tags or specific patterns in the LSFB website
-    const videoMatch = html.match(/<video[^>]*src=["']([^"']+)["']/i) || 
-                       html.match(/data-video-src=["']([^"']+)["']/i) ||
-                       html.match(/file:\s*["']([^"']+\.mp4)["']/i);
+    // Extract video URL from the HTML - try multiple patterns
+    let videoUrl: string | null = null;
     
-    const videoUrl = videoMatch ? videoMatch[1] : null;
+    // Pattern 1: Video tag with src
+    const videoSrcMatch = html.match(/<video[^>]*src=["']([^"']+)["']/i);
+    if (videoSrcMatch) videoUrl = videoSrcMatch[1];
+    
+    // Pattern 2: Source tag inside video
+    if (!videoUrl) {
+      const sourceMatch = html.match(/<source[^>]*src=["']([^"']+)["']/i);
+      if (sourceMatch) videoUrl = sourceMatch[1];
+    }
+    
+    // Pattern 3: data-video-src attribute
+    if (!videoUrl) {
+      const dataVideoMatch = html.match(/data-video-src=["']([^"']+)["']/i);
+      if (dataVideoMatch) videoUrl = dataVideoMatch[1];
+    }
+    
+    // Pattern 4: JavaScript file property
+    if (!videoUrl) {
+      const fileMatch = html.match(/file:\s*["']([^"']+\.mp4[^"']*)["']/i);
+      if (fileMatch) videoUrl = fileMatch[1];
+    }
+    
+    // Pattern 5: Direct .mp4 URLs in the HTML
+    if (!videoUrl) {
+      const mp4Match = html.match(/(https?:\/\/[^"'\s]+\.mp4[^"'\s]*)/i);
+      if (mp4Match) videoUrl = mp4Match[1];
+    }
+    
+    // Pattern 6: WordPress video shortcode
+    if (!videoUrl) {
+      const wpVideoMatch = html.match(/\[video[^\]]*src=["']([^"']+)["']/i);
+      if (wpVideoMatch) videoUrl = wpVideoMatch[1];
+    }
+    
+    // Make URL absolute if it's relative
+    if (videoUrl && !videoUrl.startsWith('http')) {
+      const baseUrl = new URL(signUrl);
+      if (videoUrl.startsWith('/')) {
+        videoUrl = `${baseUrl.origin}${videoUrl}`;
+      } else {
+        videoUrl = `${baseUrl.origin}/${videoUrl}`;
+      }
+    }
 
     // Extract the title
     const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/i) ||
