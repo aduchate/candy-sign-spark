@@ -41,11 +41,80 @@ export type Database = {
         }
         Relationships: []
       }
+      exercises: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          lesson_id: string
+          order_index: number
+          type: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          lesson_id: string
+          order_index: number
+          type: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          order_index?: number
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          age_group: string
+          category: string
+          created_at: string
+          id: string
+          level: Database["public"]["Enums"]["cecrl_level"]
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          age_group: string
+          category: string
+          created_at?: string
+          id?: string
+          level: Database["public"]["Enums"]["cecrl_level"]
+          order_index: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          age_group?: string
+          category?: string
+          created_at?: string
+          id?: string
+          level?: Database["public"]["Enums"]["cecrl_level"]
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           id: string
+          preferred_age_group: string | null
           updated_at: string
           username: string | null
         }
@@ -53,6 +122,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id: string
+          preferred_age_group?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -60,6 +130,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          preferred_age_group?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -67,39 +138,58 @@ export type Database = {
       }
       user_progress: {
         Row: {
+          attempts: number | null
+          best_time: number | null
           completed: boolean | null
           completed_at: string | null
           created_at: string
+          exercise_id: string | null
           id: string
           lesson_id: string
+          level: Database["public"]["Enums"]["cecrl_level"] | null
           score: number | null
           total_questions: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          attempts?: number | null
+          best_time?: number | null
           completed?: boolean | null
           completed_at?: string | null
           created_at?: string
+          exercise_id?: string | null
           id?: string
           lesson_id: string
+          level?: Database["public"]["Enums"]["cecrl_level"] | null
           score?: number | null
           total_questions?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          attempts?: number | null
+          best_time?: number | null
           completed?: boolean | null
           completed_at?: string | null
           created_at?: string
+          exercise_id?: string | null
           id?: string
           lesson_id?: string
+          level?: Database["public"]["Enums"]["cecrl_level"] | null
           score?: number | null
           total_questions?: number | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_progress_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_progress_user_id_fkey"
             columns: ["user_id"]
@@ -147,7 +237,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      cecrl_level: "A1" | "A2" | "B1" | "B2"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -274,6 +364,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      cecrl_level: ["A1", "A2", "B1", "B2"],
+    },
   },
 } as const

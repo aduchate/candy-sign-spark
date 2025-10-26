@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.fetch-and-store-lsfb-video]
 verify_jwt = false
+
+[functions.get-filtered-lessons]
+verify_jwt = false
