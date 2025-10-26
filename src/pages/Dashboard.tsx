@@ -25,7 +25,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction">("apprentissage");
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction" | "stereotype">("apprentissage");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translation, setTranslation] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
@@ -166,6 +166,13 @@ const Dashboard = () => {
               Traduction
             </Button>
             <Button
+              onClick={() => setActiveSection("stereotype")}
+              variant={activeSection === "stereotype" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Stéréotype
+            </Button>
+            <Button
               onClick={handleLogout}
               variant="ghost"
               className="w-full justify-start text-lg h-14"
@@ -191,6 +198,7 @@ const Dashboard = () => {
               {activeSection === "apprentissage" && "Section Apprentissage"}
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
+              {activeSection === "stereotype" && "Section Stéréotype"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -356,6 +364,17 @@ const Dashboard = () => {
                     </div>
                   )}
                 </div>
+              </Card>
+            </div>
+          )}
+
+          {activeSection === "stereotype" && (
+            <div className="max-w-4xl">
+              <Card className="p-8">
+                <h3 className="text-2xl font-bold mb-4">Section Stéréotype</h3>
+                <p className="text-muted-foreground mb-6">
+                  Découvrez et explorez les stéréotypes liés à la langue des signes.
+                </p>
               </Card>
             </div>
           )}
