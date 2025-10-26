@@ -10,6 +10,9 @@ import type { User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
 import { lessons as lessonsData } from "@/data/lessons";
 import ReactMarkdown from "react-markdown";
+import lsfbAlphabet from "@/assets/lsfb-alphabet.jpg";
+import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
+import lsfbGreetings from "@/assets/lsfb-greetings.jpg";
 
 interface LessonProgress {
   id: number;
@@ -388,12 +391,144 @@ const Dashboard = () => {
           )}
 
           {activeSection === "starterpack" && (
-            <div className="max-w-4xl">
-              <Card className="p-8">
-                <h3 className="text-2xl font-bold mb-4">Section Starter Pack</h3>
-                <p className="text-muted-foreground mb-6">
-                  Accédez à votre starter pack pour débuter avec la langue des signes.
+            <div className="max-w-6xl">
+              <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow">
+                <h3 className="text-3xl font-bold mb-2 gradient-text">Starter Pack LSFB</h3>
+                <p className="text-muted-foreground mb-8">
+                  Découvrez les bases essentielles de la langue des signes franco-belge
                 </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Alphabet dactylologique */}
+                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center">
+                        <span className="text-2xl">🤟</span>
+                      </div>
+                      <h4 className="text-xl font-bold">Alphabet</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      L'alphabet dactylologique pour épeler des mots
+                    </p>
+                    <div className="aspect-square bg-muted/50 rounded-lg overflow-hidden">
+                      <img 
+                        src={lsfbAlphabet} 
+                        alt="Alphabet LSFB"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Card>
+
+                  {/* Chiffres */}
+                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center">
+                        <span className="text-2xl">🔢</span>
+                      </div>
+                      <h4 className="text-xl font-bold">Chiffres</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Les nombres de 0 à 10 en LSFB
+                    </p>
+                    <div className="aspect-square bg-muted/50 rounded-lg overflow-hidden">
+                      <img 
+                        src={lsfbNumbers} 
+                        alt="Chiffres LSFB"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Card>
+
+                  {/* Salutations */}
+                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full gradient-success flex items-center justify-center">
+                        <span className="text-2xl">👋</span>
+                      </div>
+                      <h4 className="text-xl font-bold">Salutations</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Bonjour, au revoir, merci, s'il vous plaît
+                    </p>
+                    <div className="aspect-square bg-muted/50 rounded-lg overflow-hidden">
+                      <img 
+                        src={lsfbGreetings} 
+                        alt="Salutations LSFB"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Card>
+
+                  {/* Famille */}
+                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center">
+                        <span className="text-2xl">👨‍👩‍👧‍👦</span>
+                      </div>
+                      <h4 className="text-xl font-bold">Famille</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Mère, père, frère, sœur, enfant
+                    </p>
+                    <div className="aspect-square bg-gradient-to-br from-primary/10 to-candy/10 rounded-lg flex items-center justify-center">
+                      <span className="text-6xl">👨‍👩‍👧‍👦</span>
+                    </div>
+                  </Card>
+
+                  {/* Couleurs */}
+                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center">
+                        <span className="text-2xl">🎨</span>
+                      </div>
+                      <h4 className="text-xl font-bold">Couleurs</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Rouge, bleu, vert, jaune, noir, blanc
+                    </p>
+                    <div className="aspect-square bg-gradient-to-br from-red-500/10 via-blue-500/10 to-green-500/10 rounded-lg flex items-center justify-center">
+                      <span className="text-6xl">🎨</span>
+                    </div>
+                  </Card>
+
+                  {/* Jours de la semaine */}
+                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full gradient-success flex items-center justify-center">
+                        <span className="text-2xl">📅</span>
+                      </div>
+                      <h4 className="text-xl font-bold">Jours</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Lundi, mardi, mercredi, jeudi, vendredi
+                    </p>
+                    <div className="aspect-square bg-gradient-to-br from-success/10 to-accent/10 rounded-lg flex items-center justify-center">
+                      <span className="text-6xl">📅</span>
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="mt-8 p-6 bg-primary/5 rounded-lg border border-primary/20">
+                  <h4 className="text-lg font-bold mb-2 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Ressources utiles
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Pour approfondir votre apprentissage, consultez les ressources officielles de la LSFB
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <a href="https://dico.lsfb.be" target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm">
+                        Dictionnaire LSFB
+                      </Button>
+                    </a>
+                    <a href="https://cours.lsfb.be" target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm">
+                        Cours en ligne
+                      </Button>
+                    </a>
+                  </div>
+                </div>
               </Card>
             </div>
           )}
