@@ -58,13 +58,38 @@ Deno.serve(async (req) => {
 
     // Search for the sign on dico.lsfb.be
     const searchWord = word.toLowerCase().trim();
-    let pageUrl = `https://dico.lsfb.be/signs/${searchWord}`;
     
-    console.log(`Fetching page: ${pageUrl}`);
-    let response = await fetch(pageUrl);
+    // Function to remove accents and special characters
+    const normalizeWord = (w: string) => {
+      return w.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    };
+    
+    const wordVariants = [
+      searchWord,
+      normalizeWord(searchWord),
+      searchWord.replace(/'/g, ''),
+      searchWord.replace(/ /g, '-'),
+    ].filter((v, i, arr) => arr.indexOf(v) === i); // unique variants
+    
+    let pageUrl = '';
+    let response: Response | null = null;
+    
+    // Try each variant
+    for (const variant of wordVariants) {
+      const testUrl = `https://dico.lsfb.be/signs/${variant}`;
+      console.log(`Trying URL: ${testUrl}`);
+      const testResponse = await fetch(testUrl);
+      
+      if (testResponse.ok) {
+        pageUrl = testUrl;
+        response = testResponse;
+        console.log(`Found page at: ${testUrl}`);
+        break;
+      }
+    }
     
     // If not found, try alternative patterns for alphabet
-    if (!response.ok && type === 'alphabet') {
+    if (!response?.ok && type === 'alphabet') {
       const alternatives = [
         `https://dico.lsfb.be/signs/lettre-${searchWord}`,
         `https://dico.lsfb.be/signs/${searchWord}-lettre`,
@@ -72,16 +97,17 @@ Deno.serve(async (req) => {
       
       for (const altUrl of alternatives) {
         console.log(`Trying alternative URL: ${altUrl}`);
-        response = await fetch(altUrl);
-        if (response.ok) {
+        const altResponse = await fetch(altUrl);
+        if (altResponse.ok) {
           pageUrl = altUrl;
+          response = altResponse;
           break;
         }
       }
     }
 
-    if (!response.ok) {
-      console.log(`Page not found for ${word}`);
+    if (!response || !response.ok) {
+      console.log(`Page not found for ${word} (tried ${wordVariants.join(', ')})`);
       return new Response(
         JSON.stringify({ success: false, error: 'Sign not found on dico.lsfb.be' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }

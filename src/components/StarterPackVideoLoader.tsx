@@ -2,25 +2,25 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { X, Check, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const ESSENTIAL_WORDS = {
   adult: [
     // Salutations
-    'Bonjour', 'Merci', 'Au revoir', 'S\'il vous plaît',
-    'comment', 'allez', 'vous',
-    // Vocabulaire professionnel
-    'travail', 'bureau', 'réunion', 'collègue', 'directeur', 'projet', 'email',
+    'Bonjour', 'Merci', 'comment', 'allez', 'vous',
+    // Vocabulaire professionnel  
+    'travail', 'bureau', 'reunion', 'collegue', 'directeur', 'projet', 'email',
     // Temps et dates
     'aujourd\'hui', 'demain', 'hier',
     'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
-    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
-    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+    'janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'aout', 'septembre', 'octobre', 'novembre', 'decembre'
   ],
   child: [
     // Salutations
-    'Bonjour', 'Merci', 'Au revoir', 'S\'il vous plaît',
+    'Bonjour', 'Merci',
     // Animaux
     'chat', 'chien', 'poisson', 'oiseau',
     // Phrases simples
@@ -28,13 +28,13 @@ const ESSENTIAL_WORDS = {
     // Couleurs
     'rouge', 'bleu', 'jaune', 'vert', 'orange', 'rose', 'noir', 'blanc',
     // Famille
-    'papa', 'maman', 'frère', 'sœur', 'grand-père', 'grand-mère', 'bébé',
+    'papa', 'maman', 'frere', 'soeur', 'bebe',
     // Émotions
-    'content', 'triste', 'colère', 'peur', 'surpris', 'fatigué',
+    'content', 'triste', 'colere', 'peur', 'surpris', 'fatigue',
     // Nourriture
-    'pomme', 'banane', 'pain', 'eau', 'lait', 'gâteau',
+    'pomme', 'banane', 'pain', 'eau', 'lait', 'chocolat',
     // Jeux
-    'ballon', 'poupée', 'jouer', 'courir', 'sauter'
+    'ballon', 'jouer', 'courir', 'sauter'
   ]
 };
 
@@ -147,25 +147,36 @@ export const StarterPackVideoLoader = () => {
     setFailedWords(failed);
     setIsComplete(true);
     setIsLoading(false);
-    localStorage.setItem(STORAGE_KEY, 'true');
-
+    
+    // Don't mark as loaded if there are failures, so it will retry on next page load
     if (failed.length === 0) {
+      localStorage.setItem(STORAGE_KEY, 'true');
       toast({
         title: "Vidéos chargées",
         description: `Toutes les vidéos essentielles (${successCount}/${totalWords}) sont prêtes !`,
       });
+      // Auto-hide after 5 seconds if successful
+      setTimeout(() => setIsVisible(false), 5000);
     } else {
       toast({
         title: "Chargement terminé",
-        description: `${successCount}/${totalWords} vidéos chargées. ${failed.length} échec(s).`,
+        description: `${successCount}/${totalWords} vidéos chargées. ${failed.length} échec(s). Réessayez plus tard.`,
         variant: "destructive",
       });
     }
+  };
 
-    // Auto-hide after 5 seconds if successful
-    if (failed.length === 0) {
-      setTimeout(() => setIsVisible(false), 5000);
-    }
+  const retryLoading = () => {
+    setIsVisible(false);
+    setFailedWords([]);
+    setIsComplete(false);
+    setLoadedCount(0);
+    // Remove the storage key to force reload
+    localStorage.removeItem(STORAGE_KEY);
+    // Restart after a short delay
+    setTimeout(() => {
+      startLoading();
+    }, 500);
   };
 
   if (!isVisible) return null;
@@ -203,8 +214,19 @@ export const StarterPackVideoLoader = () => {
       </div>
 
       {isComplete && failedWords.length > 0 && (
-        <div className="mt-3 text-xs text-destructive">
-          <p className="font-medium">Échecs : {failedWords.join(', ')}</p>
+        <div className="mt-3 space-y-2">
+          <div className="text-xs text-destructive">
+            <p className="font-medium">Mots non trouvés :</p>
+            <p className="text-xs">{failedWords.slice(0, 10).join(', ')}{failedWords.length > 10 ? '...' : ''}</p>
+          </div>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="w-full"
+            onClick={retryLoading}
+          >
+            Réessayer le téléchargement
+          </Button>
         </div>
       )}
 
