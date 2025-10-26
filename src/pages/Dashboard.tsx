@@ -29,6 +29,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
   const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction" | "stereotype" | "starterpack">("apprentissage");
+  const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translation, setTranslation] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
@@ -392,184 +393,212 @@ const Dashboard = () => {
 
           {activeSection === "starterpack" && (
             <div className="max-w-6xl">
-              <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
-                <h3 className="text-3xl font-bold mb-6 text-center gradient-text">
-                  Vous souhaitez communiquer avec
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  {/* Section Adulte */}
-                  <Card className="p-8 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
-                    <div className="text-center space-y-4">
-                      <div className="w-24 h-24 mx-auto rounded-full gradient-candy flex items-center justify-center">
-                        <span className="text-5xl">👨‍💼</span>
+              {starterPackView === "main" && (
+                <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
+                  <h3 className="text-3xl font-bold mb-6 text-center gradient-text">
+                    Vous souhaitez communiquer avec
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Section Adulte */}
+                    <Card className="p-8 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
+                      <div className="text-center space-y-4">
+                        <div className="w-24 h-24 mx-auto rounded-full gradient-candy flex items-center justify-center">
+                          <span className="text-5xl">👨‍💼</span>
+                        </div>
+                        <h4 className="text-2xl font-bold">Adulte</h4>
+                        <p className="text-muted-foreground">
+                          Apprenez les signes essentiels pour communiquer avec des adultes sourds ou malentendants
+                        </p>
+                        <Button 
+                          className="w-full gradient-candy mt-4"
+                          onClick={() => setStarterPackView("adulte")}
+                        >
+                          Commencer
+                        </Button>
                       </div>
-                      <h4 className="text-2xl font-bold">Adulte</h4>
-                      <p className="text-muted-foreground">
-                        Apprenez les signes essentiels pour communiquer avec des adultes sourds ou malentendants
-                      </p>
-                      <Button className="w-full gradient-candy mt-4">
-                        Commencer
-                      </Button>
-                    </div>
-                  </Card>
+                    </Card>
 
-                  {/* Section Enfant */}
-                  <Card className="p-8 bg-gradient-to-br from-accent/5 to-success/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
-                    <div className="text-center space-y-4">
-                      <div className="w-24 h-24 mx-auto rounded-full gradient-accent flex items-center justify-center">
-                        <span className="text-5xl">👶</span>
+                    {/* Section Enfant */}
+                    <Card className="p-8 bg-gradient-to-br from-accent/5 to-success/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
+                      <div className="text-center space-y-4">
+                        <div className="w-24 h-24 mx-auto rounded-full gradient-accent flex items-center justify-center">
+                          <span className="text-5xl">👶</span>
+                        </div>
+                        <h4 className="text-2xl font-bold">Enfant</h4>
+                        <p className="text-muted-foreground">
+                          Découvrez les signes adaptés pour communiquer avec des enfants sourds ou malentendants
+                        </p>
+                        <Button 
+                          className="w-full gradient-accent mt-4"
+                          onClick={() => setStarterPackView("enfant")}
+                        >
+                          Commencer
+                        </Button>
                       </div>
-                      <h4 className="text-2xl font-bold">Enfant</h4>
-                      <p className="text-muted-foreground">
-                        Découvrez les signes adaptés pour communiquer avec des enfants sourds ou malentendants
-                      </p>
-                      <Button className="w-full gradient-accent mt-4">
-                        Commencer
-                      </Button>
-                    </div>
-                  </Card>
-                </div>
-              </Card>
-
-              <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow">
-                <h3 className="text-2xl font-bold mb-2">Ressources de base LSFB</h3>
-                <p className="text-muted-foreground mb-8">
-                  Découvrez les bases essentielles de la langue des signes franco-belge
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Alphabet dactylologique */}
-                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center">
-                        <span className="text-2xl">🤟</span>
-                      </div>
-                      <h4 className="text-xl font-bold">Alphabet</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      L'alphabet dactylologique pour épeler des mots
-                    </p>
-                    <div className="aspect-square bg-muted/50 rounded-lg overflow-hidden">
-                      <img 
-                        src={lsfbAlphabet} 
-                        alt="Alphabet LSFB"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Chiffres */}
-                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center">
-                        <span className="text-2xl">🔢</span>
-                      </div>
-                      <h4 className="text-xl font-bold">Chiffres</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Les nombres de 0 à 10 en LSFB
-                    </p>
-                    <div className="aspect-square bg-muted/50 rounded-lg overflow-hidden">
-                      <img 
-                        src={lsfbNumbers} 
-                        alt="Chiffres LSFB"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Salutations */}
-                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full gradient-success flex items-center justify-center">
-                        <span className="text-2xl">👋</span>
-                      </div>
-                      <h4 className="text-xl font-bold">Salutations</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Bonjour, au revoir, merci, s'il vous plaît
-                    </p>
-                    <div className="aspect-square bg-muted/50 rounded-lg overflow-hidden">
-                      <img 
-                        src={lsfbGreetings} 
-                        alt="Salutations LSFB"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </Card>
-
-                  {/* Famille */}
-                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center">
-                        <span className="text-2xl">👨‍👩‍👧‍👦</span>
-                      </div>
-                      <h4 className="text-xl font-bold">Famille</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Mère, père, frère, sœur, enfant
-                    </p>
-                    <div className="aspect-square bg-gradient-to-br from-primary/10 to-candy/10 rounded-lg flex items-center justify-center">
-                      <span className="text-6xl">👨‍👩‍👧‍👦</span>
-                    </div>
-                  </Card>
-
-                  {/* Couleurs */}
-                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center">
-                        <span className="text-2xl">🎨</span>
-                      </div>
-                      <h4 className="text-xl font-bold">Couleurs</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Rouge, bleu, vert, jaune, noir, blanc
-                    </p>
-                    <div className="aspect-square bg-gradient-to-br from-red-500/10 via-blue-500/10 to-green-500/10 rounded-lg flex items-center justify-center">
-                      <span className="text-6xl">🎨</span>
-                    </div>
-                  </Card>
-
-                  {/* Jours de la semaine */}
-                  <Card className="p-6 bg-card/60 backdrop-blur-sm hover:shadow-candy transition-all duration-300 border-2">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full gradient-success flex items-center justify-center">
-                        <span className="text-2xl">📅</span>
-                      </div>
-                      <h4 className="text-xl font-bold">Jours</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Lundi, mardi, mercredi, jeudi, vendredi
-                    </p>
-                    <div className="aspect-square bg-gradient-to-br from-success/10 to-accent/10 rounded-lg flex items-center justify-center">
-                      <span className="text-6xl">📅</span>
-                    </div>
-                  </Card>
-                </div>
-
-                <div className="mt-8 p-6 bg-primary/5 rounded-lg border border-primary/20">
-                  <h4 className="text-lg font-bold mb-2 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                    Ressources utiles
-                  </h4>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Pour approfondir votre apprentissage, consultez les ressources officielles de la LSFB
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <a href="https://dico.lsfb.be" target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm">
-                        Dictionnaire LSFB
-                      </Button>
-                    </a>
-                    <a href="https://cours.lsfb.be" target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm">
-                        Cours en ligne
-                      </Button>
-                    </a>
+                    </Card>
                   </div>
+                </Card>
+              )}
+
+              {starterPackView === "adulte" && (
+                <div>
+                  <Button 
+                    variant="ghost" 
+                    className="mb-6"
+                    onClick={() => setStarterPackView("main")}
+                  >
+                    ← Retour
+                  </Button>
+                  
+                  <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
+                    <h3 className="text-3xl font-bold mb-2 gradient-text text-center">Ressources LSFB pour Adultes</h3>
+                    <p className="text-muted-foreground mb-8 text-center">
+                      Découvrez les signes essentiels pour communiquer dans un contexte professionnel et quotidien
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <img src={lsfbAlphabet} alt="Alphabet LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                        <h4 className="text-xl font-bold mb-2">Alphabet</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Maîtrisez l'alphabet pour épeler noms et mots techniques</p>
+                        <a href="https://www.ffsb.be/langue-des-signes/alphabet/" target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" className="w-full">En savoir plus</Button>
+                        </a>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                        <h4 className="text-xl font-bold mb-2">Salutations professionnelles</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Les formules de politesse pour le travail</p>
+                        <a href="https://www.ffsb.be" target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" className="w-full">En savoir plus</Button>
+                        </a>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <img src={lsfbNumbers} alt="Chiffres LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                        <h4 className="text-xl font-bold mb-2">Chiffres et nombres</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Essentiels pour dates, prix et quantités</p>
+                        <a href="https://www.ffsb.be/langue-des-signes/chiffres/" target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" className="w-full">En savoir plus</Button>
+                        </a>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🏢</div>
+                        <h4 className="text-xl font-bold mb-2">Vocabulaire professionnel</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Métiers, entreprise, réunions</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🕐</div>
+                        <h4 className="text-xl font-bold mb-2">Temps et dates</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Heures, jours, mois, années</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🏥</div>
+                        <h4 className="text-xl font-bold mb-2">Situations d'urgence</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Santé, sécurité, aide</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+                    </div>
+                  </Card>
                 </div>
-              </Card>
+              )}
+
+              {starterPackView === "enfant" && (
+                <div>
+                  <Button 
+                    variant="ghost" 
+                    className="mb-6"
+                    onClick={() => setStarterPackView("main")}
+                  >
+                    ← Retour
+                  </Button>
+                  
+                  <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
+                    <h3 className="text-3xl font-bold mb-2 gradient-text text-center">Ressources LSFB pour Enfants</h3>
+                    <p className="text-muted-foreground mb-8 text-center">
+                      Découvrez les signes ludiques et essentiels pour communiquer avec les enfants
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <img src={lsfbAlphabet} alt="Alphabet LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                        <h4 className="text-xl font-bold mb-2">Alphabet ludique</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Apprendre l'alphabet en s'amusant</p>
+                        <a href="https://www.ffsb.be/langue-des-signes/alphabet/" target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" className="w-full">En savoir plus</Button>
+                        </a>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <img src={lsfbNumbers} alt="Chiffres LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                        <h4 className="text-xl font-bold mb-2">Compter avec les mains</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Les chiffres de 1 à 10 et plus</p>
+                        <a href="https://www.ffsb.be/langue-des-signes/chiffres/" target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" className="w-full">En savoir plus</Button>
+                        </a>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                        <h4 className="text-xl font-bold mb-2">Bonjour et au revoir</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Les premières salutations</p>
+                        <a href="https://www.ffsb.be" target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" className="w-full">En savoir plus</Button>
+                        </a>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🎨</div>
+                        <h4 className="text-xl font-bold mb-2">Couleurs</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Rouge, bleu, jaune et plus</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🐶</div>
+                        <h4 className="text-xl font-bold mb-2">Animaux</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Chat, chien, lapin et plus</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">😊</div>
+                        <h4 className="text-xl font-bold mb-2">Émotions</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Content, triste, en colère</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">👨‍👩‍👧‍👦</div>
+                        <h4 className="text-xl font-bold mb-2">Famille</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Papa, maman, frère, sœur</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🍎</div>
+                        <h4 className="text-xl font-bold mb-2">Nourriture</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Fruits, légumes, repas</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+
+                      <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all">
+                        <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🎮</div>
+                        <h4 className="text-xl font-bold mb-2">Jeux et jouets</h4>
+                        <p className="text-sm text-muted-foreground mb-4">Ballon, poupée, jeux</p>
+                        <Button variant="outline" className="w-full">Bientôt disponible</Button>
+                      </Card>
+                    </div>
+                  </Card>
+                </div>
+              )}
             </div>
           )}
         </div>
