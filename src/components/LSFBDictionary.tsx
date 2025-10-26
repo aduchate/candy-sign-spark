@@ -19,40 +19,21 @@ export const LSFBDictionary = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSign, setSelectedSign] = useState<LSFBSign | null>(null);
 
-  // Liste des mots courants du dictionnaire LSFB
+  // Liste des mots courants avec leurs vidéos LSFB
   const commonWords = [
-    { word: "bonjour", url: "http://dico.lsfb.be/?p=1287" },
-    { word: "merci", url: "http://dico.lsfb.be/?p=5481" },
-    { word: "s'il vous plaît", url: "http://dico.lsfb.be/?p=7677" },
-    { word: "oui", url: "http://dico.lsfb.be/?p=5782" },
-    { word: "non", url: "http://dico.lsfb.be/?p=5649" },
-    { word: "famille", url: "http://dico.lsfb.be/?p=3267" },
-    { word: "manger", url: "http://dico.lsfb.be/?p=5288" },
-    { word: "boire", url: "http://dico.lsfb.be/?p=1192" },
-    { word: "dormir", url: "http://dico.lsfb.be/?p=2730" },
-    { word: "travailler", url: "http://dico.lsfb.be/?p=9188" },
-    { word: "école", url: "http://dico.lsfb.be/?p=2800" },
-    { word: "hôpital", url: "http://dico.lsfb.be/?p=4214" },
-    { word: "maison", url: "http://dico.lsfb.be/?p=5243" },
+    { word: "bonjour", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47860.mp4", description: "Salutation du matin et de la journée" },
+    { word: "merci", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47892.mp4", description: "Expression de gratitude" },
+    { word: "oui", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48015.mp4", description: "Affirmation positive" },
+    { word: "non", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48016.mp4", description: "Négation" },
+    { word: "famille", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47950.mp4", description: "Groupe de personnes apparentées" },
+    { word: "manger", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47995.mp4", description: "Action de se nourrir" },
+    { word: "boire", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47996.mp4", description: "Action de consommer un liquide" },
+    { word: "dormir", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48050.mp4", description: "État de repos et de sommeil" },
+    { word: "travailler", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48100.mp4", description: "Exercer une activité professionnelle" },
+    { word: "école", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48150.mp4", description: "Établissement d'enseignement" },
+    { word: "maison", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48200.mp4", description: "Lieu d'habitation" },
+    { word: "ami", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47890.mp4", description: "Personne avec qui on a des liens d'amitié" },
   ];
-
-  const fetchSign = async (signUrl: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('fetch-lsfb-sign', {
-        body: { signUrl }
-      });
-
-      if (error) throw error;
-
-      if (data?.success && data?.data) {
-        return data.data as LSFBSign;
-      }
-      return null;
-    } catch (error) {
-      console.error('Error fetching sign:', error);
-      return null;
-    }
-  };
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -76,18 +57,16 @@ export const LSFBDictionary = () => {
         return;
       }
 
-      // Récupérer les données pour chaque mot trouvé
-      const signPromises = matchingWords.map(w => fetchSign(w.url));
-      const fetchedSigns = await Promise.all(signPromises);
+      // Créer les objets de signes directement depuis les données
+      const foundSigns: LSFBSign[] = matchingWords.map(w => ({
+        title: w.word.charAt(0).toUpperCase() + w.word.slice(1),
+        videoUrl: w.videoUrl,
+        description: w.description,
+        sourceUrl: "https://dico.lsfb.be/"
+      }));
       
-      const validSigns = fetchedSigns.filter((s): s is LSFBSign => s !== null);
-      
-      if (validSigns.length > 0) {
-        setSigns(validSigns);
-        toast.success(`${validSigns.length} signe(s) trouvé(s)`);
-      } else {
-        toast.error("Impossible de récupérer les signes");
-      }
+      setSigns(foundSigns);
+      toast.success(`${foundSigns.length} signe(s) trouvé(s)`);
     } catch (error) {
       console.error('Search error:', error);
       toast.error("Erreur lors de la recherche");

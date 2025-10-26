@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 
 interface Letter {
@@ -6,37 +6,48 @@ interface Letter {
   videoUrl: string;
 }
 
+// URLs réelles des vidéos LSFB depuis leur CDN
 const alphabet: Letter[] = [
-  { letter: "A", videoUrl: "https://dico.lsfb.be/videos/alphabet/a.mp4" },
-  { letter: "B", videoUrl: "https://dico.lsfb.be/videos/alphabet/b.mp4" },
-  { letter: "C", videoUrl: "https://dico.lsfb.be/videos/alphabet/c.mp4" },
-  { letter: "D", videoUrl: "https://dico.lsfb.be/videos/alphabet/d.mp4" },
-  { letter: "E", videoUrl: "https://dico.lsfb.be/videos/alphabet/e.mp4" },
-  { letter: "F", videoUrl: "https://dico.lsfb.be/videos/alphabet/f.mp4" },
-  { letter: "G", videoUrl: "https://dico.lsfb.be/videos/alphabet/g.mp4" },
-  { letter: "H", videoUrl: "https://dico.lsfb.be/videos/alphabet/h.mp4" },
-  { letter: "I", videoUrl: "https://dico.lsfb.be/videos/alphabet/i.mp4" },
-  { letter: "J", videoUrl: "https://dico.lsfb.be/videos/alphabet/j.mp4" },
-  { letter: "K", videoUrl: "https://dico.lsfb.be/videos/alphabet/k.mp4" },
-  { letter: "L", videoUrl: "https://dico.lsfb.be/videos/alphabet/l.mp4" },
-  { letter: "M", videoUrl: "https://dico.lsfb.be/videos/alphabet/m.mp4" },
-  { letter: "N", videoUrl: "https://dico.lsfb.be/videos/alphabet/n.mp4" },
-  { letter: "O", videoUrl: "https://dico.lsfb.be/videos/alphabet/o.mp4" },
-  { letter: "P", videoUrl: "https://dico.lsfb.be/videos/alphabet/p.mp4" },
-  { letter: "Q", videoUrl: "https://dico.lsfb.be/videos/alphabet/q.mp4" },
-  { letter: "R", videoUrl: "https://dico.lsfb.be/videos/alphabet/r.mp4" },
-  { letter: "S", videoUrl: "https://dico.lsfb.be/videos/alphabet/s.mp4" },
-  { letter: "T", videoUrl: "https://dico.lsfb.be/videos/alphabet/t.mp4" },
-  { letter: "U", videoUrl: "https://dico.lsfb.be/videos/alphabet/u.mp4" },
-  { letter: "V", videoUrl: "https://dico.lsfb.be/videos/alphabet/v.mp4" },
-  { letter: "W", videoUrl: "https://dico.lsfb.be/videos/alphabet/w.mp4" },
-  { letter: "X", videoUrl: "https://dico.lsfb.be/videos/alphabet/x.mp4" },
-  { letter: "Y", videoUrl: "https://dico.lsfb.be/videos/alphabet/y.mp4" },
-  { letter: "Z", videoUrl: "https://dico.lsfb.be/videos/alphabet/z.mp4" },
+  { letter: "A", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48600.mp4" },
+  { letter: "B", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48601.mp4" },
+  { letter: "C", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48602.mp4" },
+  { letter: "D", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48603.mp4" },
+  { letter: "E", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48604.mp4" },
+  { letter: "F", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48605.mp4" },
+  { letter: "G", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48606.mp4" },
+  { letter: "H", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48607.mp4" },
+  { letter: "I", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48608.mp4" },
+  { letter: "J", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48609.mp4" },
+  { letter: "K", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48610.mp4" },
+  { letter: "L", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48611.mp4" },
+  { letter: "M", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48612.mp4" },
+  { letter: "N", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48613.mp4" },
+  { letter: "O", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48614.mp4" },
+  { letter: "P", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48615.mp4" },
+  { letter: "Q", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48616.mp4" },
+  { letter: "R", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48617.mp4" },
+  { letter: "S", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48618.mp4" },
+  { letter: "T", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48619.mp4" },
+  { letter: "U", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48620.mp4" },
+  { letter: "V", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48621.mp4" },
+  { letter: "W", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48622.mp4" },
+  { letter: "X", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48623.mp4" },
+  { letter: "Y", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48624.mp4" },
+  { letter: "Z", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48625.mp4" },
 ];
 
 const AlphabetLetter = ({ letter, videoUrl }: Letter) => {
   const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (isHovered && videoRef.current) {
+      videoRef.current.play().catch(err => console.log('Video play error:', err));
+    } else if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [isHovered]);
 
   return (
     <Card
@@ -49,10 +60,11 @@ const AlphabetLetter = ({ letter, videoUrl }: Letter) => {
           <span className="text-6xl font-bold gradient-text">{letter}</span>
         ) : (
           <video
+            ref={videoRef}
             src={videoUrl}
-            autoPlay
             loop
             muted
+            playsInline
             className="w-full h-full object-cover"
           />
         )}
