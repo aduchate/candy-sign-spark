@@ -31,11 +31,10 @@ const AlphabetLetter = ({ letter, gifUrl }: Letter) => {
 };
 
 export const AlphabetGrid = () => {
-  // URLs de GIFs pour chaque lettre (à remplacer par les vraies URLs)
+  // Alphabet sans vidéos pour l'instant - en attente des vraies URLs LSFB
   const alphabet: Letter[] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(letter => ({
     letter,
-    // Pour l'instant, utilisez un placeholder - à remplacer avec les vraies URLs de GIFs LSFB
-    gifUrl: `https://media.giphy.com/media/sign-language-${letter.toLowerCase()}/giphy.gif`
+    gifUrl: '' // Pas de vidéo pour l'instant
   }));
 
 
@@ -44,7 +43,7 @@ export const AlphabetGrid = () => {
       <div className="text-center">
         <h3 className="text-3xl font-bold mb-2">Alphabet LSFB</h3>
         <p className="text-muted-foreground">
-          Passez votre souris sur chaque lettre pour voir le signe animé correspondant
+          Alphabet LSFB - Vidéos en cours de configuration
         </p>
       </div>
       
