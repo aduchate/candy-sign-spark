@@ -13,6 +13,7 @@ import ReactMarkdown from "react-markdown";
 import lsfbAlphabet from "@/assets/lsfb-alphabet.jpg";
 import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
 import lsfbGreetings from "@/assets/lsfb-greetings.jpg";
+import { AlphabetGrid } from "@/components/AlphabetGrid";
 
 interface LessonProgress {
   id: number;
@@ -28,7 +29,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction" | "stereotype" | "starterpack">("apprentissage");
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "alphabet" | "quizz" | "traduction" | "stereotype" | "starterpack">("apprentissage");
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translation, setTranslation] = useState("");
@@ -156,6 +157,13 @@ const Dashboard = () => {
               Apprentissage
             </Button>
             <Button
+              onClick={() => setActiveSection("alphabet")}
+              variant={activeSection === "alphabet" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Alphabet
+            </Button>
+            <Button
               onClick={() => setActiveSection("quizz")}
               variant={activeSection === "quizz" ? "default" : "ghost"}
               className="w-full justify-start text-lg h-14"
@@ -207,6 +215,7 @@ const Dashboard = () => {
           <div className="px-8 py-4 flex items-center justify-between">
             <h2 className="text-2xl font-bold">
               {activeSection === "apprentissage" && "Section Apprentissage"}
+              {activeSection === "alphabet" && "Section Alphabet"}
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "stereotype" && "Section Stéréotype"}
@@ -304,6 +313,12 @@ const Dashboard = () => {
                 ))}
               </div>
             </>
+          )}
+
+          {activeSection === "alphabet" && (
+            <div className="max-w-6xl">
+              <AlphabetGrid />
+            </div>
           )}
 
           {activeSection === "quizz" && (
