@@ -6,8 +6,36 @@ import { X, Check, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const ESSENTIAL_WORDS = {
-  adult: ['Bonjour', 'comment', 'allez', 'vous', 'Merci', 'Au revoir', "S'il vous plaît"],
-  child: ['Le', 'chat', 'est', 'mignon', 'chien', 'poisson', 'oiseau']
+  adult: [
+    // Salutations
+    'Bonjour', 'Merci', 'Au revoir', 'S\'il vous plaît',
+    'comment', 'allez', 'vous',
+    // Vocabulaire professionnel
+    'travail', 'bureau', 'réunion', 'collègue', 'directeur', 'projet', 'email',
+    // Temps et dates
+    'aujourd\'hui', 'demain', 'hier',
+    'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
+    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+  ],
+  child: [
+    // Salutations
+    'Bonjour', 'Merci', 'Au revoir', 'S\'il vous plaît',
+    // Animaux
+    'chat', 'chien', 'poisson', 'oiseau',
+    // Phrases simples
+    'Le', 'est', 'mignon',
+    // Couleurs
+    'rouge', 'bleu', 'jaune', 'vert', 'orange', 'rose', 'noir', 'blanc',
+    // Famille
+    'papa', 'maman', 'frère', 'sœur', 'grand-père', 'grand-mère', 'bébé',
+    // Émotions
+    'content', 'triste', 'colère', 'peur', 'surpris', 'fatigué',
+    // Nourriture
+    'pomme', 'banane', 'pain', 'eau', 'lait', 'gâteau',
+    // Jeux
+    'ballon', 'poupée', 'jouer', 'courir', 'sauter'
+  ]
 };
 
 const ALL_WORDS = [...new Set([...ESSENTIAL_WORDS.adult, ...ESSENTIAL_WORDS.child])];
