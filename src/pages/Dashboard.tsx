@@ -25,7 +25,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction" | "stereotype">("apprentissage");
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "quizz" | "traduction" | "stereotype" | "starterpack">("apprentissage");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translation, setTranslation] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
@@ -173,6 +173,13 @@ const Dashboard = () => {
               Stéréotype
             </Button>
             <Button
+              onClick={() => setActiveSection("starterpack")}
+              variant={activeSection === "starterpack" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Starter Pack
+            </Button>
+            <Button
               onClick={handleLogout}
               variant="ghost"
               className="w-full justify-start text-lg h-14"
@@ -199,6 +206,7 @@ const Dashboard = () => {
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "stereotype" && "Section Stéréotype"}
+              {activeSection === "starterpack" && "Section Starter Pack"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -374,6 +382,17 @@ const Dashboard = () => {
                 <h3 className="text-2xl font-bold mb-4">Section Stéréotype</h3>
                 <p className="text-muted-foreground mb-6">
                   Découvrez et explorez les stéréotypes liés à la langue des signes.
+                </p>
+              </Card>
+            </div>
+          )}
+
+          {activeSection === "starterpack" && (
+            <div className="max-w-4xl">
+              <Card className="p-8">
+                <h3 className="text-2xl font-bold mb-4">Section Starter Pack</h3>
+                <p className="text-muted-foreground mb-6">
+                  Accédez à votre starter pack pour débuter avec la langue des signes.
                 </p>
               </Card>
             </div>
