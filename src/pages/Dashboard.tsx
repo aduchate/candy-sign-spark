@@ -392,8 +392,48 @@ const Dashboard = () => {
 
           {activeSection === "starterpack" && (
             <div className="max-w-6xl">
+              <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
+                <h3 className="text-3xl font-bold mb-6 text-center gradient-text">
+                  Vous souhaitez communiquer avec
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  {/* Section Adulte */}
+                  <Card className="p-8 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
+                    <div className="text-center space-y-4">
+                      <div className="w-24 h-24 mx-auto rounded-full gradient-candy flex items-center justify-center">
+                        <span className="text-5xl">👨‍💼</span>
+                      </div>
+                      <h4 className="text-2xl font-bold">Adulte</h4>
+                      <p className="text-muted-foreground">
+                        Apprenez les signes essentiels pour communiquer avec des adultes sourds ou malentendants
+                      </p>
+                      <Button className="w-full gradient-candy mt-4">
+                        Commencer
+                      </Button>
+                    </div>
+                  </Card>
+
+                  {/* Section Enfant */}
+                  <Card className="p-8 bg-gradient-to-br from-accent/5 to-success/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
+                    <div className="text-center space-y-4">
+                      <div className="w-24 h-24 mx-auto rounded-full gradient-accent flex items-center justify-center">
+                        <span className="text-5xl">👶</span>
+                      </div>
+                      <h4 className="text-2xl font-bold">Enfant</h4>
+                      <p className="text-muted-foreground">
+                        Découvrez les signes adaptés pour communiquer avec des enfants sourds ou malentendants
+                      </p>
+                      <Button className="w-full gradient-accent mt-4">
+                        Commencer
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
+              </Card>
+
               <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow">
-                <h3 className="text-3xl font-bold mb-2 gradient-text">Starter Pack LSFB</h3>
+                <h3 className="text-2xl font-bold mb-2">Ressources de base LSFB</h3>
                 <p className="text-muted-foreground mb-8">
                   Découvrez les bases essentielles de la langue des signes franco-belge
                 </p>
