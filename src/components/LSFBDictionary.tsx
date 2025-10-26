@@ -19,20 +19,20 @@ export const LSFBDictionary = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSign, setSelectedSign] = useState<LSFBSign | null>(null);
 
-  // Liste des mots courants avec leurs vidéos LSFB
+  // Liste des mots courants avec leurs vidéos LSFB (vidéos de démonstration)
   const commonWords = [
-    { word: "bonjour", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47860.mp4", description: "Salutation du matin et de la journée" },
-    { word: "merci", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47892.mp4", description: "Expression de gratitude" },
-    { word: "oui", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48015.mp4", description: "Affirmation positive" },
-    { word: "non", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48016.mp4", description: "Négation" },
-    { word: "famille", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47950.mp4", description: "Groupe de personnes apparentées" },
-    { word: "manger", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47995.mp4", description: "Action de se nourrir" },
-    { word: "boire", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47996.mp4", description: "Action de consommer un liquide" },
-    { word: "dormir", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48050.mp4", description: "État de repos et de sommeil" },
-    { word: "travailler", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48100.mp4", description: "Exercer une activité professionnelle" },
-    { word: "école", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48150.mp4", description: "Établissement d'enseignement" },
-    { word: "maison", videoUrl: "https://media.spreadthesign.com/video/mp4/13/48200.mp4", description: "Lieu d'habitation" },
-    { word: "ami", videoUrl: "https://media.spreadthesign.com/video/mp4/13/47890.mp4", description: "Personne avec qui on a des liens d'amitié" },
+    { word: "bonjour", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", description: "Salutation du matin et de la journée" },
+    { word: "merci", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", description: "Expression de gratitude" },
+    { word: "oui", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", description: "Affirmation positive" },
+    { word: "non", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", description: "Négation" },
+    { word: "famille", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4", description: "Groupe de personnes apparentées" },
+    { word: "manger", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", description: "Action de se nourrir" },
+    { word: "boire", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", description: "Action de consommer un liquide" },
+    { word: "dormir", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", description: "État de repos et de sommeil" },
+    { word: "travailler", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", description: "Exercer une activité professionnelle" },
+    { word: "école", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", description: "Établissement d'enseignement" },
+    { word: "maison", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", description: "Lieu d'habitation" },
+    { word: "ami", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", description: "Personne avec qui on a des liens d'amitié" },
   ];
 
   const handleSearch = async () => {
@@ -141,6 +141,7 @@ export const LSFBDictionary = () => {
                   <video
                     src={sign.videoUrl}
                     controls
+                    crossOrigin="anonymous"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -150,6 +151,9 @@ export const LSFBDictionary = () => {
                   {sign.description}
                 </p>
               )}
+              <p className="text-xs text-muted-foreground mt-2">
+                📹 Vidéo de démonstration
+              </p>
             </Card>
           ))}
         </div>

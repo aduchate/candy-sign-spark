@@ -6,79 +6,79 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Dictionnaire étendu de mots LSFB avec leurs vidéos
+// Dictionnaire étendu de mots LSFB avec leurs vidéos (vidéos de démonstration)
 const lsfbDictionary: Record<string, string> = {
   // Salutations
-  "bonjour": "https://media.spreadthesign.com/video/mp4/13/47860.mp4",
-  "bonsoir": "https://media.spreadthesign.com/video/mp4/13/47861.mp4",
-  "salut": "https://media.spreadthesign.com/video/mp4/13/47862.mp4",
-  "au revoir": "https://media.spreadthesign.com/video/mp4/13/47863.mp4",
+  "bonjour": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "bonsoir": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "salut": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "au revoir": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
   
   // Politesse
-  "merci": "https://media.spreadthesign.com/video/mp4/13/47892.mp4",
-  "s'il vous plaît": "https://media.spreadthesign.com/video/mp4/13/47893.mp4",
-  "pardon": "https://media.spreadthesign.com/video/mp4/13/47894.mp4",
-  "excusez-moi": "https://media.spreadthesign.com/video/mp4/13/47895.mp4",
+  "merci": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "s'il vous plaît": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  "pardon": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "excusez-moi": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
   
   // Réponses
-  "oui": "https://media.spreadthesign.com/video/mp4/13/48015.mp4",
-  "non": "https://media.spreadthesign.com/video/mp4/13/48016.mp4",
-  "peut-être": "https://media.spreadthesign.com/video/mp4/13/48017.mp4",
+  "oui": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "non": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "peut-être": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
   
   // Famille
-  "famille": "https://media.spreadthesign.com/video/mp4/13/47950.mp4",
-  "maman": "https://media.spreadthesign.com/video/mp4/13/47951.mp4",
-  "papa": "https://media.spreadthesign.com/video/mp4/13/47952.mp4",
-  "frère": "https://media.spreadthesign.com/video/mp4/13/47953.mp4",
-  "sœur": "https://media.spreadthesign.com/video/mp4/13/47954.mp4",
-  "enfant": "https://media.spreadthesign.com/video/mp4/13/47955.mp4",
+  "famille": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "maman": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "papa": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  "frère": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "sœur": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "enfant": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   
   // Actions quotidiennes
-  "manger": "https://media.spreadthesign.com/video/mp4/13/47995.mp4",
-  "boire": "https://media.spreadthesign.com/video/mp4/13/47996.mp4",
-  "dormir": "https://media.spreadthesign.com/video/mp4/13/48050.mp4",
-  "travailler": "https://media.spreadthesign.com/video/mp4/13/48100.mp4",
-  "jouer": "https://media.spreadthesign.com/video/mp4/13/48101.mp4",
-  "étudier": "https://media.spreadthesign.com/video/mp4/13/48102.mp4",
-  "lire": "https://media.spreadthesign.com/video/mp4/13/48103.mp4",
-  "écrire": "https://media.spreadthesign.com/video/mp4/13/48104.mp4",
+  "manger": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "boire": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "dormir": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "travailler": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "jouer": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  "étudier": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "lire": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "écrire": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   
   // Lieux
-  "maison": "https://media.spreadthesign.com/video/mp4/13/48200.mp4",
-  "école": "https://media.spreadthesign.com/video/mp4/13/48150.mp4",
-  "hôpital": "https://media.spreadthesign.com/video/mp4/13/48151.mp4",
-  "magasin": "https://media.spreadthesign.com/video/mp4/13/48152.mp4",
-  "restaurant": "https://media.spreadthesign.com/video/mp4/13/48153.mp4",
+  "maison": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "école": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "hôpital": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "magasin": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "restaurant": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
   
   // Pronoms et personnes
-  "je": "https://media.spreadthesign.com/video/mp4/13/48250.mp4",
-  "tu": "https://media.spreadthesign.com/video/mp4/13/48251.mp4",
-  "il": "https://media.spreadthesign.com/video/mp4/13/48252.mp4",
-  "elle": "https://media.spreadthesign.com/video/mp4/13/48253.mp4",
-  "nous": "https://media.spreadthesign.com/video/mp4/13/48254.mp4",
-  "vous": "https://media.spreadthesign.com/video/mp4/13/48255.mp4",
-  "ils": "https://media.spreadthesign.com/video/mp4/13/48256.mp4",
-  "ami": "https://media.spreadthesign.com/video/mp4/13/47890.mp4",
+  "je": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "tu": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "il": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "elle": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "nous": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "vous": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "ils": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "ami": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
   
   // Temps
-  "aujourd'hui": "https://media.spreadthesign.com/video/mp4/13/48300.mp4",
-  "demain": "https://media.spreadthesign.com/video/mp4/13/48301.mp4",
-  "hier": "https://media.spreadthesign.com/video/mp4/13/48302.mp4",
-  "maintenant": "https://media.spreadthesign.com/video/mp4/13/48303.mp4",
+  "aujourd'hui": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "demain": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "hier": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "maintenant": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   
   // Verbes auxiliaires
-  "être": "https://media.spreadthesign.com/video/mp4/13/48400.mp4",
-  "avoir": "https://media.spreadthesign.com/video/mp4/13/48401.mp4",
-  "aller": "https://media.spreadthesign.com/video/mp4/13/48402.mp4",
-  "faire": "https://media.spreadthesign.com/video/mp4/13/48403.mp4",
-  "vouloir": "https://media.spreadthesign.com/video/mp4/13/48404.mp4",
-  "pouvoir": "https://media.spreadthesign.com/video/mp4/13/48405.mp4",
+  "être": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "avoir": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "aller": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "faire": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+  "vouloir": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "pouvoir": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
   
   // Émotions
-  "heureux": "https://media.spreadthesign.com/video/mp4/13/48500.mp4",
-  "triste": "https://media.spreadthesign.com/video/mp4/13/48501.mp4",
-  "content": "https://media.spreadthesign.com/video/mp4/13/48502.mp4",
-  "fatigué": "https://media.spreadthesign.com/video/mp4/13/48503.mp4",
+  "heureux": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "triste": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "content": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "fatigué": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
 };
 
 serve(async (req) => {

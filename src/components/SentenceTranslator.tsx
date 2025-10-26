@@ -238,15 +238,20 @@ export const SentenceTranslator = () => {
                 </h4>
 
                 {translation.videoUrl ? (
-                  <div className="aspect-video bg-muted rounded-md overflow-hidden">
+                  <div className="aspect-video bg-muted rounded-md overflow-hidden relative">
                     <video
                       ref={el => videoRefs.current[index] = el}
                       src={translation.videoUrl}
                       className="w-full h-full object-cover"
+                      controls
                       muted
                       playsInline
                       preload="metadata"
+                      crossOrigin="anonymous"
                     />
+                    <div className="absolute bottom-1 right-1 text-xs bg-background/80 px-2 py-0.5 rounded">
+                      📹
+                    </div>
                   </div>
                 ) : (
                   <div className="aspect-video bg-muted rounded-md flex items-center justify-center">
