@@ -47,7 +47,7 @@ const AlphabetLetter = ({ letter, gifUrl, onFetch, isLoading }: AlphabetLetterPr
       </div>
       {!gifUrl && !isLoading && (
         <div className="absolute bottom-1 right-1 text-xs text-muted-foreground bg-background/80 px-1 rounded">
-          Cliquez
+          Auto...
         </div>
       )}
     </Card>
@@ -62,11 +62,18 @@ export const AlphabetGrid = () => {
     }))
   );
   const [loading, setLoading] = useState(true);
-  const [loadingLetter, setLoadingLetter] = useState<string | null>(null);
+  const [loadingLetters, setLoadingLetters] = useState<Set<string>>(new Set());
+  const [loadedCount, setLoadedCount] = useState(0);
 
   useEffect(() => {
     loadAlphabetVideos();
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      fetchAllMissingVideos();
+    }
+  }, [loading]);
 
   const loadAlphabetVideos = async () => {
     try {
@@ -81,6 +88,7 @@ export const AlphabetGrid = () => {
           const found = data.find(d => d.letter === item.letter);
           return found ? { ...item, gifUrl: found.video_url } : item;
         }));
+        setLoadedCount(data.length);
       }
     } catch (error) {
       console.error('Error loading alphabet videos:', error);
@@ -89,10 +97,33 @@ export const AlphabetGrid = () => {
     }
   };
 
-  const fetchVideoForLetter = async (letter: string) => {
-    if (loadingLetter) return;
+  const fetchAllMissingVideos = async () => {
+    const missingLetters = alphabet.filter(item => !item.gifUrl).map(item => item.letter);
     
-    setLoadingLetter(letter);
+    if (missingLetters.length === 0) return;
+
+    console.log(`Fetching ${missingLetters.length} missing alphabet videos...`);
+
+    // Process in batches of 5 to avoid overwhelming the server
+    const batchSize = 5;
+    for (let i = 0; i < missingLetters.length; i += batchSize) {
+      const batch = missingLetters.slice(i, i + batchSize);
+      
+      await Promise.all(
+        batch.map(letter => fetchVideoForLetter(letter, true))
+      );
+
+      // Small delay between batches
+      if (i + batchSize < missingLetters.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  };
+
+  const fetchVideoForLetter = async (letter: string, isAutoFetch = false) => {
+    if (loadingLetters.has(letter)) return;
+    
+    setLoadingLetters(prev => new Set(prev).add(letter));
     try {
       const { data, error } = await supabase.functions.invoke('fetch-and-store-lsfb-video', {
         body: { word: letter, type: 'alphabet' }
@@ -104,20 +135,30 @@ export const AlphabetGrid = () => {
         setAlphabet(prev => prev.map(item => 
           item.letter === letter ? { ...item, gifUrl: data.video_url } : item
         ));
-        toast({
-          title: "Vidéo chargée",
-          description: `La vidéo pour la lettre ${letter} a été chargée avec succès`,
-        });
+        setLoadedCount(prev => prev + 1);
+        
+        if (!isAutoFetch) {
+          toast({
+            title: "Vidéo chargée",
+            description: `La vidéo pour la lettre ${letter} a été chargée avec succès`,
+          });
+        }
       }
     } catch (error) {
-      console.error('Error fetching video:', error);
-      toast({
-        title: "Erreur",
-        description: `Impossible de charger la vidéo pour ${letter}`,
-        variant: "destructive",
-      });
+      console.error('Error fetching video for letter:', letter, error);
+      if (!isAutoFetch) {
+        toast({
+          title: "Erreur",
+          description: `Impossible de charger la vidéo pour ${letter}`,
+          variant: "destructive",
+        });
+      }
     } finally {
-      setLoadingLetter(null);
+      setLoadingLetters(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(letter);
+        return newSet;
+      });
     }
   };
 
@@ -127,7 +168,14 @@ export const AlphabetGrid = () => {
       <div className="text-center">
         <h3 className="text-3xl font-bold mb-2">Alphabet LSFB</h3>
         <p className="text-muted-foreground">
-          {loading ? "Chargement des vidéos..." : "Survolez une lettre pour voir la vidéo. Cliquez si elle n'est pas encore chargée."}
+          {loading 
+            ? "Chargement des vidéos..." 
+            : loadingLetters.size > 0 
+              ? `Téléchargement automatique en cours... ${loadedCount}/26`
+              : loadedCount === 26
+                ? "Survolez une lettre pour voir la vidéo"
+                : `${loadedCount}/26 vidéos chargées. Survolez ou cliquez sur une lettre.`
+          }
         </p>
       </div>
       
@@ -136,8 +184,8 @@ export const AlphabetGrid = () => {
           <AlphabetLetter 
             key={item.letter} 
             {...item} 
-            onFetch={fetchVideoForLetter}
-            isLoading={loadingLetter === item.letter}
+            onFetch={(letter) => fetchVideoForLetter(letter, false)}
+            isLoading={loadingLetters.has(item.letter)}
           />
         ))}
       </div>
