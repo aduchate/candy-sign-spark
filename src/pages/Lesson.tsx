@@ -74,9 +74,44 @@ const Lesson = () => {
 
   // Handle new format with exercises
   if (isNewFormat) {
-    const exercises = lessonData.exercises || [];
+    const exercises = lessonData.exercises?.sort((a: any, b: any) => a.order_index - b.order_index) || [];
+    
+    // If no exercises, show empty state
+    if (exercises.length === 0) {
+      return (
+        <div className="min-h-screen p-4">
+          <div className="container mx-auto max-w-2xl">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
+              className="gap-2 mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {t('common.back')}
+            </Button>
+            <Card className="p-8 text-center">
+              <h2 className="text-2xl font-bold mb-4">Cette leçon n'a pas encore d'exercices</h2>
+              <p className="text-muted-foreground mb-6">
+                Les exercices seront bientôt disponibles pour cette leçon.
+              </p>
+              <Button onClick={() => navigate("/")} className="gradient-candy">
+                Retour au tableau de bord
+              </Button>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+
     const progress = ((currentExercise + 1) / exercises.length) * 100;
     const exercise = exercises[currentExercise];
+    
+    // Safety check for exercise
+    if (!exercise) {
+      console.error("Exercise not found at index:", currentExercise);
+      navigate("/");
+      return null;
+    }
 
     const handleExerciseComplete = async (correct: boolean, timeSpent: number) => {
       if (correct) {
