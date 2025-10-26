@@ -15,6 +15,7 @@ import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
 import lsfbGreetings from "@/assets/lsfb-greetings.jpg";
 import { AlphabetGrid } from "@/components/AlphabetGrid";
 import { LSFBDictionary } from "@/components/LSFBDictionary";
+import { SentenceTranslator } from "@/components/SentenceTranslator";
 
 interface LessonProgress {
   id: number;
@@ -360,53 +361,8 @@ const Dashboard = () => {
           )}
 
           {activeSection === "traduction" && (
-            <div className="max-w-4xl">
-              <Card className="p-8">
-                <h3 className="text-2xl font-bold mb-4">Section Traduction</h3>
-                <p className="text-muted-foreground mb-6">
-                  Traduisez du français vers la langue des signes franco-belge et vice versa.
-                </p>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Texte à traduire</label>
-                    <textarea 
-                      className="w-full p-3 border border-border rounded-md bg-background min-h-[120px]"
-                      placeholder="Entrez votre texte ici..."
-                      value={textToTranslate}
-                      onChange={(e) => setTextToTranslate(e.target.value)}
-                    />
-                  </div>
-                  <Button 
-                    className="gradient-candy" 
-                    onClick={handleTranslate}
-                    disabled={isTranslating || !textToTranslate.trim()}
-                  >
-                    {isTranslating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Traduction en cours...
-                      </>
-                    ) : (
-                      "Traduire"
-                    )}
-                  </Button>
-                  {translation && (
-                    <div className="mt-6 p-4 bg-muted rounded-md">
-                      <h4 className="font-semibold mb-4">Description des signes LSFB :</h4>
-                      <div className="prose prose-sm max-w-none dark:prose-invert">
-                        <ReactMarkdown>{translation}</ReactMarkdown>
-                      </div>
-                    </div>
-                  )}
-                  {!translation && !isTranslating && (
-                    <div className="mt-6 p-4 bg-muted rounded-md">
-                      <p className="text-sm text-muted-foreground">
-                        La traduction apparaîtra ici...
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </Card>
+            <div className="max-w-6xl">
+              <SentenceTranslator />
             </div>
           )}
 
