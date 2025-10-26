@@ -14,6 +14,7 @@ import lsfbAlphabet from "@/assets/lsfb-alphabet.jpg";
 import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
 import lsfbGreetings from "@/assets/lsfb-greetings.jpg";
 import { AlphabetGrid } from "@/components/AlphabetGrid";
+import { LSFBDictionary } from "@/components/LSFBDictionary";
 
 interface LessonProgress {
   id: number;
@@ -29,7 +30,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "alphabet" | "quizz" | "traduction" | "stereotype" | "starterpack">("apprentissage");
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "alphabet" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack">("apprentissage");
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translation, setTranslation] = useState("");
@@ -164,6 +165,13 @@ const Dashboard = () => {
               Alphabet
             </Button>
             <Button
+              onClick={() => setActiveSection("dictionnaire")}
+              variant={activeSection === "dictionnaire" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Dictionnaire
+            </Button>
+            <Button
               onClick={() => setActiveSection("quizz")}
               variant={activeSection === "quizz" ? "default" : "ghost"}
               className="w-full justify-start text-lg h-14"
@@ -216,6 +224,7 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold">
               {activeSection === "apprentissage" && "Section Apprentissage"}
               {activeSection === "alphabet" && "Section Alphabet"}
+              {activeSection === "dictionnaire" && "Section Dictionnaire"}
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "stereotype" && "Section Stéréotype"}
@@ -318,6 +327,12 @@ const Dashboard = () => {
           {activeSection === "alphabet" && (
             <div className="max-w-6xl">
               <AlphabetGrid />
+            </div>
+          )}
+
+          {activeSection === "dictionnaire" && (
+            <div className="max-w-6xl">
+              <LSFBDictionary />
             </div>
           )}
 
