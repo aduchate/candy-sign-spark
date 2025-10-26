@@ -46,27 +46,45 @@ export const LSFBDictionary = () => {
     setSelectedSign(null);
 
     try {
-      // Rechercher dans les mots courants
-      const matchingWords = commonWords.filter(w => 
-        w.word.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      // Check if video already exists in database
+      const { data: existingData } = await supabase
+        .from('word_signs')
+        .select('word, video_url, source_url, description')
+        .ilike('word', searchTerm.trim())
+        .single();
 
-      if (matchingWords.length === 0) {
-        toast.error("Aucun signe trouvé pour ce mot");
+      if (existingData) {
+        const foundSigns: LSFBSign[] = [{
+          title: existingData.word.charAt(0).toUpperCase() + existingData.word.slice(1),
+          videoUrl: existingData.video_url,
+          description: existingData.description || `Signe pour "${existingData.word}" en LSFB`,
+          sourceUrl: existingData.source_url || "https://dico.lsfb.be/",
+        }];
+        setSigns(foundSigns);
+        toast.success("Signe trouvé dans la base de données");
         setIsLoading(false);
         return;
       }
 
-      // Créer les objets de signes directement depuis les données
-      const foundSigns: LSFBSign[] = matchingWords.map(w => ({
-        title: w.word.charAt(0).toUpperCase() + w.word.slice(1),
-        videoUrl: w.videoUrl,
-        description: w.description,
-        sourceUrl: "https://dico.lsfb.be/"
-      }));
-      
-      setSigns(foundSigns);
-      toast.success(`${foundSigns.length} signe(s) trouvé(s)`);
+      // If not in database, fetch from dico.lsfb.be
+      const { data, error } = await supabase.functions.invoke('fetch-and-store-lsfb-video', {
+        body: { word: searchTerm.trim(), type: 'word' }
+      });
+
+      if (error) throw error;
+
+      if (data?.success && data?.video_url) {
+        const foundSigns: LSFBSign[] = [{
+          title: searchTerm.trim().charAt(0).toUpperCase() + searchTerm.trim().slice(1),
+          videoUrl: data.video_url,
+          description: data.description || `Signe pour "${searchTerm}" en LSFB`,
+          sourceUrl: data.source_url || "https://dico.lsfb.be/",
+        }];
+        setSigns(foundSigns);
+        toast.success("Vidéo trouvée et stockée avec succès");
+      } else {
+        toast.error("Aucun signe trouvé pour ce mot");
+      }
     } catch (error) {
       console.error('Search error:', error);
       toast.error("Erreur lors de la recherche");

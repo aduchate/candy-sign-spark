@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      alphabet_signs: {
+        Row: {
+          created_at: string
+          id: string
+          letter: string
+          source_url: string | null
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          letter: string
+          source_url?: string | null
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          letter?: string
+          source_url?: string | null
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -81,6 +108,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      word_signs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          source_url: string | null
+          updated_at: string
+          video_url: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          source_url?: string | null
+          updated_at?: string
+          video_url: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          source_url?: string | null
+          updated_at?: string
+          video_url?: string
+          word?: string
+        }
+        Relationships: []
       }
     }
     Views: {
