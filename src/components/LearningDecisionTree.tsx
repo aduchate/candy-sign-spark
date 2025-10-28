@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +6,11 @@ import { Users, Baby, Briefcase, GraduationCap, ChevronLeft, Stethoscope, Brain,
 import { LevelTabs } from "./LevelTabs";
 import { AlphabetGrid } from "./AlphabetGrid";
 import { NumbersGrid } from "./NumbersGrid";
+import { ExerciseSelector } from "./exercises/ExerciseSelector";
+import { FlashCards } from "./exercises/FlashCards";
+import { QuizExercise } from "./exercises/QuizExercise";
+import { MatchingExercise } from "./exercises/MatchingExercise";
+import { supabase } from "@/integrations/supabase/client";
 
 type Step = "age" | "adult-choice" | "professions" | "leisure-levels" | "child-choice" | "early-childhood" | "childhood";
 type AgeGroup = "adulte" | "enfant" | null;
@@ -29,6 +34,44 @@ export const LearningDecisionTree = () => {
   const [selectedLevel, setSelectedLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
   const [childTab, setChildTab] = useState<"alphabet" | "chiffres">("alphabet");
+  const [adultExerciseType, setAdultExerciseType] = useState<"flashcards" | "quiz" | "matching" | null>(null);
+  const [childExerciseType, setChildExerciseType] = useState<"flashcards" | "quiz" | "matching" | null>(null);
+  const [alphabetData, setAlphabetData] = useState<any[]>([]);
+  const [numbersData, setNumbersData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadExerciseData();
+  }, []);
+
+  const loadExerciseData = async () => {
+    try {
+      // Load alphabet
+      const { data: alphabetSigns } = await supabase
+        .from('alphabet_signs')
+        .select('letter, video_url')
+        .order('letter');
+
+      if (alphabetSigns) {
+        setAlphabetData(alphabetSigns);
+      }
+
+      // Load numbers
+      const numbersWords = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
+      const { data: numberSigns } = await supabase
+        .from('word_signs')
+        .select('word, video_url')
+        .in('word', numbersWords);
+
+      if (numberSigns) {
+        setNumbersData(numberSigns);
+      }
+    } catch (error) {
+      console.error('Error loading exercise data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAgeSelect = (age: "adulte" | "enfant") => {
     setAgeGroup(age);
@@ -58,6 +101,16 @@ export const LearningDecisionTree = () => {
   };
 
   const handleBack = () => {
+    // Reset exercise types when going back
+    if (adultExerciseType) {
+      setAdultExerciseType(null);
+      return;
+    }
+    if (childExerciseType) {
+      setChildExerciseType(null);
+      return;
+    }
+
     if (currentStep === "adult-choice" || currentStep === "child-choice") {
       setCurrentStep("age");
       setAgeGroup(null);
@@ -71,6 +124,69 @@ export const LearningDecisionTree = () => {
       setCurrentStep("child-choice");
       setChildPath(null);
     }
+  };
+
+  // Prepare exercise data
+  const getFlashCardsData = (type: "alphabet" | "numbers") => {
+    if (type === "alphabet") {
+      return alphabetData.map(item => ({
+        front: item.letter,
+        back: item.video_url,
+        label: `Lettre ${item.letter}`
+      }));
+    } else {
+      const numberMap: Record<string, string> = {
+        "zéro": "0", "un": "1", "deux": "2", "trois": "3", "quatre": "4",
+        "cinq": "5", "six": "6", "sept": "7", "huit": "8", "neuf": "9", "dix": "10"
+      };
+      return numbersData.map(item => ({
+        front: numberMap[item.word] || item.word,
+        back: item.video_url,
+        label: item.word.charAt(0).toUpperCase() + item.word.slice(1)
+      }));
+    }
+  };
+
+  const getQuizData = (type: "alphabet" | "numbers") => {
+    const data = type === "alphabet" ? alphabetData : numbersData;
+    const numberMap: Record<string, string> = {
+      "zéro": "0", "un": "1", "deux": "2", "trois": "3", "quatre": "4",
+      "cinq": "5", "six": "6", "sept": "7", "huit": "8", "neuf": "9", "dix": "10"
+    };
+
+    return data.slice(0, 10).map((item, index) => {
+      const allVideos = data.map(d => d.video_url).filter(Boolean);
+      const correctAnswer = item.video_url;
+      
+      // Get 3 random distractors
+      const distractors = allVideos
+        .filter(v => v !== correctAnswer)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      
+      const options = [correctAnswer, ...distractors].sort(() => Math.random() - 0.5);
+
+      return {
+        question: type === "alphabet" ? item.letter : (numberMap[item.word] || item.word),
+        questionLabel: type === "alphabet" ? `Lettre ${item.letter}` : item.word.charAt(0).toUpperCase() + item.word.slice(1),
+        correctAnswer,
+        options
+      };
+    });
+  };
+
+  const getMatchingData = (type: "alphabet" | "numbers") => {
+    const data = type === "alphabet" ? alphabetData : numbersData;
+    const numberMap: Record<string, string> = {
+      "zéro": "0", "un": "1", "deux": "2", "trois": "3", "quatre": "4",
+      "cinq": "5", "six": "6", "sept": "7", "huit": "8", "neuf": "9", "dix": "10"
+    };
+
+    return data.slice(0, 8).map(item => ({
+      id: type === "alphabet" ? item.letter : item.word,
+      text: type === "alphabet" ? item.letter : (numberMap[item.word] || item.word),
+      video: item.video_url
+    }));
   };
 
   const renderBreadcrumb = () => {
@@ -248,14 +364,56 @@ export const LearningDecisionTree = () => {
           <LevelTabs selected={selectedLevel} onSelect={setSelectedLevel} />
 
           {selectedLevel === "A1" ? (
-            <div className="space-y-8 mt-6">
-              <Card className="p-6">
-                <AlphabetGrid />
+            adultExerciseType ? (
+              <Card className="p-6 mt-6">
+                {adultExerciseType === "flashcards" && (
+                  <Tabs defaultValue="alphabet" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-6">
+                      <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
+                      <TabsTrigger value="numbers">Chiffres</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="alphabet">
+                      <FlashCards items={getFlashCardsData("alphabet")} title="Flash Cards - Alphabet" />
+                    </TabsContent>
+                    <TabsContent value="numbers">
+                      <FlashCards items={getFlashCardsData("numbers")} title="Flash Cards - Chiffres" />
+                    </TabsContent>
+                  </Tabs>
+                )}
+                {adultExerciseType === "quiz" && (
+                  <Tabs defaultValue="alphabet" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-6">
+                      <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
+                      <TabsTrigger value="numbers">Chiffres</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="alphabet">
+                      <QuizExercise items={getQuizData("alphabet")} title="Quiz - Alphabet" />
+                    </TabsContent>
+                    <TabsContent value="numbers">
+                      <QuizExercise items={getQuizData("numbers")} title="Quiz - Chiffres" />
+                    </TabsContent>
+                  </Tabs>
+                )}
+                {adultExerciseType === "matching" && (
+                  <Tabs defaultValue="alphabet" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-6">
+                      <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
+                      <TabsTrigger value="numbers">Chiffres</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="alphabet">
+                      <MatchingExercise items={getMatchingData("alphabet")} title="Appariement - Alphabet" />
+                    </TabsContent>
+                    <TabsContent value="numbers">
+                      <MatchingExercise items={getMatchingData("numbers")} title="Appariement - Chiffres" />
+                    </TabsContent>
+                  </Tabs>
+                )}
               </Card>
-              <Card className="p-6">
-                <NumbersGrid />
+            ) : (
+              <Card className="p-6 mt-6">
+                <ExerciseSelector onSelectExercise={setAdultExerciseType} />
               </Card>
-            </div>
+            )
           ) : (
             <Card className="p-6 mt-6">
               <h3 className="text-xl font-bold mb-4">Leçons niveau {selectedLevel}</h3>
@@ -327,7 +485,7 @@ export const LearningDecisionTree = () => {
         </div>
       )}
 
-      {/* Étape 3d: Enfance - Onglets Alphabet et Chiffres */}
+      {/* Étape 3d: Enfance - Onglets Alphabet et Chiffres avec exercices ludiques */}
       {currentStep === "childhood" && (
         <div className="space-y-6">
           <div className="text-center mb-8">
@@ -348,15 +506,43 @@ export const LearningDecisionTree = () => {
             </TabsList>
 
             <TabsContent value="alphabet" className="mt-0">
-              <Card className="p-6">
-                <AlphabetGrid />
-              </Card>
+              {childExerciseType ? (
+                <Card className="p-6">
+                  {childExerciseType === "flashcards" && (
+                    <FlashCards items={getFlashCardsData("alphabet")} title="Cartes Magiques - Alphabet 🎴" isChildMode />
+                  )}
+                  {childExerciseType === "quiz" && (
+                    <QuizExercise items={getQuizData("alphabet")} title="Quiz Rigolo - Alphabet 🎯" isChildMode />
+                  )}
+                  {childExerciseType === "matching" && (
+                    <MatchingExercise items={getMatchingData("alphabet")} title="Jeu des Paires - Alphabet 🔗" isChildMode />
+                  )}
+                </Card>
+              ) : (
+                <Card className="p-6">
+                  <ExerciseSelector onSelectExercise={setChildExerciseType} isChildMode />
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="chiffres" className="mt-0">
-              <Card className="p-6">
-                <NumbersGrid />
-              </Card>
+              {childExerciseType ? (
+                <Card className="p-6">
+                  {childExerciseType === "flashcards" && (
+                    <FlashCards items={getFlashCardsData("numbers")} title="Cartes Magiques - Chiffres 🎴" isChildMode />
+                  )}
+                  {childExerciseType === "quiz" && (
+                    <QuizExercise items={getQuizData("numbers")} title="Quiz Rigolo - Chiffres 🎯" isChildMode />
+                  )}
+                  {childExerciseType === "matching" && (
+                    <MatchingExercise items={getMatchingData("numbers")} title="Jeu des Paires - Chiffres 🔗" isChildMode />
+                  )}
+                </Card>
+              ) : (
+                <Card className="p-6">
+                  <ExerciseSelector onSelectExercise={setChildExerciseType} isChildMode />
+                </Card>
+              )}
             </TabsContent>
           </Tabs>
         </div>
