@@ -46,7 +46,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "alphabet" | "chiffres" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens">("apprentissage");
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens">("apprentissage");
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
   const [textToTranslate, setTextToTranslate] = useState("");
@@ -201,20 +201,6 @@ const Dashboard = () => {
               Apprentissage
             </Button>
             <Button
-              onClick={() => setActiveSection("alphabet")}
-              variant={activeSection === "alphabet" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Alphabet
-            </Button>
-            <Button
-              onClick={() => setActiveSection("chiffres")}
-              variant={activeSection === "chiffres" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Chiffres
-            </Button>
-            <Button
               onClick={() => setActiveSection("dictionnaire")}
               variant={activeSection === "dictionnaire" ? "default" : "ghost"}
               className="w-full justify-start text-lg h-14"
@@ -280,8 +266,6 @@ const Dashboard = () => {
           <div className="px-8 py-4 flex items-center justify-between">
             <h2 className="text-2xl font-bold">
               {activeSection === "apprentissage" && "Section Apprentissage"}
-              {activeSection === "alphabet" && "Section Alphabet"}
-              {activeSection === "chiffres" && "Section Chiffres"}
               {activeSection === "dictionnaire" && "Section Dictionnaire"}
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
@@ -301,18 +285,6 @@ const Dashboard = () => {
         <div className="p-8">
           {activeSection === "apprentissage" && (
             <LearningDecisionTree />
-          )}
-
-          {activeSection === "alphabet" && (
-            <div className="max-w-6xl">
-              <AlphabetGrid />
-            </div>
-          )}
-
-          {activeSection === "chiffres" && (
-            <div className="max-w-6xl">
-              <NumbersGrid />
-            </div>
           )}
 
           {activeSection === "dictionnaire" && (
