@@ -48,8 +48,9 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const sectionParam = searchParams.get("section") as "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens" | null;
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens">(sectionParam || "apprentissage");
+  const sectionParam = searchParams.get("section") as "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | null;
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens">(sectionParam || "apprentissage");
+  const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
   const [textToTranslate, setTextToTranslate] = useState("");
@@ -237,13 +238,6 @@ const Dashboard = () => {
               Traduction
             </Button>
             <Button
-              onClick={() => setActiveSection("stereotype")}
-              variant={activeSection === "stereotype" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Stéréotype
-            </Button>
-            <Button
               onClick={() => setActiveSection("starterpack")}
               variant={activeSection === "starterpack" ? "default" : "ghost"}
               className="w-full justify-start text-lg h-14"
@@ -284,7 +278,6 @@ const Dashboard = () => {
               {activeSection === "dictionnaire" && "Section Dictionnaire"}
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
-              {activeSection === "stereotype" && "Section Stéréotype"}
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
             </h2>
@@ -310,24 +303,46 @@ const Dashboard = () => {
 
           {activeSection === "quizz" && (
             <div className="max-w-4xl">
-              <Card className="p-8 text-center">
-                <h3 className="text-2xl font-bold mb-4">Section Quizz</h3>
-                <p className="text-muted-foreground mb-6">
-                  Testez vos connaissances de la langue des signes franco-belge avec nos quizz interactifs.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {lessons.filter(l => !l.locked).map((lesson) => (
-                    <Link key={lesson.id} to={`/lesson/${lesson.id}`}>
-                      <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
-                        <h4 className="font-bold mb-2">{lesson.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {lesson.completed ? "Refaire le quizz" : "Commencer le quizz"}
-                        </p>
-                      </Card>
-                    </Link>
-                  ))}
+              {showStereotypeQuiz ? (
+                <div>
+                  <Button 
+                    variant="ghost" 
+                    className="mb-6"
+                    onClick={() => setShowStereotypeQuiz(false)}
+                  >
+                    ← Retour aux quizz
+                  </Button>
+                  <StereotypeQuiz />
                 </div>
-              </Card>
+              ) : (
+                <Card className="p-8 text-center">
+                  <h3 className="text-2xl font-bold mb-4">Section Quizz</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Testez vos connaissances de la langue des signes franco-belge avec nos quizz interactifs.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {lessons.filter(l => !l.locked).map((lesson) => (
+                      <Link key={lesson.id} to={`/lesson/${lesson.id}`}>
+                        <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
+                          <h4 className="font-bold mb-2">{lesson.title}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {lesson.completed ? "Refaire le quizz" : "Commencer le quizz"}
+                          </p>
+                        </Card>
+                      </Link>
+                    ))}
+                    <Card 
+                      className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2"
+                      onClick={() => setShowStereotypeQuiz(true)}
+                    >
+                      <h4 className="font-bold mb-2">Stéréotypes & Culture Sourde</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Déconstruire les préjugés
+                      </p>
+                    </Card>
+                  </div>
+                </Card>
+              )}
             </div>
           )}
 
@@ -335,10 +350,6 @@ const Dashboard = () => {
             <div className="max-w-6xl">
               <SentenceTranslator />
             </div>
-          )}
-
-          {activeSection === "stereotype" && (
-            <StereotypeQuiz />
           )}
 
           {activeSection === "starterpack" && (
