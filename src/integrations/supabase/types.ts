@@ -111,26 +111,44 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           avatar_url: string | null
           created_at: string
+          hearing_status: string | null
           id: string
+          installation_reason: string | null
+          onboarding_completed: boolean | null
           preferred_age_group: string | null
+          profession: string | null
+          status: string | null
           updated_at: string
           username: string | null
         }
         Insert: {
+          age?: number | null
           avatar_url?: string | null
           created_at?: string
+          hearing_status?: string | null
           id: string
+          installation_reason?: string | null
+          onboarding_completed?: boolean | null
           preferred_age_group?: string | null
+          profession?: string | null
+          status?: string | null
           updated_at?: string
           username?: string | null
         }
         Update: {
+          age?: number | null
           avatar_url?: string | null
           created_at?: string
+          hearing_status?: string | null
           id?: string
+          installation_reason?: string | null
+          onboarding_completed?: boolean | null
           preferred_age_group?: string | null
+          profession?: string | null
+          status?: string | null
           updated_at?: string
           username?: string | null
         }

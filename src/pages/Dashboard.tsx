@@ -60,10 +60,22 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Check authentication
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
         navigate("/auth");
       } else {
+        // Check if onboarding is completed
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", session.user.id)
+          .single();
+
+        if (!profile?.onboarding_completed) {
+          navigate("/onboarding");
+          return;
+        }
+
         setUser(session.user);
         fetchUserProgress(session.user.id);
       }

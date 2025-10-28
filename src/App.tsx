@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Lesson from "./pages/Lesson";
 import Stats from "./pages/Stats";
 import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 import { StarterPackVideoLoader } from "./components/StarterPackVideoLoader";
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/lesson/:id" element={<Lesson />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -27,19 +27,33 @@ const Auth = () => {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/");
+        checkOnboardingStatus(session.user.id);
       }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/");
+        checkOnboardingStatus(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkOnboardingStatus = async (userId: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", userId)
+      .single();
+
+    if (profile?.onboarding_completed) {
+      navigate("/");
+    } else {
+      navigate("/onboarding");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +100,7 @@ const Auth = () => {
         }
 
         toast.success(t('auth.accountCreated'));
+        navigate("/onboarding");
       }
     } catch (error) {
       if (error instanceof z.ZodError) {

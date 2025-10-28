@@ -1,10 +1,33 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Languages, MessageSquare, Users, Video, Link as LinkIcon, GraduationCap, List } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is logged in and if onboarding is completed
+    const checkOnboardingStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", session.user.id)
+          .single();
+
+        if (!profile?.onboarding_completed) {
+          navigate("/onboarding");
+        }
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [navigate]);
 
   const sections = [
     {
