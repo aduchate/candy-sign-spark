@@ -11,8 +11,10 @@ const Index = () => {
   useEffect(() => {
     // Check if user is logged in and if onboarding is completed
     const checkOnboardingStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (session) {
         const { data: profile } = await supabase
           .from("profiles")
@@ -33,52 +35,52 @@ const Index = () => {
     {
       id: "apprentissage",
       title: "Apprentissage",
-      description: "Apprenez la LSFB par niveaux ou mode enfant avec des exercices ludiques",
+      description: "Apprenez la LSFB en fonction de votre niveau",
       icon: GraduationCap,
-      color: "from-blue-500 to-cyan-500"
+      color: "from-blue-500 to-cyan-500",
     },
     {
       id: "dictionnaire",
       title: "Dictionnaire",
       description: "Recherchez des mots et découvrez leur traduction en LSFB",
       icon: BookOpen,
-      color: "from-purple-500 to-pink-500"
+      color: "from-purple-500 to-pink-500",
     },
     {
       id: "quizz",
       title: "Quizz",
       description: "Testez vos connaissances avec des exercices interactifs",
       icon: List,
-      color: "from-green-500 to-emerald-500"
+      color: "from-green-500 to-emerald-500",
     },
     {
       id: "traduction",
       title: "Traduction",
       description: "Traduisez des phrases complètes en langue des signes",
       icon: Languages,
-      color: "from-orange-500 to-red-500"
+      color: "from-orange-500 to-red-500",
     },
     {
       id: "stereotype",
       title: "Stéréotype",
       description: "Découvrez et déconstruisez les stéréotypes sur la surdité",
       icon: Users,
-      color: "from-indigo-500 to-purple-500"
+      color: "from-indigo-500 to-purple-500",
     },
     {
       id: "starterpack",
       title: "Starter Pack",
       description: "Commencez avec les bases essentielles de la LSFB",
       icon: Video,
-      color: "from-yellow-500 to-orange-500"
+      color: "from-yellow-500 to-orange-500",
     },
     {
       id: "liens",
       title: "Liens Utiles",
       description: "Ressources et liens pour approfondir votre apprentissage",
       icon: LinkIcon,
-      color: "from-teal-500 to-cyan-500"
-    }
+      color: "from-teal-500 to-cyan-500",
+    },
   ];
 
   return (
@@ -97,23 +99,23 @@ const Index = () => {
           {sections.map((section) => {
             const Icon = section.icon;
             return (
-              <Card 
+              <Card
                 key={section.id}
                 className="group hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 border-2 hover:border-primary/50"
                 onClick={() => navigate(`/dashboard?section=${section.id}`)}
               >
                 <CardHeader>
-                  <div className={`w-16 h-16 rounded-lg bg-gradient-to-br ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <div
+                    className={`w-16 h-16 rounded-lg bg-gradient-to-br ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                  >
                     <Icon className="w-8 h-8 text-white" />
                   </div>
                   <CardTitle className="text-2xl">{section.title}</CardTitle>
-                  <CardDescription className="text-base">
-                    {section.description}
-                  </CardDescription>
+                  <CardDescription className="text-base">{section.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                   >
                     Accéder
@@ -125,11 +127,7 @@ const Index = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button 
-            size="lg"
-            onClick={() => navigate("/dashboard")}
-            className="text-lg px-8"
-          >
+          <Button size="lg" onClick={() => navigate("/dashboard")} className="text-lg px-8">
             <MessageSquare className="mr-2 h-5 w-5" />
             Voir toutes les sections
           </Button>
