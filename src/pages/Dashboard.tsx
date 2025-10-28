@@ -29,6 +29,7 @@ import { FoodGrid } from "@/components/FoodGrid";
 import { ToysGrid } from "@/components/ToysGrid";
 import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
+import { UsefulLinks } from "@/components/UsefulLinks";
 
 interface LessonProgress {
   id: number;
@@ -44,7 +45,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "alphabet" | "chiffres" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack">("apprentissage");
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "alphabet" | "chiffres" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens">("apprentissage");
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
   const [textToTranslate, setTextToTranslate] = useState("");
@@ -248,6 +249,13 @@ const Dashboard = () => {
               Starter Pack
             </Button>
             <Button
+              onClick={() => setActiveSection("liens")}
+              variant={activeSection === "liens" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Liens utiles
+            </Button>
+            <Button
               onClick={handleLogout}
               variant="ghost"
               className="w-full justify-start text-lg h-14"
@@ -278,6 +286,7 @@ const Dashboard = () => {
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "stereotype" && "Section Stéréotype"}
               {activeSection === "starterpack" && "Section Starter Pack"}
+              {activeSection === "liens" && "Liens Utiles"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -728,6 +737,10 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
+          )}
+
+          {activeSection === "liens" && (
+            <UsefulLinks />
           )}
         </div>
       </main>
