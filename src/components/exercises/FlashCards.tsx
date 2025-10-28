@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, Sparkles } from "lucide-react";
 
 interface FlashCardItem {
   front: string;
@@ -66,12 +66,19 @@ export const FlashCards = ({ items, title, isChildMode = false }: FlashCardsProp
             style={{ backfaceVisibility: "hidden" }}
           >
             <div className="text-center">
-              <div className={`${isChildMode ? "text-8xl" : "text-7xl"} font-bold mb-4 ${isChildMode ? "animate-bounce" : ""}`}>
+              <div className={`${isChildMode ? "text-8xl" : "text-7xl"} font-bold mb-4`}>
                 {currentItem.front}
               </div>
               <p className={`${isChildMode ? "text-xl" : "text-lg"} text-muted-foreground`}>
                 {currentItem.label}
               </p>
+              {isChildMode && (
+                <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground animate-pulse">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Clique pour voir le signe !</span>
+                  <Sparkles className="w-4 h-4" />
+                </div>
+              )}
             </div>
           </div>
 

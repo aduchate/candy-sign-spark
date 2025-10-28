@@ -38,7 +38,7 @@ export const ExerciseSelector = ({ onSelectExercise, onBack, isChildMode = false
           onClick={() => onSelectExercise("flashcards")}
         >
           <div className="flex flex-col items-center text-center">
-            <div className={`w-20 h-20 rounded-full ${isChildMode ? "gradient-candy animate-pulse" : "bg-primary/20"} flex items-center justify-center mb-4`}>
+            <div className={`w-20 h-20 rounded-full ${isChildMode ? "gradient-candy" : "bg-primary/20"} flex items-center justify-center mb-4`}>
               <CreditCard className={`w-10 h-10 ${isChildMode ? "text-primary-foreground" : "text-primary"}`} />
             </div>
             <h3 className="text-2xl font-bold mb-2">
@@ -59,7 +59,7 @@ export const ExerciseSelector = ({ onSelectExercise, onBack, isChildMode = false
           onClick={() => onSelectExercise("quiz")}
         >
           <div className="flex flex-col items-center text-center">
-            <div className={`w-20 h-20 rounded-full ${isChildMode ? "gradient-accent animate-pulse" : "bg-accent/20"} flex items-center justify-center mb-4`}>
+            <div className={`w-20 h-20 rounded-full ${isChildMode ? "gradient-accent" : "bg-accent/20"} flex items-center justify-center mb-4`}>
               <HelpCircle className={`w-10 h-10 ${isChildMode ? "text-accent-foreground" : "text-accent"}`} />
             </div>
             <h3 className="text-2xl font-bold mb-2">
@@ -80,7 +80,7 @@ export const ExerciseSelector = ({ onSelectExercise, onBack, isChildMode = false
           onClick={() => onSelectExercise("matching")}
         >
           <div className="flex flex-col items-center text-center">
-            <div className={`w-20 h-20 rounded-full ${isChildMode ? "gradient-success animate-pulse" : "bg-success/20"} flex items-center justify-center mb-4`}>
+            <div className={`w-20 h-20 rounded-full ${isChildMode ? "gradient-success" : "bg-success/20"} flex items-center justify-center mb-4`}>
               <Link2 className={`w-10 h-10 ${isChildMode ? "text-success-foreground" : "text-success"}`} />
             </div>
             <h3 className="text-2xl font-bold mb-2">

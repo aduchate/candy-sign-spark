@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+import { ConfettiCelebration } from "./ConfettiCelebration";
 
 interface MatchingItem {
   id: string;
@@ -21,6 +22,8 @@ export const MatchingExercise = ({ items, title, isChildMode = false }: Matching
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [matches, setMatches] = useState<Set<string>>(new Set());
   const [shuffledVideos, setShuffledVideos] = useState<MatchingItem[]>([]);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<"fireworks" | "balloons" | "petals">("petals");
 
   useEffect(() => {
     // Shuffle videos
@@ -50,6 +53,13 @@ export const MatchingExercise = ({ items, title, isChildMode = false }: Matching
     if (textId === videoId) {
       setMatches(new Set([...matches, textId]));
       if (isChildMode) {
+        // Random celebration type
+        const types: Array<"fireworks" | "balloons" | "petals"> = ["fireworks", "balloons", "petals"];
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        setCelebrationType(randomType);
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 2000);
+        
         toast.success("Super ! 🌟", {
           description: "C'est une paire parfaite !",
         });
@@ -87,6 +97,7 @@ export const MatchingExercise = ({ items, title, isChildMode = false }: Matching
   if (isCompleted) {
     return (
       <div className="space-y-6">
+        {isChildMode && <ConfettiCelebration show={true} type="balloons" />}
         <Card className={`p-12 text-center ${isChildMode ? "border-4 border-primary shadow-candy" : ""}`}>
           <div className={`text-6xl mb-4 ${isChildMode ? "animate-bounce" : ""}`}>
             🎊
@@ -114,6 +125,7 @@ export const MatchingExercise = ({ items, title, isChildMode = false }: Matching
 
   return (
     <div className="space-y-6">
+      {isChildMode && showCelebration && <ConfettiCelebration show={showCelebration} type={celebrationType} />}
       <div className="text-center">
         <h3 className={`text-2xl font-bold mb-2 ${isChildMode ? "bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent" : ""}`}>
           {title}

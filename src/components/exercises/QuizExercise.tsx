@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+import { ConfettiCelebration } from "./ConfettiCelebration";
 
 interface QuizItem {
   question: string;
@@ -23,6 +24,8 @@ export const QuizExercise = ({ items, title, isChildMode = false }: QuizExercise
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<"fireworks" | "balloons" | "petals">("fireworks");
 
   const currentItem = items[currentIndex];
   const isCorrect = selectedAnswer === currentItem.correctAnswer;
@@ -35,6 +38,13 @@ export const QuizExercise = ({ items, title, isChildMode = false }: QuizExercise
     if (answer === currentItem.correctAnswer) {
       setScore((prev) => prev + 1);
       if (isChildMode) {
+        // Random celebration type
+        const types: Array<"fireworks" | "balloons" | "petals"> = ["fireworks", "balloons", "petals"];
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        setCelebrationType(randomType);
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 2000);
+        
         toast.success("Bravo ! 🎉", {
           description: "Tu as trouvé la bonne réponse !",
         });
@@ -78,6 +88,7 @@ export const QuizExercise = ({ items, title, isChildMode = false }: QuizExercise
     const percentage = Math.round((score / items.length) * 100);
     return (
       <div className="space-y-6">
+        {isChildMode && percentage >= 50 && <ConfettiCelebration show={true} type="fireworks" />}
         <Card className={`p-12 text-center ${isChildMode ? "border-4 border-primary shadow-candy" : ""}`}>
           <div className={`text-6xl mb-4 ${isChildMode ? "animate-bounce" : ""}`}>
             {percentage >= 80 ? "🎉" : percentage >= 50 ? "👍" : "💪"}
@@ -106,6 +117,7 @@ export const QuizExercise = ({ items, title, isChildMode = false }: QuizExercise
 
   return (
     <div className="space-y-6">
+      {isChildMode && showCelebration && <ConfettiCelebration show={showCelebration} type={celebrationType} />}
       <div className="text-center">
         <h3 className={`text-2xl font-bold mb-2 ${isChildMode ? "bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent" : ""}`}>
           {title}
