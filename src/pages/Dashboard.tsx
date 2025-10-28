@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Sparkles, Trophy, Target, BarChart3, LogOut, Loader2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
@@ -43,10 +43,12 @@ interface LessonProgress {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens">("apprentissage");
+  const sectionParam = searchParams.get("section") as "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens" | null;
+  const [activeSection, setActiveSection] = useState<"apprentissage" | "dictionnaire" | "quizz" | "traduction" | "stereotype" | "starterpack" | "liens">(sectionParam || "apprentissage");
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
   const [textToTranslate, setTextToTranslate] = useState("");
