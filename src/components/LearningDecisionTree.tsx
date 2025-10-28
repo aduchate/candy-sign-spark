@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Baby, Briefcase, GraduationCap, ChevronLeft, Stethoscope, Brain, Dumbbell, UserCheck, Heart, TestTube2 } from "lucide-react";
 import { LevelTabs } from "./LevelTabs";
+import { AlphabetGrid } from "./AlphabetGrid";
+import { NumbersGrid } from "./NumbersGrid";
 
 type Step = "age" | "adult-choice" | "professions" | "leisure-levels" | "child-choice" | "early-childhood" | "childhood";
 type AgeGroup = "adulte" | "enfant" | null;
@@ -25,6 +28,7 @@ export const LearningDecisionTree = () => {
   const [childPath, setChildPath] = useState<ChildPath>(null);
   const [selectedLevel, setSelectedLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
+  const [childTab, setChildTab] = useState<"alphabet" | "chiffres">("alphabet");
 
   const handleAgeSelect = (age: "adulte" | "enfant") => {
     setAgeGroup(age);
@@ -243,12 +247,23 @@ export const LearningDecisionTree = () => {
 
           <LevelTabs selected={selectedLevel} onSelect={setSelectedLevel} />
 
-          <Card className="p-6 mt-6">
-            <h3 className="text-xl font-bold mb-4">Leçons niveau {selectedLevel}</h3>
-            <p className="text-muted-foreground text-center py-8">
-              Les leçons pour le niveau {selectedLevel} seront affichées ici
-            </p>
-          </Card>
+          {selectedLevel === "A1" ? (
+            <div className="space-y-8 mt-6">
+              <Card className="p-6">
+                <AlphabetGrid />
+              </Card>
+              <Card className="p-6">
+                <NumbersGrid />
+              </Card>
+            </div>
+          ) : (
+            <Card className="p-6 mt-6">
+              <h3 className="text-xl font-bold mb-4">Leçons niveau {selectedLevel}</h3>
+              <p className="text-muted-foreground text-center py-8">
+                Les leçons pour le niveau {selectedLevel} seront affichées ici
+              </p>
+            </Card>
+          )}
         </div>
       )}
 
@@ -312,63 +327,38 @@ export const LearningDecisionTree = () => {
         </div>
       )}
 
-      {/* Étape 3d: Enfance - Interface attractive */}
+      {/* Étape 3d: Enfance - Onglets Alphabet et Chiffres */}
       {currentStep === "childhood" && (
         <div className="space-y-6">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Apprends en t'amusant ! 🎨
             </h2>
-            <p className="text-muted-foreground">Des exercices ludiques pour progresser</p>
+            <p className="text-muted-foreground">Découvre l'alphabet et les chiffres en LSFB</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-6 hover:shadow-candy transition-all cursor-pointer border-2 border-primary/50">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full gradient-candy flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">🎯</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Quiz images</h3>
-                <p className="text-sm text-muted-foreground">Associe les images aux bons signes</p>
-              </div>
-            </Card>
+          <Tabs value={childTab} onValueChange={(v) => setChildTab(v as "alphabet" | "chiffres")} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="alphabet" className="text-lg">
+                🔤 Alphabet
+              </TabsTrigger>
+              <TabsTrigger value="chiffres" className="text-lg">
+                🔢 Chiffres
+              </TabsTrigger>
+            </TabsList>
 
-            <Card className="p-6 hover:shadow-candy transition-all cursor-pointer border-2 border-accent/50">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full gradient-accent flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">🔗</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Relie les mots</h3>
-                <p className="text-sm text-muted-foreground">Connecte les signes avec les mots</p>
-              </div>
-            </Card>
+            <TabsContent value="alphabet" className="mt-0">
+              <Card className="p-6">
+                <AlphabetGrid />
+              </Card>
+            </TabsContent>
 
-            <Card className="p-6 hover:shadow-candy transition-all cursor-pointer border-2 border-success/50">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full gradient-success flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">📝</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Phrases mystères</h3>
-                <p className="text-sm text-muted-foreground">Remets les signes dans l'ordre</p>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-candy transition-all cursor-pointer border-2 border-primary/50">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full gradient-candy flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">🎬</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Vidéos animées</h3>
-                <p className="text-sm text-muted-foreground">Regarde et apprends en vidéo</p>
-              </div>
-            </Card>
-          </div>
-
-          <Card className="p-6 bg-primary/5 border-primary">
-            <p className="text-center text-muted-foreground">
-              Sélectionne un type d'exercice pour commencer à apprendre !
-            </p>
-          </Card>
+            <TabsContent value="chiffres" className="mt-0">
+              <Card className="p-6">
+                <NumbersGrid />
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       )}
     </div>
