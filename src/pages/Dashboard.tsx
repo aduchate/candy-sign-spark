@@ -31,7 +31,6 @@ import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
-import { QuizPath } from "@/components/QuizPath";
 
 interface LessonProgress {
   id: number;
@@ -58,8 +57,6 @@ const Dashboard = () => {
   const [ageGroup, setAgeGroup] = useState<"enfant" | "adulte">("adulte");
   const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [newLessons, setNewLessons] = useState<any[]>([]);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [pathLessons, setPathLessons] = useState<any[]>([]);
 
   useEffect(() => {
     // Check authentication
@@ -79,10 +76,8 @@ const Dashboard = () => {
           return;
         }
 
-        setUserProfile(profile);
         setUser(session.user);
         fetchUserProgress(session.user.id);
-        generatePathLessons(profile);
       }
       setLoading(false);
     });
@@ -142,71 +137,6 @@ const Dashboard = () => {
     }
 
     setNewLessons(data?.lessons || []);
-  };
-
-  const generatePathLessons = (profile: any) => {
-    const preferredAgeGroup = profile?.preferred_age_group || "adulte";
-    const profession = profile?.profession;
-    const status = profile?.status;
-
-    let generatedLessons: any[] = [];
-
-    if (preferredAgeGroup === "enfant") {
-      // Parcours enfant avec vocabulaire ludique
-      generatedLessons = [
-        { id: 1, title: "Alphabet", progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 2, title: "Les Chiffres", progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 3, title: "Les Animaux", progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 4, title: "Quiz Animaux", progress: 0, isLocked: false, isCompleted: false, type: "exercise" },
-        { id: 5, title: "Les Couleurs", progress: 0, isLocked: true, isCompleted: false, type: "star" },
-        { id: 6, title: "La Famille", progress: 0, isLocked: true, isCompleted: false, type: "practice" },
-        { id: 7, title: "Les Émotions", progress: 0, isLocked: true, isCompleted: false, type: "audio" },
-        { id: 8, title: "Les Jouets", progress: 0, isLocked: true, isCompleted: false, type: "video" },
-        { id: 9, title: "La Nourriture", progress: 0, isLocked: true, isCompleted: false, type: "practice" },
-        { id: 10, title: "Test Final", progress: 0, isLocked: true, isCompleted: false, type: "exercise" },
-      ];
-    } else if (profession) {
-      // Parcours professionnel avec vocabulaire métier
-      const professionVocab = {
-        "logopédie": ["Parole", "Son", "Articulation", "Voix", "Déglutition"],
-        "audiologie": ["Audition", "Oreille", "Audiogramme", "Prothèse", "Acouphène"],
-        "psychologie": ["Émotion", "Comportement", "Thérapie", "Stress", "Anxiété"],
-        "médecine": ["Symptôme", "Diagnostic", "Traitement", "Médicament", "Consultation"],
-        "kinésithérapeute": ["Mouvement", "Rééducation", "Douleur", "Exercice", "Posture"],
-        "éducateur": ["Apprentissage", "Autonomie", "Socialisation", "Activité", "Développement"],
-      };
-
-      const vocabList = professionVocab[profession as keyof typeof professionVocab] || ["Bonjour", "Merci", "Au revoir", "Oui", "Non"];
-
-      generatedLessons = [
-        { id: 1, title: "Alphabet Médical", progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 2, title: "Les Nombres", progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 3, title: `Vocabulaire: ${vocabList[0]}`, progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 4, title: "Quiz Vocabulaire 1", progress: 0, isLocked: false, isCompleted: false, type: "exercise" },
-        { id: 5, title: `Vocabulaire: ${vocabList[1]}`, progress: 0, isLocked: true, isCompleted: false, type: "star" },
-        { id: 6, title: `Vocabulaire: ${vocabList[2]}`, progress: 0, isLocked: true, isCompleted: false, type: "audio" },
-        { id: 7, title: "Quiz Vocabulaire 2", progress: 0, isLocked: true, isCompleted: false, type: "exercise" },
-        { id: 8, title: `Vocabulaire: ${vocabList[3]}`, progress: 0, isLocked: true, isCompleted: false, type: "video" },
-        { id: 9, title: `Vocabulaire: ${vocabList[4]}`, progress: 0, isLocked: true, isCompleted: false, type: "practice" },
-        { id: 10, title: "Certification Professionnelle", progress: 0, isLocked: true, isCompleted: false, type: "exercise" },
-      ];
-    } else {
-      // Parcours par niveaux de langue (loisir)
-      generatedLessons = [
-        { id: 1, title: "Alphabet LSFB - A1", progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 2, title: "Salutations - A1", progress: 0, isLocked: false, isCompleted: false, type: "practice" },
-        { id: 3, title: "Les Chiffres - A1", progress: 0, isLocked: false, isCompleted: false, type: "audio" },
-        { id: 4, title: "Quiz Niveau A1", progress: 0, isLocked: false, isCompleted: false, type: "exercise" },
-        { id: 5, title: "La Famille - A2", progress: 0, isLocked: true, isCompleted: false, type: "star" },
-        { id: 6, title: "Les Émotions - A2", progress: 0, isLocked: true, isCompleted: false, type: "video" },
-        { id: 7, title: "Quiz Niveau A2", progress: 0, isLocked: true, isCompleted: false, type: "exercise" },
-        { id: 8, title: "Conversation - B1", progress: 0, isLocked: true, isCompleted: false, type: "practice" },
-        { id: 9, title: "Expressions - B1", progress: 0, isLocked: true, isCompleted: false, type: "audio" },
-        { id: 10, title: "Test Final B1", progress: 0, isLocked: true, isCompleted: false, type: "exercise" },
-      ];
-    }
-
-    setPathLessons(generatedLessons);
   };
 
   useEffect(() => {
@@ -368,7 +298,7 @@ const Dashboard = () => {
 
         <div className="p-8">
           {activeSection === "apprentissage" && (
-            <QuizPath lessons={pathLessons} />
+            <LearningDecisionTree />
           )}
 
           {activeSection === "dictionnaire" && (
@@ -379,24 +309,21 @@ const Dashboard = () => {
 
           {activeSection === "quizz" && (
             <div className="max-w-4xl">
-              <Card className="p-8">
-                <h3 className="text-2xl font-bold mb-4">Section Quiz</h3>
+              <Card className="p-8 text-center">
+                <h3 className="text-2xl font-bold mb-4">Section Quizz</h3>
                 <p className="text-muted-foreground mb-6">
-                  Testez vos connaissances avec nos différents quiz interactifs.
+                  Testez vos connaissances de la langue des signes franco-belge avec nos quizz interactifs.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {lessons.map((lesson) => (
-                    <Card 
-                      key={lesson.id}
-                      className="p-6 hover:shadow-lg transition-all cursor-pointer"
-                      onClick={() => navigate(`/lesson/${lesson.id}`)}
-                    >
-                      <h4 className="text-lg font-semibold mb-2">{lesson.title}</h4>
-                      <Progress value={lesson.progress} className="mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {lesson.completed ? "Terminé" : `${lesson.progress}% complété`}
-                      </p>
-                    </Card>
+                  {lessons.filter(l => !l.locked).map((lesson) => (
+                    <Link key={lesson.id} to={`/lesson/${lesson.id}`}>
+                      <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
+                        <h4 className="font-bold mb-2">{lesson.title}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {lesson.completed ? "Refaire le quizz" : "Commencer le quizz"}
+                        </p>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               </Card>
