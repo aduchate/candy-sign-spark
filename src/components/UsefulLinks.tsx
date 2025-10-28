@@ -10,34 +10,10 @@ interface Link {
 
 const links: Link[] = [
   {
-    title: "FFSB - Fédération Francophone des Sourds de Belgique",
-    description: "Association représentant la communauté sourde francophone en Belgique",
-    url: "https://www.ffsb.be/",
-    category: "Associations"
-  },
-  {
-    title: "Dico LSFB",
-    description: "Dictionnaire en ligne de la Langue des Signes de Belgique Francophone",
-    url: "https://dico.lsfb.be/",
-    category: "Dictionnaires"
-  },
-  {
-    title: "Centre de Communication Concrète",
-    description: "Centre de formation et de services pour personnes sourdes et malentendantes",
-    url: "https://www.cccommunication.be/",
-    category: "Formation"
-  },
-  {
-    title: "Surdimobil",
-    description: "Service d'interprétation à distance pour personnes sourdes",
-    url: "https://www.surdimobil.be/",
+    title: "SAREW",
+    description: "Service d'aide à la recherche d'emploi pour personnes sourdes ou malentendantes en Wallonie",
+    url: "https://www.sarew.be/",
     category: "Services"
-  },
-  {
-    title: "APEDAF",
-    description: "Association des Parents d'Enfants Déficients Auditifs Francophones",
-    url: "https://www.apedaf.be/",
-    category: "Associations"
   },
 ];
 
