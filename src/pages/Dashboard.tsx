@@ -30,6 +30,7 @@ import { ToysGrid } from "@/components/ToysGrid";
 import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
 import { UsefulLinks } from "@/components/UsefulLinks";
+import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 
 interface LessonProgress {
   id: number;
@@ -299,113 +300,7 @@ const Dashboard = () => {
 
         <div className="p-8">
           {activeSection === "apprentissage" && (
-            <>
-              <Card className="p-6 shadow-candy mb-8 border-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl font-bold mb-1">{t('dashboard.welcome', { name: user?.email?.split('@')[0] })}</h3>
-                    <p className="text-muted-foreground">{t('dashboard.keepStreak')}</p>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="text-center">
-                      <div className="w-12 h-12 rounded-full gradient-candy flex items-center justify-center mb-1">
-                        <Trophy className="w-6 h-6 text-primary-foreground" />
-                      </div>
-                      <p className="text-xs text-muted-foreground">7 {t('dashboard.dayStreak')}</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="w-12 h-12 rounded-full gradient-accent flex items-center justify-center mb-1">
-                        <Target className="w-6 h-6 text-accent-foreground" />
-                      </div>
-                      <p className="text-xs text-muted-foreground">420 XP</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <ProfileSelector selected={ageGroup} onSelect={setAgeGroup} />
-              <LevelTabs selected={level} onSelect={setLevel} />
-
-              <h3 className="text-2xl font-bold mb-6">Leçons {level} - {ageGroup === "enfant" ? "Enfants" : "Adultes"}</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {newLessons.map((lesson) => {
-                  const progressData = lesson.progress;
-                  const totalExercises = lesson.exercises?.length || 0;
-                  const completedExercises = progressData?.score || 0;
-                  const progress = totalExercises > 0 ? (completedExercises / totalExercises) * 100 : 0;
-
-                  return (
-                    <LessonCard
-                      key={lesson.id}
-                      id={lesson.id}
-                      title={lesson.title}
-                      level={lesson.level}
-                      category={lesson.category}
-                      progress={progress}
-                      isCompleted={progressData?.completed || false}
-                    />
-                  );
-                })}
-              </div>
-
-              <h3 className="text-2xl font-bold mb-6 mt-12">Leçons Classiques</h3>
-
-              <div className="space-y-4 max-w-4xl">
-                {lessons.map((lesson, index) => (
-                  <Card
-                    key={lesson.id}
-                    className={`p-6 transition-all duration-300 hover:scale-[1.02] border-2 ${
-                      lesson.locked
-                        ? "opacity-60 cursor-not-allowed"
-                        : "shadow-candy hover:shadow-glow cursor-pointer"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold ${
-                          lesson.locked
-                            ? "bg-muted text-muted-foreground"
-                            : lesson.completed
-                            ? "gradient-success text-success-foreground"
-                            : lesson.progress > 0
-                            ? "gradient-accent text-accent-foreground"
-                            : "gradient-candy text-primary-foreground"
-                        }`}
-                      >
-                        {lesson.locked ? t('dashboard.locked') : lesson.completed ? "✓" : index + 1}
-                      </div>
-
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold mb-2">{lesson.title}</h4>
-                        <div className="flex items-center gap-3">
-                          <Progress value={lesson.progress} className="flex-1" />
-                          <span className="text-sm text-muted-foreground min-w-[3rem]">
-                            {lesson.progress}%
-                          </span>
-                        </div>
-                      </div>
-
-                      {!lesson.locked && (
-                        <Link to={`/lesson/${lesson.id}`}>
-                          <Button
-                            className={`${
-                              lesson.completed
-                                ? "gradient-success"
-                                : lesson.progress > 0
-                                ? "gradient-accent"
-                                : "gradient-candy"
-                            }`}
-                          >
-                            {lesson.completed ? t('dashboard.review') : lesson.progress > 0 ? t('dashboard.continue') : t('dashboard.start')}
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </>
+            <LearningDecisionTree />
           )}
 
           {activeSection === "alphabet" && (
