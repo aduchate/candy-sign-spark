@@ -9,14 +9,14 @@ import { toast } from '@/hooks/use-toast';
 const ESSENTIAL_WORDS = {
   adult: [
     // Salutations
-    'Bonjour', 'Merci', 'comment', 'allez', 'vous',
+    'Bonjour', 'Merci', 'comment', 'vous',
     // Vocabulaire professionnel  
-    'travail', 'bureau', 'reunion', 'collegue', 'directeur', 'projet', 'email',
+    'travail', 'bureau', 'reunion', 'collegue', 'directeur', 'projet',
     // Temps et dates
     'aujourd\'hui', 'demain', 'hier',
     'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
-    'janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin',
-    'juillet', 'aout', 'septembre', 'octobre', 'novembre', 'decembre'
+    'janvier', 'fevrier', 'avril', 'mai', 'juin',
+    'juillet', 'aout', 'septembre', 'octobre', 'novembre'
   ],
   child: [
     // Salutations
@@ -28,7 +28,7 @@ const ESSENTIAL_WORDS = {
     // Couleurs
     'rouge', 'bleu', 'jaune', 'vert', 'orange', 'rose', 'noir', 'blanc',
     // Famille
-    'papa', 'maman', 'frere', 'soeur', 'bebe',
+    'maman', 'frere', 'soeur', 'bebe',
     // Émotions
     'content', 'triste', 'colere', 'peur', 'surpris', 'fatigue',
     // Nourriture
