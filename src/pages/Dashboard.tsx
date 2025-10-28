@@ -31,6 +31,7 @@ import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
+import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 
 interface LessonProgress {
   id: number;
@@ -337,14 +338,7 @@ const Dashboard = () => {
           )}
 
           {activeSection === "stereotype" && (
-            <div className="max-w-4xl">
-              <Card className="p-8">
-                <h3 className="text-2xl font-bold mb-4">Section Stéréotype</h3>
-                <p className="text-muted-foreground mb-6">
-                  Découvrez et explorez les stéréotypes liés à la langue des signes.
-                </p>
-              </Card>
-            </div>
+            <StereotypeQuiz />
           )}
 
           {activeSection === "starterpack" && (
