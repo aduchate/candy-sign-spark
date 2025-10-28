@@ -31,6 +31,7 @@ import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
+import { QuizPath } from "@/components/QuizPath";
 
 interface LessonProgress {
   id: number;
@@ -308,26 +309,16 @@ const Dashboard = () => {
           )}
 
           {activeSection === "quizz" && (
-            <div className="max-w-4xl">
-              <Card className="p-8 text-center">
-                <h3 className="text-2xl font-bold mb-4">Section Quizz</h3>
-                <p className="text-muted-foreground mb-6">
-                  Testez vos connaissances de la langue des signes franco-belge avec nos quizz interactifs.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {lessons.filter(l => !l.locked).map((lesson) => (
-                    <Link key={lesson.id} to={`/lesson/${lesson.id}`}>
-                      <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
-                        <h4 className="font-bold mb-2">{lesson.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {lesson.completed ? "Refaire le quizz" : "Commencer le quizz"}
-                        </p>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </Card>
-            </div>
+            <QuizPath 
+              lessons={lessons.map((lesson, index) => ({
+                id: lesson.id,
+                title: lesson.title,
+                progress: lesson.progress,
+                isLocked: lesson.locked,
+                isCompleted: lesson.completed,
+                type: index % 5 === 3 ? "star" : index % 5 === 2 ? "audio" : index % 5 === 4 ? "video" : "practice"
+              }))}
+            />
           )}
 
           {activeSection === "traduction" && (
