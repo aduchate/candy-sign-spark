@@ -17,6 +17,7 @@ interface NewsArticle {
   category: string | null;
   published_at: string | null;
   scraped_at: string;
+  content: string | null;
 }
 
 export const NewsSection = () => {
@@ -25,7 +26,7 @@ export const NewsSection = () => {
   const [scraping, setScraping] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [selectedArticleUrl, setSelectedArticleUrl] = useState<string | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -84,27 +85,76 @@ export const NewsSection = () => {
     ? articles 
     : articles.filter(a => a.category === activeCategory);
 
-  if (selectedArticleUrl) {
+  if (selectedArticle) {
     return (
       <div className="space-y-4">
         <Card className="p-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Affichage de la page SAREW</h3>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setSelectedArticleUrl(null)}
-            >
-              ← Retour à la liste
-            </Button>
+            <div>
+              <h3 className="text-2xl font-bold">{selectedArticle.title}</h3>
+              {selectedArticle.published_at && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  Publié le {new Date(selectedArticle.published_at).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  })}
+                </p>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.open(selectedArticle.source_url!, "_blank")}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Site SAREW
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedArticle(null)}
+              >
+                ← Retour
+              </Button>
+            </div>
           </div>
+          {selectedArticle.category && (
+            <Badge variant="outline" className="mt-3">
+              {selectedArticle.category}
+            </Badge>
+          )}
         </Card>
-        <Card className="p-0 overflow-hidden">
-          <iframe
-            src={selectedArticleUrl}
-            className="w-full h-[calc(100vh-200px)] border-0"
-            title="Article SAREW"
-          />
+        
+        <Card className="p-6">
+          {selectedArticle.image_url && (
+            <img 
+              src={selectedArticle.image_url} 
+              alt={selectedArticle.title}
+              className="w-full max-h-96 object-cover rounded-lg mb-6"
+            />
+          )}
+          
+          {selectedArticle.content ? (
+            <div 
+              className="prose prose-slate max-w-none"
+              dangerouslySetInnerHTML={{ __html: selectedArticle.content }}
+            />
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">
+                Le contenu complet n'est pas encore disponible
+              </p>
+              <Button 
+                variant="outline"
+                onClick={() => window.open(selectedArticle.source_url!, "_blank")}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Voir sur le site SAREW
+              </Button>
+            </div>
+          )}
         </Card>
       </div>
     );
@@ -257,15 +307,15 @@ export const NewsSection = () => {
                             )}
                           </td>
                           <td className="p-3">
-                            {article.source_url && (
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() => setSelectedArticleUrl(article.source_url!)}
-                                >
-                                  Afficher
-                                </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => setSelectedArticle(article)}
+                              >
+                                Afficher
+                              </Button>
+                              {article.source_url && (
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -273,8 +323,8 @@ export const NewsSection = () => {
                                 >
                                   <ExternalLink className="w-4 h-4" />
                                 </Button>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -342,15 +392,15 @@ export const NewsSection = () => {
                       )}
                     </td>
                     <td className="p-3">
-                      {article.source_url && (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => setSelectedArticleUrl(article.source_url!)}
-                          >
-                            Afficher
-                          </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => setSelectedArticle(article)}
+                        >
+                          Afficher
+                        </Button>
+                        {article.source_url && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -358,8 +408,8 @@ export const NewsSection = () => {
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -104,7 +104,19 @@ Deno.serve(async (req) => {
     let insertedCount = 0
     let updatedCount = 0
     
+    // Fetch full content for each article
     for (const article of uniqueArticles) {
+      try {
+        console.log(`Fetching full content for: ${article.title}`)
+        const articleResponse = await fetch(article.source_url)
+        if (articleResponse.ok) {
+          const articleHtml = await articleResponse.text()
+          article.content = extractArticleContent(articleHtml)
+        }
+      } catch (error) {
+        console.error(`Error fetching article content:`, error)
+      }
+
       const { data: existing } = await supabaseAdmin
         .from('news_articles')
         .select('id')
@@ -254,4 +266,48 @@ function parseNewsArticles(html: string, baseUrl: string): any[] {
 
   console.log(`Parsed ${articles.length} articles`)
   return articles
+}
+
+function extractArticleContent(html: string): string {
+  // Extract main content from article page
+  let content = ''
+  
+  // Try to find the main content area
+  const contentPatterns = [
+    /<div[^>]*class="[^"]*entry-content[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i,
+    /<article[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]*?)<\/article>/i,
+    /<div[^>]*class="[^"]*post-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+    /<main[^>]*>([\s\S]*?)<\/main>/i
+  ]
+  
+  for (const pattern of contentPatterns) {
+    const match = html.match(pattern)
+    if (match) {
+      content = match[1]
+      break
+    }
+  }
+  
+  if (!content) {
+    // Fallback: try to extract any significant text
+    const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
+    content = bodyMatch ? bodyMatch[1] : html
+  }
+  
+  // Clean up the content
+  content = content
+    // Remove script and style tags
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    // Remove navigation, sidebar, footer
+    .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
+    .replace(/<aside[^>]*>[\s\S]*?<\/aside>/gi, '')
+    .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
+    // Remove comments
+    .replace(/<!--[\s\S]*?-->/g, '')
+    // Clean up whitespace
+    .replace(/\s+/g, ' ')
+    .trim()
+  
+  return content
 }
