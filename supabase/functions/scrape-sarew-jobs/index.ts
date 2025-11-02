@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     console.log('Starting to scrape SAREW website...')
 
     // Fetch the SAREW job page
-    const sarewUrl = 'http://www.sarew.be/accompagnement-vers-lemploi-et-dans-lemploi/recherche-demploi/'
+    const sarewUrl = 'http://www.sarew.be/offres-demploi/'
     const response = await fetch(sarewUrl)
     
     if (!response.ok) {
@@ -110,43 +110,46 @@ Deno.serve(async (req) => {
 })
 
 function parseJobListings(html: string, baseUrl: string): any[] {
-  // This is a placeholder function
-  // You'll need to adjust this based on the actual HTML structure of the SAREW website
   const jobs: any[] = []
 
-  // Example parsing logic - adjust based on actual HTML structure
-  const titleRegex = /<h3[^>]*>(.*?)<\/h3>/gi
-  const matches = html.matchAll(titleRegex)
+  // Extract H2 titles for job postings
+  const titleRegex = /<h2[^>]*class="elementor-heading-title[^>]*>(.*?)<\/h2>/gi
+  const titles = Array.from(html.matchAll(titleRegex)).map(match => 
+    match[1].replace(/<[^>]*>/g, '').trim()
+  )
 
-  for (const match of matches) {
-    const title = match[1].replace(/<[^>]*>/g, '').trim()
+  // Extract all image URLs
+  const imageRegex = /<img[^>]*src="(http:\/\/www\.sarew\.be\/wp-content\/uploads\/[^"]+)"[^>]*>/gi
+  const images = Array.from(html.matchAll(imageRegex)).map(match => match[1])
+
+  // Parse each job title and associate with images
+  titles.forEach((title, index) => {
+    // Determine job category based on title
+    let category = 'Offre d\'emploi'
+    if (title.toLowerCase().includes('cdd')) category = 'CDD'
+    else if (title.toLowerCase().includes('cdr')) category = 'CDR'
+    else if (title.toLowerCase().includes('cdi')) category = 'CDI'
     
-    if (title) {
-      jobs.push({
-        title: title,
-        description: 'Description à compléter',
-        category: 'Recherche d\'emploi',
-        source_url: baseUrl,
-        location: 'Belgique',
-        company: 'SAREW',
-        published_at: new Date().toISOString()
-      })
-    }
-  }
+    // Extract contract type and position from title
+    const parts = title.split(' - ')
+    const position = parts[0]?.trim() || title
+    const contractType = parts[1]?.trim() || category
 
-  // If no jobs found with simple regex, add a default entry
-  if (jobs.length === 0) {
+    // Create a unique source URL for each job using the title as identifier
+    const jobSourceUrl = `${baseUrl}#${encodeURIComponent(title)}`
+
     jobs.push({
-      title: 'Accompagnement vers l\'emploi - SAREW',
-      description: 'Services d\'accompagnement et de recherche d\'emploi pour personnes sourdes et malentendantes',
-      category: 'Accompagnement',
-      source_url: baseUrl,
-      location: 'Bruxelles, Belgique',
+      title: title,
+      description: `${position}${contractType ? ' - ' + contractType : ''}\n\nConsultez les détails complets sur le site SAREW.`,
+      category: category,
+      source_url: jobSourceUrl,
+      location: 'Wallonie, Belgique',
       company: 'SAREW asbl',
-      contact_info: 'Contact via le site SAREW',
+      contact_info: 'info@sarew.be',
       published_at: new Date().toISOString()
     })
-  }
+  })
 
+  console.log(`Parsed ${jobs.length} job listings`)
   return jobs
 }
