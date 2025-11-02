@@ -204,21 +204,128 @@ const Lesson = () => {
               />
             )}
 
+            {exercise.type === "true_false" && (
+              <div>
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold mb-4">{exercise.content.questions?.[0]?.question || exercise.content.question}</h2>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <button
+                    onClick={() => {
+                      if (showResult) return;
+                      const correctAnswer = exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer;
+                      setSelectedAnswer(1);
+                      setShowResult(true);
+                      if (correctAnswer === true) {
+                        setScore(score + 1);
+                        toast.success(t('lesson.correct'));
+                      } else {
+                        toast.error(t('lesson.incorrect'));
+                      }
+                    }}
+                    disabled={showResult}
+                    className={`relative overflow-hidden rounded-lg border-4 transition-all hover:scale-105 ${
+                      showResult
+                        ? (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer) === true
+                          ? "border-success shadow-glow"
+                          : selectedAnswer === 1
+                          ? "border-destructive"
+                          : "border-muted opacity-50"
+                        : "border-primary/20 hover:border-primary"
+                    }`}
+                  >
+                    <div className="p-8 text-center">
+                      <p className="text-3xl font-bold mb-2">✓</p>
+                      <p className="text-xl font-semibold">Vrai</p>
+                    </div>
+                    {showResult && (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer) === true && (
+                      <div className="absolute top-2 right-2 bg-success rounded-full p-2">
+                        <CheckCircle2 className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                    {showResult && selectedAnswer === 1 && (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer) !== true && (
+                      <div className="absolute top-2 right-2 bg-destructive rounded-full p-2">
+                        <XCircle className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (showResult) return;
+                      const correctAnswer = exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer;
+                      setSelectedAnswer(0);
+                      setShowResult(true);
+                      if (correctAnswer === false) {
+                        setScore(score + 1);
+                        toast.success(t('lesson.correct'));
+                      } else {
+                        toast.error(t('lesson.incorrect'));
+                      }
+                    }}
+                    disabled={showResult}
+                    className={`relative overflow-hidden rounded-lg border-4 transition-all hover:scale-105 ${
+                      showResult
+                        ? (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer) === false
+                          ? "border-success shadow-glow"
+                          : selectedAnswer === 0
+                          ? "border-destructive"
+                          : "border-muted opacity-50"
+                        : "border-primary/20 hover:border-primary"
+                    }`}
+                  >
+                    <div className="p-8 text-center">
+                      <p className="text-3xl font-bold mb-2">✗</p>
+                      <p className="text-xl font-semibold">Faux</p>
+                    </div>
+                    {showResult && (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer) === false && (
+                      <div className="absolute top-2 right-2 bg-success rounded-full p-2">
+                        <CheckCircle2 className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                    {showResult && selectedAnswer === 0 && (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer) !== false && (
+                      <div className="absolute top-2 right-2 bg-destructive rounded-full p-2">
+                        <XCircle className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                  </button>
+                </div>
+
+                {showResult && (
+                  <Button
+                    onClick={() => {
+                      const correctAnswer = exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correctAnswer;
+                      const isCorrect = (selectedAnswer === 1 && correctAnswer === true) || (selectedAnswer === 0 && correctAnswer === false);
+                      handleExerciseComplete(isCorrect, 0);
+                      setShowResult(false);
+                      setSelectedAnswer(null);
+                    }}
+                    className="w-full mt-6 gradient-candy"
+                    size="lg"
+                  >
+                    {currentExercise < exercises.length - 1 ? t('lesson.nextQuestion') : t('lesson.completeLesson')}
+                  </Button>
+                )}
+              </div>
+            )}
+
             {exercise.type === "multiple_choice" && (
               <div>
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold mb-4">{exercise.content.question}</h2>
+                  <h2 className="text-2xl font-bold mb-4">{exercise.content.questions?.[0]?.question || exercise.content.question}</h2>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  {exercise.content.options.map((option: string, index: number) => (
+                  {(exercise.content.questions?.[0]?.options || exercise.content.options || []).map((option: string, index: number) => (
                     <button
                       key={index}
                       onClick={() => {
                         if (showResult) return;
+                        const correctIndex = exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correct;
                         setSelectedAnswer(index);
                         setShowResult(true);
-                        if (index === exercise.content.correct) {
+                        if (index === correctIndex) {
                           setScore(score + 1);
                           toast.success(t('lesson.correct'));
                         } else {
@@ -228,7 +335,7 @@ const Lesson = () => {
                       disabled={showResult}
                       className={`relative overflow-hidden rounded-lg border-4 transition-all hover:scale-105 ${
                         showResult
-                          ? index === exercise.content.correct
+                          ? index === (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correct)
                             ? "border-success shadow-glow"
                             : index === selectedAnswer
                             ? "border-destructive"
@@ -239,12 +346,12 @@ const Lesson = () => {
                       <div className="p-6 text-center">
                         <p className="text-lg font-semibold">{option}</p>
                       </div>
-                      {showResult && index === exercise.content.correct && (
+                      {showResult && index === (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correct) && (
                         <div className="absolute top-2 right-2 bg-success rounded-full p-2">
                           <CheckCircle2 className="w-6 h-6 text-white" />
                         </div>
                       )}
-                      {showResult && index === selectedAnswer && index !== exercise.content.correct && (
+                      {showResult && index === selectedAnswer && index !== (exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correct) && (
                         <div className="absolute top-2 right-2 bg-destructive rounded-full p-2">
                           <XCircle className="w-6 h-6 text-white" />
                         </div>
@@ -255,7 +362,12 @@ const Lesson = () => {
 
                 {showResult && (
                   <Button
-                    onClick={() => handleExerciseComplete(selectedAnswer === exercise.content.correct, 0)}
+                    onClick={() => {
+                      const correctIndex = exercise.content.questions?.[0]?.correctAnswer ?? exercise.content.correct;
+                      handleExerciseComplete(selectedAnswer === correctIndex, 0);
+                      setShowResult(false);
+                      setSelectedAnswer(null);
+                    }}
                     className="w-full mt-6 gradient-candy"
                     size="lg"
                   >
