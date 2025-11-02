@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ExternalLink, Search, Calendar, Briefcase, MapPin, RefreshCw, Building2, Mail } from "lucide-react";
 import { toast } from "sonner";
+import sarewHomepage from "@/assets/sarew-homepage.png";
 
 interface JobListing {
   id: string;
@@ -221,6 +222,14 @@ export const JobListingsSection = () => {
             className="pl-10"
           />
         </div>
+      </Card>
+
+      <Card className="p-0 overflow-hidden">
+        <img 
+          src={sarewHomepage} 
+          alt="SAREW - Service d'aide à la recherche d'emploi"
+          className="w-full h-auto"
+        />
       </Card>
 
       {loading ? (
