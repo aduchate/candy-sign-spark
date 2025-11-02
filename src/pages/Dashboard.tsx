@@ -48,8 +48,17 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
-  const sectionParam = searchParams.get("section") as "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | null;
-  const [activeSection, setActiveSection] = useState<"apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens">(sectionParam || "apprentissage");
+  const sectionParam = searchParams.get("section") as
+    | "apprentissage"
+    | "dictionnaire"
+    | "quizz"
+    | "traduction"
+    | "starterpack"
+    | "liens"
+    | null;
+  const [activeSection, setActiveSection] = useState<
+    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens"
+  >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
@@ -88,7 +97,9 @@ const Dashboard = () => {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/auth");
       } else {
@@ -102,21 +113,15 @@ const Dashboard = () => {
   }, [navigate]);
 
   const checkAdminStatus = async (userId: string) => {
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
 
-    const hasAdminRole = roles?.some(r => r.role === "admin");
+    const hasAdminRole = roles?.some((r) => r.role === "admin");
     setIsAdmin(hasAdminRole || false);
   };
 
   const fetchUserProgress = async (userId: string) => {
     // Fetch old lessons data for backward compatibility
-    const { data: progressData } = await supabase
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', userId);
+    const { data: progressData } = await supabase.from("user_progress").select("*").eq("user_id", userId);
 
     const allLessons = [
       { id: 1, title: lessonsData["1"].title, progress: 0, locked: false, completed: false },
@@ -127,8 +132,8 @@ const Dashboard = () => {
       { id: 6, title: "Émotions", progress: 0, locked: true, completed: false },
     ];
 
-    const lessonsWithProgress = allLessons.map(lesson => {
-      const userProgress = progressData?.find(p => p.lesson_id === lesson.id.toString());
+    const lessonsWithProgress = allLessons.map((lesson) => {
+      const userProgress = progressData?.find((p) => p.lesson_id === lesson.id.toString());
       if (userProgress) {
         const progress = Math.round((userProgress.score / userProgress.total_questions) * 100);
         return { ...lesson, progress, completed: userProgress.completed || progress === 100 };
@@ -137,18 +142,18 @@ const Dashboard = () => {
     });
 
     setLessons(lessonsWithProgress);
-    
+
     // Fetch new lessons structure
     await fetchNewLessons(userId);
   };
 
   const fetchNewLessons = async (userId: string) => {
-    const { data, error } = await supabase.functions.invoke('get-filtered-lessons', {
-      body: { ageGroup, level, userId }
+    const { data, error } = await supabase.functions.invoke("get-filtered-lessons", {
+      body: { ageGroup, level, userId },
     });
 
     if (error) {
-      console.error('Error fetching lessons:', error);
+      console.error("Error fetching lessons:", error);
       return;
     }
 
@@ -157,13 +162,13 @@ const Dashboard = () => {
 
   const fetchQuizzes = async () => {
     const { data, error } = await supabase
-      .from('lessons')
-      .select('*')
-      .eq('is_quiz', true)
-      .order('order_index', { ascending: true });
+      .from("lessons")
+      .select("*")
+      .eq("is_quiz", true)
+      .order("order_index", { ascending: true });
 
     if (error) {
-      console.error('Error fetching quizzes:', error);
+      console.error("Error fetching quizzes:", error);
       return;
     }
 
@@ -182,7 +187,7 @@ const Dashboard = () => {
     if (error) {
       toast.error("Error signing out");
     } else {
-      toast.success(t('dashboard.signedOut'));
+      toast.success(t("dashboard.signedOut"));
       navigate("/auth");
     }
   };
@@ -197,8 +202,8 @@ const Dashboard = () => {
     setTranslation("");
 
     try {
-      const { data, error } = await supabase.functions.invoke('translate-to-lsfb', {
-        body: { text: textToTranslate }
+      const { data, error } = await supabase.functions.invoke("translate-to-lsfb", {
+        body: { text: textToTranslate },
       });
 
       if (error) throw error;
@@ -210,7 +215,7 @@ const Dashboard = () => {
         throw new Error("Aucune traduction reçue");
       }
     } catch (error) {
-      console.error('Translation error:', error);
+      console.error("Translation error:", error);
       toast.error("Erreur lors de la traduction");
     } finally {
       setIsTranslating(false);
@@ -232,10 +237,10 @@ const Dashboard = () => {
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold">Bienvenue {user?.email?.split('@')[0]}</h1>
+            <h1 className="text-xl font-bold">Bienvenue {user?.email?.split("@")[0]}</h1>
           </div>
         </div>
-        
+
         <nav className="flex-1 p-4">
           <h2 className="text-2xl font-bold mb-6 px-2">MENU</h2>
           <div className="space-y-3">
@@ -283,20 +288,13 @@ const Dashboard = () => {
             </Button>
             {isAdmin && (
               <Link to="/admin" className="w-full">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-lg h-14"
-                >
+                <Button variant="ghost" className="w-full justify-start text-lg h-14">
                   <Shield className="w-5 h-5 mr-2" />
                   Administration
                 </Button>
               </Link>
             )}
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              className="w-full justify-start text-lg h-14"
-            >
+            <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-lg h-14">
               <LogOut className="w-5 h-5 mr-2" />
               Quitter
             </Button>
@@ -304,9 +302,7 @@ const Dashboard = () => {
         </nav>
 
         <div className="p-4 border-t border-border">
-          <p className="text-sm text-muted-foreground text-center">
-            App Langue des Signes
-          </p>
+          <p className="text-sm text-muted-foreground text-center">App Langue des Signes</p>
         </div>
       </aside>
 
@@ -325,16 +321,14 @@ const Dashboard = () => {
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
-                {t('common.stats')}
+                {t("common.stats")}
               </Button>
             </Link>
           </div>
         </header>
 
         <div className="p-8">
-          {activeSection === "apprentissage" && (
-            <LearningDecisionTree />
-          )}
+          {activeSection === "apprentissage" && <LearningDecisionTree />}
 
           {activeSection === "dictionnaire" && (
             <div className="max-w-6xl">
@@ -346,11 +340,7 @@ const Dashboard = () => {
             <div className="max-w-4xl">
               {showStereotypeQuiz ? (
                 <div>
-                  <Button 
-                    variant="ghost" 
-                    className="mb-6"
-                    onClick={() => setShowStereotypeQuiz(false)}
-                  >
+                  <Button variant="ghost" className="mb-6" onClick={() => setShowStereotypeQuiz(false)}>
                     ← Retour aux quizz
                   </Button>
                   <StereotypeQuiz />
@@ -366,26 +356,11 @@ const Dashboard = () => {
                       <Link key={quiz.id} to={`/lesson/${quiz.id}`}>
                         <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
                           <h4 className="font-bold mb-2">{quiz.title}</h4>
-                          {quiz.description && (
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {quiz.description}
-                            </p>
-                          )}
-                          <p className="text-sm text-muted-foreground">
-                            Commencer le quizz
-                          </p>
+                          {quiz.description && <p className="text-sm text-muted-foreground mb-2">{quiz.description}</p>}
+                          <p className="text-sm text-muted-foreground">Commencer le quizz</p>
                         </Card>
                       </Link>
                     ))}
-                    <Card 
-                      className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2"
-                      onClick={() => setShowStereotypeQuiz(true)}
-                    >
-                      <h4 className="font-bold mb-2">Stéréotypes & Culture Sourde</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Déconstruire les préjugés
-                      </p>
-                    </Card>
                   </div>
                 </Card>
               )}
@@ -402,10 +377,8 @@ const Dashboard = () => {
             <div className="max-w-6xl">
               {starterPackView === "main" && (
                 <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
-                  <h3 className="text-3xl font-bold mb-6 text-center gradient-text">
-                    Vous souhaitez communiquer avec
-                  </h3>
-                  
+                  <h3 className="text-3xl font-bold mb-6 text-center gradient-text">Vous souhaitez communiquer avec</h3>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Section Adulte */}
                     <Card className="p-8 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
@@ -417,10 +390,7 @@ const Dashboard = () => {
                         <p className="text-muted-foreground">
                           Apprenez les signes essentiels pour communiquer avec des adultes sourds ou malentendants
                         </p>
-                        <Button 
-                          className="w-full gradient-candy mt-4"
-                          onClick={() => setStarterPackView("adulte")}
-                        >
+                        <Button className="w-full gradient-candy mt-4" onClick={() => setStarterPackView("adulte")}>
                           Commencer
                         </Button>
                       </div>
@@ -436,10 +406,7 @@ const Dashboard = () => {
                         <p className="text-muted-foreground">
                           Découvrez les signes adaptés pour communiquer avec des enfants sourds ou malentendants
                         </p>
-                        <Button 
-                          className="w-full gradient-accent mt-4"
-                          onClick={() => setStarterPackView("enfant")}
-                        >
+                        <Button className="w-full gradient-accent mt-4" onClick={() => setStarterPackView("enfant")}>
                           Commencer
                         </Button>
                       </div>
@@ -450,8 +417,8 @@ const Dashboard = () => {
 
               {starterPackView === "adulte" && (
                 <div>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="mb-6"
                     onClick={() => {
                       if (activeStarterSection) {
@@ -463,73 +430,97 @@ const Dashboard = () => {
                   >
                     ← Retour
                   </Button>
-                  
+
                   {activeStarterSection === "alphabet" && <AlphabetGrid />}
                   {activeStarterSection === "greetings" && <GreetingsGrid />}
                   {activeStarterSection === "numbers" && <NumbersGrid />}
                   {activeStarterSection === "work" && <WorkVocabGrid />}
                   {activeStarterSection === "dates" && <DatesGrid />}
-                  
+
                   {!activeStarterSection && (
                     <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
-                      <h3 className="text-3xl font-bold mb-2 gradient-text text-center">Ressources LSFB pour Adultes</h3>
+                      <h3 className="text-3xl font-bold mb-2 gradient-text text-center">
+                        Ressources LSFB pour Adultes
+                      </h3>
                       <p className="text-muted-foreground mb-8 text-center">
                         Découvrez les signes essentiels pour communiquer dans un contexte professionnel et quotidien
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("alphabet")}
                         >
-                          <img src={lsfbAlphabet} alt="Alphabet LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                          <img
+                            src={lsfbAlphabet}
+                            alt="Alphabet LSFB"
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
                           <h4 className="text-xl font-bold mb-2">Alphabet</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Maîtrisez l'alphabet pour épeler noms et mots techniques</p>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Maîtrisez l'alphabet pour épeler noms et mots techniques
+                          </p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("greetings")}
                         >
-                          <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                          <img
+                            src={lsfbGreetings}
+                            alt="Salutations LSFB"
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
                           <h4 className="text-xl font-bold mb-2">Salutations professionnelles</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Les formules de politesse pour le travail</p>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Les formules de politesse pour le travail
+                          </p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("numbers")}
                         >
-                          <img src={lsfbNumbers} alt="Chiffres LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                          <img
+                            src={lsfbNumbers}
+                            alt="Chiffres LSFB"
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
                           <h4 className="text-xl font-bold mb-2">Chiffres et nombres</h4>
                           <p className="text-sm text-muted-foreground mb-4">Essentiels pour dates, prix et quantités</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("work")}
                         >
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🏢</div>
+                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            🏢
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Vocabulaire professionnel</h4>
                           <p className="text-sm text-muted-foreground mb-4">Métiers, entreprise, réunions</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("dates")}
                         >
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🕐</div>
+                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            🕐
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Temps et dates</h4>
                           <p className="text-sm text-muted-foreground mb-4">Heures, jours, mois, années</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all opacity-50">
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🏥</div>
+                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            🏥
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Situations d'urgence</h4>
                           <p className="text-sm text-muted-foreground mb-4">Santé, sécurité, aide</p>
                           <div className="text-sm text-muted-foreground font-medium">À venir</div>
@@ -542,8 +533,8 @@ const Dashboard = () => {
 
               {starterPackView === "enfant" && (
                 <div>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="mb-6"
                     onClick={() => {
                       if (activeStarterSection) {
@@ -555,7 +546,7 @@ const Dashboard = () => {
                   >
                     ← Retour
                   </Button>
-                  
+
                   {activeStarterSection === "alphabet" && <AlphabetGrid />}
                   {activeStarterSection === "numbers" && <NumbersGrid />}
                   {activeStarterSection === "greetings" && <GreetingsGrid />}
@@ -565,100 +556,126 @@ const Dashboard = () => {
                   {activeStarterSection === "family" && <FamilyGrid />}
                   {activeStarterSection === "food" && <FoodGrid />}
                   {activeStarterSection === "toys" && <ToysGrid />}
-                  
+
                   {!activeStarterSection && (
                     <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
-                      <h3 className="text-3xl font-bold mb-2 gradient-text text-center">Ressources LSFB pour Enfants</h3>
+                      <h3 className="text-3xl font-bold mb-2 gradient-text text-center">
+                        Ressources LSFB pour Enfants
+                      </h3>
                       <p className="text-muted-foreground mb-8 text-center">
                         Découvrez les signes ludiques et essentiels pour communiquer avec les enfants
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("alphabet")}
                         >
-                          <img src={lsfbAlphabet} alt="Alphabet LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                          <img
+                            src={lsfbAlphabet}
+                            alt="Alphabet LSFB"
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
                           <h4 className="text-xl font-bold mb-2">Alphabet ludique</h4>
                           <p className="text-sm text-muted-foreground mb-4">Apprendre l'alphabet en s'amusant</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("numbers")}
                         >
-                          <img src={lsfbNumbers} alt="Chiffres LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                          <img
+                            src={lsfbNumbers}
+                            alt="Chiffres LSFB"
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
                           <h4 className="text-xl font-bold mb-2">Compter avec les mains</h4>
                           <p className="text-sm text-muted-foreground mb-4">Les chiffres de 1 à 10 et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("greetings")}
                         >
-                          <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                          <img
+                            src={lsfbGreetings}
+                            alt="Salutations LSFB"
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
                           <h4 className="text-xl font-bold mb-2">Bonjour et au revoir</h4>
                           <p className="text-sm text-muted-foreground mb-4">Les premières salutations</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("colors")}
                         >
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🎨</div>
+                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            🎨
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Couleurs</h4>
                           <p className="text-sm text-muted-foreground mb-4">Rouge, bleu, jaune et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("animals")}
                         >
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🐶</div>
+                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            🐶
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Animaux</h4>
                           <p className="text-sm text-muted-foreground mb-4">Chat, chien, lapin et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("emotions")}
                         >
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">😊</div>
+                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            😊
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Émotions</h4>
                           <p className="text-sm text-muted-foreground mb-4">Content, triste, en colère</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("family")}
                         >
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">👨‍👩‍👧‍👦</div>
+                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            👨‍👩‍👧‍👦
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Famille</h4>
                           <p className="text-sm text-muted-foreground mb-4">Papa, maman, frère, sœur</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("food")}
                         >
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🍎</div>
+                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            🍎
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Nourriture</h4>
                           <p className="text-sm text-muted-foreground mb-4">Fruits, légumes, repas</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card 
+                        <Card
                           className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
                           onClick={() => setActiveStarterSection("toys")}
                         >
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🎮</div>
+                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">
+                            🎮
+                          </div>
                           <h4 className="text-xl font-bold mb-2">Jeux et jouets</h4>
                           <p className="text-sm text-muted-foreground mb-4">Ballon, poupée, jeux</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
@@ -671,9 +688,7 @@ const Dashboard = () => {
             </div>
           )}
 
-          {activeSection === "liens" && (
-            <UsefulLinks />
-          )}
+          {activeSection === "liens" && <UsefulLinks />}
         </div>
       </main>
     </div>
