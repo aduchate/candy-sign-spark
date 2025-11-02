@@ -35,6 +35,7 @@ import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { NewsSection } from "@/components/NewsSection";
+import { CategorySection } from "@/components/CategorySection";
 
 interface LessonProgress {
   id: number;
@@ -60,7 +61,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites"
+    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -303,6 +304,34 @@ const Dashboard = () => {
             >
               Actualités
             </Button>
+            <Button
+              onClick={() => setActiveSection("atelier")}
+              variant={activeSection === "atelier" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Atelier
+            </Button>
+            <Button
+              onClick={() => setActiveSection("evenements")}
+              variant={activeSection === "evenements" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Événements
+            </Button>
+            <Button
+              onClick={() => setActiveSection("formations")}
+              variant={activeSection === "formations" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Formations accessibles
+            </Button>
+            <Button
+              onClick={() => setActiveSection("projets")}
+              variant={activeSection === "projets" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Projets
+            </Button>
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
@@ -336,6 +365,10 @@ const Dashboard = () => {
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "emploi" && "Aide à l'Emploi"}
               {activeSection === "actualites" && "Actualités"}
+              {activeSection === "atelier" && "Atelier"}
+              {activeSection === "evenements" && "Événements"}
+              {activeSection === "formations" && "Formations accessibles"}
+              {activeSection === "projets" && "Projets"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -718,6 +751,38 @@ const Dashboard = () => {
           {activeSection === "emploi" && <JobListings />}
 
           {activeSection === "actualites" && <NewsSection />}
+
+          {activeSection === "atelier" && (
+            <CategorySection 
+              category="Atelier" 
+              icon="🎨"
+              description="Ateliers pratiques organisés par le SAREW"
+            />
+          )}
+
+          {activeSection === "evenements" && (
+            <CategorySection 
+              category="Événements" 
+              icon="📅"
+              description="Événements et rencontres du SAREW"
+            />
+          )}
+
+          {activeSection === "formations" && (
+            <CategorySection 
+              category="Formations accessibles" 
+              icon="🎓"
+              description="Formations accessibles aux personnes sourdes et malentendantes"
+            />
+          )}
+
+          {activeSection === "projets" && (
+            <CategorySection 
+              category="Projets" 
+              icon="🚀"
+              description="Projets en cours et à venir"
+            />
+          )}
         </div>
       </main>
     </div>

@@ -55,25 +55,56 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log('Starting to scrape SAREW news articles...')
+    console.log('Starting to scrape SAREW articles...')
 
     const sarewUrl = 'http://www.sarew.be'
-    const response = await fetch(sarewUrl)
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch SAREW website: ${response.status}`)
+    let allArticles: any[] = []
+
+    // Scrape main page for recent articles
+    const mainResponse = await fetch(sarewUrl)
+    if (mainResponse.ok) {
+      const mainHtml = await mainResponse.text()
+      allArticles = allArticles.concat(parseNewsArticles(mainHtml, sarewUrl))
     }
 
-    const html = await response.text()
-    
-    const articles = parseNewsArticles(html, sarewUrl)
+    // Scrape specific category pages
+    const categories = [
+      { url: 'http://www.sarew.be/category/atelier/', name: 'Atelier' },
+      { url: 'http://www.sarew.be/category/evenements/', name: 'Événements' },
+      { url: 'http://www.sarew.be/category/formations-accessibles/', name: 'Formations accessibles' },
+      { url: 'http://www.sarew.be/category/projets/', name: 'Projets' },
+    ]
 
-    console.log(`Found ${articles.length} news articles`)
+    for (const category of categories) {
+      try {
+        const categoryResponse = await fetch(category.url)
+        if (categoryResponse.ok) {
+          const categoryHtml = await categoryResponse.text()
+          const categoryArticles = parseNewsArticles(categoryHtml, sarewUrl)
+          // Ensure category is set
+          categoryArticles.forEach(article => {
+            if (!article.category || article.category === 'Actualités') {
+              article.category = category.name
+            }
+          })
+          allArticles = allArticles.concat(categoryArticles)
+        }
+      } catch (error) {
+        console.error(`Error fetching category ${category.name}:`, error)
+      }
+    }
+
+    // Remove duplicates based on source_url
+    const uniqueArticles = Array.from(
+      new Map(allArticles.map(article => [article.source_url, article])).values()
+    )
+
+    console.log(`Found ${uniqueArticles.length} unique articles`)
 
     let insertedCount = 0
     let updatedCount = 0
     
-    for (const article of articles) {
+    for (const article of uniqueArticles) {
       const { data: existing } = await supabaseAdmin
         .from('news_articles')
         .select('id')
@@ -112,7 +143,7 @@ Deno.serve(async (req) => {
         success: true, 
         inserted: insertedCount,
         updated: updatedCount,
-        total: articles.length 
+        total: uniqueArticles.length 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
