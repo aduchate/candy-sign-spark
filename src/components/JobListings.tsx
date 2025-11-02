@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, ExternalLink, MapPin, Building2, RefreshCw, Search } from "lucide-react";
+import { Loader2, ExternalLink, MapPin, Building2, RefreshCw, Search, Briefcase, Calendar } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -33,7 +35,7 @@ export const JobListings = () => {
   const [loading, setLoading] = useState(true);
   const [scraping, setScraping] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("all");
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -41,10 +43,6 @@ export const JobListings = () => {
       .from("job_listings")
       .select("*")
       .order("published_at", { ascending: false, nullsFirst: false });
-
-    if (selectedCategory) {
-      query = query.eq("category", selectedCategory);
-    }
 
     if (searchTerm) {
       query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
@@ -63,7 +61,7 @@ export const JobListings = () => {
 
   useEffect(() => {
     fetchJobs();
-  }, [selectedCategory, searchTerm]);
+  }, [searchTerm]);
 
   const handleScrape = async () => {
     setScraping(true);
@@ -90,7 +88,17 @@ export const JobListings = () => {
     }
   };
 
+  const filteredJobs = activeTab === "all" 
+    ? jobs 
+    : jobs.filter(job => job.category === activeTab);
+
   const categories = [...new Set(jobs.map(j => j.category).filter(Boolean))];
+  const stats = {
+    total: jobs.length,
+    cdd: jobs.filter(j => j.category === "CDD").length,
+    cdr: jobs.filter(j => j.category === "CDR").length,
+    cdi: jobs.filter(j => j.category === "CDI").length,
+  };
 
   return (
     <div className="space-y-6">
@@ -122,28 +130,45 @@ export const JobListings = () => {
           </Button>
         </div>
 
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher une offre..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <select
-            value={selectedCategory || ""}
-            onChange={(e) => setSelectedCategory(e.target.value || null)}
-            className="px-4 py-2 rounded-md border bg-background"
-          >
-            <option value="">Toutes les catégories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat || ""}>
-                {cat}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="p-4 bg-primary/5">
+            <div className="flex items-center gap-2 mb-2">
+              <Briefcase className="w-5 h-5 text-primary" />
+              <span className="text-sm text-muted-foreground">Total</span>
+            </div>
+            <p className="text-2xl font-bold">{stats.total}</p>
+          </Card>
+          <Card className="p-4 bg-blue-500/5">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="w-5 h-5 text-blue-500" />
+              <span className="text-sm text-muted-foreground">CDD</span>
+            </div>
+            <p className="text-2xl font-bold">{stats.cdd}</p>
+          </Card>
+          <Card className="p-4 bg-green-500/5">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="w-5 h-5 text-green-500" />
+              <span className="text-sm text-muted-foreground">CDR</span>
+            </div>
+            <p className="text-2xl font-bold">{stats.cdr}</p>
+          </Card>
+          <Card className="p-4 bg-purple-500/5">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="w-5 h-5 text-purple-500" />
+              <span className="text-sm text-muted-foreground">CDI</span>
+            </div>
+            <p className="text-2xl font-bold">{stats.cdi}</p>
+          </Card>
+        </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher une offre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
         </div>
       </Card>
 
@@ -159,66 +184,123 @@ export const JobListings = () => {
           </Button>
         </Card>
       ) : (
-        <Card className="overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Titre</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Entreprise</TableHead>
-                <TableHead>Lieu</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {jobs.map((job) => (
-                <TableRow key={job.id}>
-                  <TableCell className="font-medium">{job.title}</TableCell>
-                  <TableCell>
-                    {job.category && (
-                      <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs">
-                        {job.category}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {job.company && (
-                      <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-muted-foreground" />
-                        {job.company}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {job.location && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        {job.location}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {job.published_at
-                      ? new Date(job.published_at).toLocaleDateString()
-                      : "N/A"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {job.source_url && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => window.open(job.source_url!, "_blank")}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 mb-6">
+            <TabsTrigger value="all" className="gap-2">
+              <Briefcase className="w-4 h-4" />
+              Toutes ({stats.total})
+            </TabsTrigger>
+            <TabsTrigger value="CDD" className="gap-2">
+              CDD ({stats.cdd})
+            </TabsTrigger>
+            <TabsTrigger value="CDR" className="gap-2">
+              CDR ({stats.cdr})
+            </TabsTrigger>
+            <TabsTrigger value="CDI" className="gap-2">
+              CDI ({stats.cdi})
+            </TabsTrigger>
+            <TabsTrigger value="Offre d'emploi" className="gap-2">
+              Autres ({stats.total - stats.cdd - stats.cdr - stats.cdi})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={activeTab}>
+            <Card className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[40%]">Titre du poste</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Entreprise</TableHead>
+                    <TableHead>Localisation</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredJobs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        Aucune offre dans cette catégorie
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredJobs.map((job) => (
+                      <TableRow key={job.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-semibold">{job.title}</span>
+                            {job.description && (
+                              <span className="text-xs text-muted-foreground line-clamp-2">
+                                {job.description}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {job.category && (
+                            <Badge 
+                              variant="outline" 
+                              className={
+                                job.category === "CDD" ? "bg-blue-500/10 text-blue-500 border-blue-500/20" :
+                                job.category === "CDR" ? "bg-green-500/10 text-green-500 border-green-500/20" :
+                                job.category === "CDI" ? "bg-purple-500/10 text-purple-500 border-purple-500/20" :
+                                "bg-primary/10 text-primary border-primary/20"
+                              }
+                            >
+                              {job.category}
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {job.company && (
+                            <div className="flex items-center gap-2">
+                              <Building2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                              <span className="truncate">{job.company}</span>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {job.location && (
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                              <span className="truncate">{job.location}</span>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-muted-foreground" />
+                            {job.published_at
+                              ? new Date(job.published_at).toLocaleDateString("fr-FR", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric"
+                                })
+                              : "N/A"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {job.source_url && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => window.open(job.source_url!, "_blank")}
+                              className="gap-2"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              Voir
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </Card>
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
