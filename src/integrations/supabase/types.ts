@@ -81,6 +81,7 @@ export type Database = {
           age_group: string
           category: string
           created_at: string
+          description: string | null
           id: string
           is_quiz: boolean
           level: Database["public"]["Enums"]["cecrl_level"]
@@ -92,6 +93,7 @@ export type Database = {
           age_group: string
           category: string
           created_at?: string
+          description?: string | null
           id?: string
           is_quiz?: boolean
           level: Database["public"]["Enums"]["cecrl_level"]
@@ -103,6 +105,7 @@ export type Database = {
           age_group?: string
           category?: string
           created_at?: string
+          description?: string | null
           id?: string
           is_quiz?: boolean
           level?: Database["public"]["Enums"]["cecrl_level"]

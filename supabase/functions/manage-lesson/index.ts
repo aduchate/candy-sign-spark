@@ -78,6 +78,7 @@ Deno.serve(async (req) => {
         .from('lessons')
         .insert({
           title: lessonData.title,
+          description: lessonData.description,
           category: lessonData.category,
           level: lessonData.level,
           age_group: lessonData.age_group,
@@ -105,6 +106,7 @@ Deno.serve(async (req) => {
         .from('lessons')
         .update({
           title: lessonData.title,
+          description: lessonData.description,
           category: lessonData.category,
           level: lessonData.level,
           age_group: lessonData.age_group,

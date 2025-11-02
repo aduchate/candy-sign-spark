@@ -31,6 +31,7 @@ interface UserProfile {
 interface Lesson {
   id: string;
   title: string;
+  description?: string;
   category: string;
   level: string;
   age_group: string;
@@ -539,6 +540,15 @@ const Admin = () => {
                         onChange={(e) => setNewLesson({ ...newLesson, order_index: parseInt(e.target.value) })}
                       />
                     </div>
+                    <div className="col-span-2">
+                      <Label>Description</Label>
+                      <Textarea
+                        value={newLesson.description || ""}
+                        onChange={(e) => setNewLesson({ ...newLesson, description: e.target.value })}
+                        placeholder="Description de la leçon"
+                        rows={3}
+                      />
+                    </div>
                     {!newLesson.is_quiz && (
                       <>
                         <div>
@@ -639,6 +649,15 @@ const Admin = () => {
                         type="number"
                         value={editingLesson.order_index}
                         onChange={(e) => setEditingLesson({ ...editingLesson, order_index: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label>Description</Label>
+                      <Textarea
+                        value={editingLesson.description || ""}
+                        onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
+                        placeholder="Description de la leçon"
+                        rows={3}
                       />
                     </div>
                     {!editingLesson.is_quiz && (
