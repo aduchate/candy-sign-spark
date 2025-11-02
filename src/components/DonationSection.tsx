@@ -62,14 +62,46 @@ export const DonationSection = ({
       </div>
 
       <Card className="p-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <h3 className="text-2xl font-bold mb-4">Pourquoi nous soutenir ?</h3>
-          <p className="text-lg text-muted-foreground mb-6">
-            SAREW œuvre pour l'inclusion et l'accessibilité des personnes sourdes et malentendantes. 
-            Votre générosité nous permet de continuer notre mission et d'accompagner notre communauté.
-          </p>
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold mb-4">Pourquoi nous soutenir ?</h3>
+            <p className="text-lg text-muted-foreground mb-6">
+              SAREW œuvre pour l'inclusion et l'accessibilité des personnes sourdes et malentendantes. 
+              Votre générosité nous permet de continuer notre mission et d'accompagner notre communauté.
+            </p>
+          </div>
+
+          <div className="bg-muted/50 p-6 rounded-lg mb-8">
+            <h4 className="text-xl font-semibold mb-4">Attestation fiscale</h4>
+            <p className="mb-4">
+              Afin d'établir votre attestation fiscale, merci de nous communiquer par mail à l'adresse{" "}
+              <a href="mailto:info@sarew.be" className="text-primary hover:underline font-semibold">
+                info@sarew.be
+              </a>
+            </p>
+            <p className="font-semibold mb-2">Les informations suivantes :</p>
+            <ul className="space-y-2 ml-6">
+              <li className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
+                <span>Nom, Prénom</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
+                <span>Numéro de registre national</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
+                <span>Votre adresse</span>
+              </li>
+            </ul>
+          </div>
           
           <div className="space-y-4 text-left mb-8">
+            <h4 className="text-xl font-semibold">Nos missions</h4>
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+              <p>Service d'Aide à la recherche d'un emploi pour personnes sourdes et malentendantes en Wallonie</p>
+            </div>
             <div className="flex items-start gap-3">
               <div className="w-2 h-2 bg-primary rounded-full mt-2" />
               <p>Formation en langue des signes pour les familles et professionnels</p>
@@ -82,24 +114,22 @@ export const DonationSection = ({
               <div className="w-2 h-2 bg-primary rounded-full mt-2" />
               <p>Organisation d'événements et d'ateliers inclusifs</p>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-primary rounded-full mt-2" />
-              <p>Sensibilisation à la culture sourde</p>
-            </div>
           </div>
 
-          <Button 
-            size="lg"
-            className="text-lg px-8 py-6"
-            onClick={() => window.open(donationUrl, "_blank")}
-          >
-            <ExternalLink className="w-5 h-5 mr-2" />
-            Faire un don maintenant
-          </Button>
-          
-          <p className="text-sm text-muted-foreground mt-4">
-            Vous serez redirigé vers le site sécurisé de SAREW
-          </p>
+          <div className="text-center">
+            <Button 
+              size="lg"
+              className="text-lg px-8 py-6"
+              onClick={() => window.open(donationUrl, "_blank")}
+            >
+              <ExternalLink className="w-5 h-5 mr-2" />
+              Faire un don maintenant
+            </Button>
+            
+            <p className="text-sm text-muted-foreground mt-4">
+              Vous serez redirigé vers le site de SAREW
+            </p>
+          </div>
         </div>
       </Card>
 
