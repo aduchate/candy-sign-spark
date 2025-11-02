@@ -145,7 +145,7 @@ export const NewsSection = () => {
           </TabsList>
         </Tabs>
 
-        <div className="relative">
+        <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher un article..."
@@ -167,61 +167,165 @@ export const NewsSection = () => {
             Importer les actualités
           </Button>
         </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredArticles.map((article) => (
-            <Card key={article.id} className="overflow-hidden hover:shadow-candy transition-shadow">
-              {article.image_url && (
-                <div className="w-full h-48 overflow-hidden">
-                  <img 
-                    src={article.image_url} 
-                    alt={article.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  {article.category && (
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                      {article.category}
-                    </Badge>
-                  )}
-                  {article.published_at && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(article.published_at).toLocaleDateString("fr-FR", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric"
-                      })}
-                    </div>
-                  )}
+      ) : activeCategory === "all" ? (
+        <div className="space-y-8">
+          {["Actualités", ...categories].map((cat) => {
+            const categoryArticles = articles.filter(a => a.category === cat)
+            if (categoryArticles.length === 0) return null
+            
+            return (
+              <Card key={cat} className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold">{cat}</h3>
+                  <Badge variant="secondary">{categoryArticles.length} articles</Badge>
                 </div>
                 
-                <h3 className="text-xl font-bold mb-2 line-clamp-2">{article.title}</h3>
-                
-                {article.excerpt && (
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                    {article.excerpt}
-                  </p>
-                )}
-                
-                {article.source_url && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={() => window.open(article.source_url!, "_blank")}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Lire l&apos;article
-                  </Button>
-                )}
-              </div>
-            </Card>
-          ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 font-semibold">Image</th>
+                        <th className="text-left p-3 font-semibold">Titre</th>
+                        <th className="text-left p-3 font-semibold">Résumé</th>
+                        <th className="text-left p-3 font-semibold">Date</th>
+                        <th className="text-left p-3 font-semibold">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categoryArticles.map((article) => (
+                        <tr key={article.id} className="border-b hover:bg-muted/30 transition-colors">
+                          <td className="p-3">
+                            {article.image_url ? (
+                              <img 
+                                src={article.image_url} 
+                                alt={article.title}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                                <Newspaper className="w-6 h-6 text-muted-foreground" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-3 font-medium max-w-xs">
+                            {article.title}
+                          </td>
+                          <td className="p-3 text-sm text-muted-foreground max-w-md">
+                            {article.excerpt ? (
+                              <span className="line-clamp-2">{article.excerpt}</span>
+                            ) : (
+                              <span className="italic">Pas de résumé</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-sm whitespace-nowrap">
+                            {article.published_at && (
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(article.published_at).toLocaleDateString("fr-FR", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric"
+                                })}
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-3">
+                            {article.source_url && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-2"
+                                onClick={() => window.open(article.source_url!, "_blank")}
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                                Voir
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )
+          })}
         </div>
+      ) : (
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-2xl font-bold">{activeCategory}</h3>
+            <Badge variant="secondary">{filteredArticles.length} articles</Badge>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="text-left p-3 font-semibold">Image</th>
+                  <th className="text-left p-3 font-semibold">Titre</th>
+                  <th className="text-left p-3 font-semibold">Résumé</th>
+                  <th className="text-left p-3 font-semibold">Date</th>
+                  <th className="text-left p-3 font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredArticles.map((article) => (
+                  <tr key={article.id} className="border-b hover:bg-muted/30 transition-colors">
+                    <td className="p-3">
+                      {article.image_url ? (
+                        <img 
+                          src={article.image_url} 
+                          alt={article.title}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                          <Newspaper className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      )}
+                    </td>
+                    <td className="p-3 font-medium max-w-xs">
+                      {article.title}
+                    </td>
+                    <td className="p-3 text-sm text-muted-foreground max-w-md">
+                      {article.excerpt ? (
+                        <span className="line-clamp-2">{article.excerpt}</span>
+                      ) : (
+                        <span className="italic">Pas de résumé</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-sm whitespace-nowrap">
+                      {article.published_at && (
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(article.published_at).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric"
+                          })}
+                        </div>
+                      )}
+                    </td>
+                    <td className="p-3">
+                      {article.source_url && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-2"
+                          onClick={() => window.open(article.source_url!, "_blank")}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Voir
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
     </div>
   );

@@ -161,40 +161,85 @@ Deno.serve(async (req) => {
 function parseNewsArticles(html: string, baseUrl: string): any[] {
   const articles: any[] = []
 
-  // Extract article entries
-  const articleRegex = /<article[^>]*class="[^"]*entry[^"]*"[^>]*>([\s\S]*?)<\/article>/gi
-  const articleMatches = Array.from(html.matchAll(articleRegex))
+  // Try multiple patterns to catch different article structures
+  const patterns = [
+    // Pattern 1: Standard article tags
+    /<article[^>]*>([\s\S]*?)<\/article>/gi,
+    // Pattern 2: Post items
+    /<div[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/gi,
+    // Pattern 3: Entry items
+    /<div[^>]*class="[^"]*entry[^"]*"[^>]*>([\s\S]*?)<\/div>/gi
+  ]
+
+  let articleMatches: RegExpMatchArray[] = []
+  
+  for (const pattern of patterns) {
+    const matches = Array.from(html.matchAll(pattern))
+    if (matches.length > articleMatches.length) {
+      articleMatches = matches
+    }
+  }
 
   for (const articleMatch of articleMatches) {
-    const articleHtml = articleMatch[1]
+    const articleHtml = articleMatch[0]
 
-    // Extract title
-    const titleMatch = articleHtml.match(/<h2[^>]*class="entry-title"[^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*>/i)
-    const title = titleMatch ? titleMatch[2].trim() : null
-    const articleUrl = titleMatch ? titleMatch[1].trim() : null
+    // Extract title - try multiple patterns
+    let title = null
+    let articleUrl = null
+    
+    const titlePatterns = [
+      /<h2[^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/i,
+      /<h2[^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*title="([^"]+)"[^>]*>/i,
+      /<h3[^>]*>[\s\S]*?<a[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/i,
+      /<a[^>]*class="[^"]*entry-title[^"]*"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/i
+    ]
+    
+    for (const pattern of titlePatterns) {
+      const match = articleHtml.match(pattern)
+      if (match) {
+        articleUrl = match[1].trim()
+        title = match[2].trim()
+        break
+      }
+    }
 
     if (!title || !articleUrl) continue
 
     // Extract image
     const imgMatch = articleHtml.match(/<img[^>]*src="([^"]+)"[^>]*>/i)
-    const imageUrl = imgMatch ? imgMatch[1].trim() : null
+    let imageUrl = imgMatch ? imgMatch[1].trim() : null
+    
+    // Clean up image URL if needed
+    if (imageUrl && !imageUrl.startsWith('http')) {
+      imageUrl = baseUrl + imageUrl
+    }
 
     // Extract date
     const dateMatch = articleHtml.match(/<time[^>]*datetime="([^"]+)"[^>]*>/i)
     const publishedAt = dateMatch ? dateMatch[1].trim() : new Date().toISOString()
 
     // Extract category
-    const categoryMatch = articleHtml.match(/<a[^>]*rel="category tag"[^>]*>([^<]+)<\/a>/i)
+    const categoryMatch = articleHtml.match(/<a[^>]*rel="category[^"]*"[^>]*>([^<]+)<\/a>/i)
     const category = categoryMatch ? categoryMatch[1].trim() : 'Actualités'
 
-    // Extract excerpt
-    const excerptMatch = articleHtml.match(/<div[^>]*class="entry-excerpt"[^>]*>([\s\S]*?)<\/div>/i)
+    // Extract excerpt - try multiple patterns
     let excerpt = ''
-    if (excerptMatch) {
-      excerpt = excerptMatch[1]
-        .replace(/<[^>]*>/g, '')
-        .replace(/\s+/g, ' ')
-        .trim()
+    const excerptPatterns = [
+      /<div[^>]*class="[^"]*entry-summary[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      /<div[^>]*class="[^"]*entry-excerpt[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      /<p[^>]*>([\s\S]*?)<\/p>/i
+    ]
+    
+    for (const pattern of excerptPatterns) {
+      const match = articleHtml.match(pattern)
+      if (match) {
+        excerpt = match[1]
+          .replace(/<[^>]*>/g, '')
+          .replace(/\s+/g, ' ')
+          .replace(/&[^;]+;/g, ' ')
+          .trim()
+        if (excerpt.length > 20) break
+      }
     }
 
     articles.push({
