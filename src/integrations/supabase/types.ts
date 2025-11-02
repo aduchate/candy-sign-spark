@@ -294,6 +294,7 @@ export type Database = {
       }
       word_signs: {
         Row: {
+          category: string
           created_at: string
           description: string | null
           id: string
@@ -303,6 +304,7 @@ export type Database = {
           word: string
         }
         Insert: {
+          category?: string
           created_at?: string
           description?: string | null
           id?: string
@@ -312,6 +314,7 @@ export type Database = {
           word: string
         }
         Update: {
+          category?: string
           created_at?: string
           description?: string | null
           id?: string
