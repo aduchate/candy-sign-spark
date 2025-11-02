@@ -224,14 +224,6 @@ export const JobListingsSection = () => {
         </div>
       </Card>
 
-      <Card className="p-0 overflow-hidden">
-        <img 
-          src={sarewHomepage} 
-          alt="SAREW - Service d'aide à la recherche d'emploi"
-          className="w-full h-auto"
-        />
-      </Card>
-
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
