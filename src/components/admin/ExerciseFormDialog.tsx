@@ -31,14 +31,14 @@ export const ExerciseFormDialog = ({
   onSave,
 }: ExerciseFormDialogProps) => {
   const [formData, setFormData] = useState<Partial<Exercise>>(
-    exercise || { lesson_id: lessonId, type: "quiz", order_index: 0, content: {} }
+    exercise || { lesson_id: lessonId, type: "true_false", order_index: 0, content: {} }
   );
 
   useEffect(() => {
     if (exercise) {
       setFormData(exercise);
     } else {
-      setFormData({ lesson_id: lessonId, type: "quiz", order_index: 0, content: {} });
+      setFormData({ lesson_id: lessonId, type: "true_false", order_index: 0, content: {} });
     }
   }, [exercise, lessonId, open]);
 
@@ -47,7 +47,83 @@ export const ExerciseFormDialog = ({
     onOpenChange(false);
   };
 
-  const renderQuizForm = () => {
+  const renderTrueFalseForm = () => {
+    const questions = formData.content?.questions || [{ question: "", correctAnswer: true }];
+    
+    return (
+      <div className="space-y-4">
+        {questions.map((q: any, qIndex: number) => (
+          <div key={qIndex} className="p-4 border rounded-lg space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Question {qIndex + 1}</Label>
+              {questions.length > 1 && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    const newQuestions = questions.filter((_: any, i: number) => i !== qIndex);
+                    setFormData({ ...formData, content: { questions: newQuestions } });
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+            <Textarea
+              placeholder="Question"
+              value={q.question}
+              onChange={(e) => {
+                const newQuestions = [...questions];
+                newQuestions[qIndex].question = e.target.value;
+                setFormData({ ...formData, content: { questions: newQuestions } });
+              }}
+            />
+            <div className="flex items-center gap-4">
+              <Label>Réponse correcte:</Label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    checked={q.correctAnswer === true}
+                    onChange={() => {
+                      const newQuestions = [...questions];
+                      newQuestions[qIndex].correctAnswer = true;
+                      setFormData({ ...formData, content: { questions: newQuestions } });
+                    }}
+                  />
+                  Vrai
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    checked={q.correctAnswer === false}
+                    onChange={() => {
+                      const newQuestions = [...questions];
+                      newQuestions[qIndex].correctAnswer = false;
+                      setFormData({ ...formData, content: { questions: newQuestions } });
+                    }}
+                  />
+                  Faux
+                </label>
+              </div>
+            </div>
+          </div>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => {
+            const newQuestions = [...questions, { question: "", correctAnswer: true }];
+            setFormData({ ...formData, content: { questions: newQuestions } });
+          }}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Ajouter une question
+        </Button>
+      </div>
+    );
+  };
+
+  const renderMultipleChoiceForm = () => {
     const questions = formData.content?.questions || [{ question: "", options: ["", "", "", ""], correctAnswer: 0 }];
     
     return (
@@ -69,7 +145,7 @@ export const ExerciseFormDialog = ({
                 </Button>
               )}
             </div>
-            <Input
+            <Textarea
               placeholder="Question"
               value={q.question}
               onChange={(e) => {
@@ -89,15 +165,18 @@ export const ExerciseFormDialog = ({
                     setFormData({ ...formData, content: { questions: newQuestions } });
                   }}
                 />
-                <input
-                  type="radio"
-                  checked={q.correctAnswer === oIndex}
-                  onChange={() => {
-                    const newQuestions = [...questions];
-                    newQuestions[qIndex].correctAnswer = oIndex;
-                    setFormData({ ...formData, content: { questions: newQuestions } });
-                  }}
-                />
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    checked={q.correctAnswer === oIndex}
+                    onChange={() => {
+                      const newQuestions = [...questions];
+                      newQuestions[qIndex].correctAnswer = oIndex;
+                      setFormData({ ...formData, content: { questions: newQuestions } });
+                    }}
+                  />
+                  <span className="text-sm text-muted-foreground">Correcte</span>
+                </label>
               </div>
             ))}
           </div>
@@ -116,67 +195,78 @@ export const ExerciseFormDialog = ({
     );
   };
 
-  const renderFlashcardsForm = () => {
-    const cards = formData.content?.cards || [{ word: "", videoUrl: "" }];
+  const renderSentenceOrderingForm = () => {
+    const sentences = formData.content?.sentences || [{ text: "", correctOrder: 0 }];
     
     return (
       <div className="space-y-4">
-        {cards.map((card: any, index: number) => (
+        <p className="text-sm text-muted-foreground">
+          Ajoutez des phrases que l'utilisateur devra réordonner dans le bon ordre.
+        </p>
+        {sentences.map((sentence: any, index: number) => (
           <div key={index} className="p-4 border rounded-lg space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Carte {index + 1}</Label>
-              {cards.length > 1 && (
+              <Label>Phrase {index + 1}</Label>
+              {sentences.length > 1 && (
                 <Button
                   size="sm"
                   variant="destructive"
                   onClick={() => {
-                    const newCards = cards.filter((_: any, i: number) => i !== index);
-                    setFormData({ ...formData, content: { cards: newCards } });
+                    const newSentences = sentences.filter((_: any, i: number) => i !== index);
+                    setFormData({ ...formData, content: { sentences: newSentences } });
                   }}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               )}
             </div>
-            <Input
-              placeholder="Mot"
-              value={card.word}
+            <Textarea
+              placeholder="Texte de la phrase"
+              value={sentence.text}
               onChange={(e) => {
-                const newCards = [...cards];
-                newCards[index].word = e.target.value;
-                setFormData({ ...formData, content: { cards: newCards } });
+                const newSentences = [...sentences];
+                newSentences[index].text = e.target.value;
+                setFormData({ ...formData, content: { sentences: newSentences } });
               }}
             />
-            <Input
-              placeholder="URL de la vidéo"
-              value={card.videoUrl}
-              onChange={(e) => {
-                const newCards = [...cards];
-                newCards[index].videoUrl = e.target.value;
-                setFormData({ ...formData, content: { cards: newCards } });
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <Label className="text-sm">Position correcte:</Label>
+              <Input
+                type="number"
+                min="0"
+                value={sentence.correctOrder}
+                onChange={(e) => {
+                  const newSentences = [...sentences];
+                  newSentences[index].correctOrder = parseInt(e.target.value);
+                  setFormData({ ...formData, content: { sentences: newSentences } });
+                }}
+                className="w-20"
+              />
+            </div>
           </div>
         ))}
         <Button
           variant="outline"
           onClick={() => {
-            const newCards = [...cards, { word: "", videoUrl: "" }];
-            setFormData({ ...formData, content: { cards: newCards } });
+            const newSentences = [...sentences, { text: "", correctOrder: sentences.length }];
+            setFormData({ ...formData, content: { sentences: newSentences } });
           }}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Ajouter une carte
+          Ajouter une phrase
         </Button>
       </div>
     );
   };
 
-  const renderMatchingForm = () => {
+  const renderAssociationForm = () => {
     const pairs = formData.content?.pairs || [{ word: "", videoUrl: "" }];
     
     return (
       <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Créez des paires mot-vidéo que l'utilisateur devra associer.
+        </p>
         {pairs.map((pair: any, index: number) => (
           <div key={index} className="p-4 border rounded-lg space-y-3">
             <div className="flex items-center justify-between">
@@ -248,9 +338,10 @@ export const ExerciseFormDialog = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="quiz">Quiz</SelectItem>
-                <SelectItem value="flashcards">Flashcards</SelectItem>
-                <SelectItem value="matching">Association</SelectItem>
+                <SelectItem value="true_false">Vrai/Faux</SelectItem>
+                <SelectItem value="multiple_choice">Choix Multiple</SelectItem>
+                <SelectItem value="sentence_ordering">Réordonner des Phrases</SelectItem>
+                <SelectItem value="association">Association</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -266,9 +357,10 @@ export const ExerciseFormDialog = ({
 
           <div>
             <Label>Contenu de l'exercice</Label>
-            {formData.type === "quiz" && renderQuizForm()}
-            {formData.type === "flashcards" && renderFlashcardsForm()}
-            {formData.type === "matching" && renderMatchingForm()}
+            {formData.type === "true_false" && renderTrueFalseForm()}
+            {formData.type === "multiple_choice" && renderMultipleChoiceForm()}
+            {formData.type === "sentence_ordering" && renderSentenceOrderingForm()}
+            {formData.type === "association" && renderAssociationForm()}
           </div>
 
           <div className="flex justify-end gap-2">
