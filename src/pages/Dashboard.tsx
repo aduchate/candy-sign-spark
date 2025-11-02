@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, Trophy, Target, BarChart3, LogOut, Loader2 } from "lucide-react";
+import { Sparkles, Trophy, Target, BarChart3, LogOut, Loader2, Shield } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -59,6 +59,7 @@ const Dashboard = () => {
   const [ageGroup, setAgeGroup] = useState<"enfant" | "adulte">("adulte");
   const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [newLessons, setNewLessons] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -80,6 +81,7 @@ const Dashboard = () => {
 
         setUser(session.user);
         fetchUserProgress(session.user.id);
+        checkAdminStatus(session.user.id);
       }
       setLoading(false);
     });
@@ -91,11 +93,22 @@ const Dashboard = () => {
       } else {
         setUser(session.user);
         fetchUserProgress(session.user.id);
+        checkAdminStatus(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkAdminStatus = async (userId: string) => {
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    const hasAdminRole = roles?.some(r => r.role === "admin");
+    setIsAdmin(hasAdminRole || false);
+  };
 
   const fetchUserProgress = async (userId: string) => {
     // Fetch old lessons data for backward compatibility
@@ -251,6 +264,17 @@ const Dashboard = () => {
             >
               Liens utiles
             </Button>
+            {isAdmin && (
+              <Link to="/admin" className="w-full">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-lg h-14"
+                >
+                  <Shield className="w-5 h-5 mr-2" />
+                  Administration
+                </Button>
+              </Link>
+            )}
             <Button
               onClick={handleLogout}
               variant="ghost"
