@@ -14,6 +14,7 @@ import { Loader2, UserCog, BookOpen, ClipboardList, Languages, ArrowLeft, Trash2
 import type { User } from "@supabase/supabase-js";
 import { ExerciseFormDialog } from "@/components/admin/ExerciseFormDialog";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface UserProfile {
   id: string;
@@ -53,6 +54,12 @@ interface WordSign {
   video_url: string;
   description: string | null;
   source_url: string | null;
+  category: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 const Admin = () => {
@@ -83,7 +90,10 @@ const Admin = () => {
   const [wordSigns, setWordSigns] = useState<WordSign[]>([]);
   const [loadingWordSigns, setLoadingWordSigns] = useState(false);
   const [editingWord, setEditingWord] = useState<WordSign | null>(null);
-  const [newWord, setNewWord] = useState<Partial<WordSign>>({});
+  const [newWord, setNewWord] = useState<Partial<WordSign>>({ category: 'A1' });
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newWordCategories, setNewWordCategories] = useState<Set<string>>(new Set());
+  const [editWordCategories, setEditWordCategories] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     checkAuth();
@@ -128,7 +138,10 @@ const Admin = () => {
       if (activeTab === "users") fetchUsers();
       if (activeTab === "lessons") fetchLessons();
       if (activeTab === "exercises") fetchLessons(); // Need lessons for dropdown
-      if (activeTab === "dictionary") fetchWordSigns();
+      if (activeTab === "dictionary") {
+        fetchWordSigns();
+        fetchCategories();
+      }
     }
   }, [activeTab, isAdmin]);
 
@@ -206,6 +219,38 @@ const Admin = () => {
       toast.error("Erreur lors du chargement du dictionnaire");
     } finally {
       setLoadingWordSigns(false);
+    }
+  };
+
+  // Fetch Categories
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("word_categories")
+        .select("*")
+        .order("name", { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Erreur lors du chargement des catégories");
+    }
+  };
+
+  // Load word categories
+  const loadWordCategories = async (wordId: string): Promise<Set<string>> => {
+    try {
+      const { data, error } = await supabase
+        .from("word_sign_categories")
+        .select("category_id")
+        .eq("word_sign_id", wordId);
+
+      if (error) throw error;
+      return new Set<string>(data?.map(d => d.category_id) || []);
+    } catch (error) {
+      console.error("Error loading word categories:", error);
+      return new Set<string>();
     }
   };
 
@@ -323,7 +368,7 @@ const Admin = () => {
     }
   };
 
-  const saveWordSign = async (wordSign: Partial<WordSign>) => {
+  const saveWordSign = async (wordSign: Partial<WordSign>, categoriesSet?: Set<string>) => {
     try {
       if (editingWord) {
         // Update
@@ -333,27 +378,68 @@ const Admin = () => {
             word: wordSign.word,
             description: wordSign.description,
             video_url: wordSign.video_url,
-            source_url: wordSign.source_url
+            source_url: wordSign.source_url,
+            category: wordSign.category || 'A1'
           })
           .eq("id", editingWord.id);
 
         if (error) throw error;
+
+        // Update categories
+        if (categoriesSet) {
+          // Delete existing categories
+          await supabase
+            .from("word_sign_categories")
+            .delete()
+            .eq("word_sign_id", editingWord.id);
+
+          // Insert new categories
+          if (categoriesSet.size > 0) {
+            const categoryInserts = Array.from(categoriesSet).map(categoryId => ({
+              word_sign_id: editingWord.id,
+              category_id: categoryId
+            }));
+
+            await supabase
+              .from("word_sign_categories")
+              .insert(categoryInserts);
+          }
+        }
+
         toast.success("Mot modifié avec succès");
         setEditingWord(null);
+        setEditWordCategories(new Set());
       } else {
         // Create
-        const { error } = await supabase
+        const { data: newWordData, error } = await supabase
           .from("word_signs")
           .insert([{
             word: wordSign.word,
             description: wordSign.description,
             video_url: wordSign.video_url,
-            source_url: wordSign.source_url
-          }]);
+            source_url: wordSign.source_url,
+            category: wordSign.category || 'A1'
+          }])
+          .select()
+          .single();
 
         if (error) throw error;
+
+        // Insert categories
+        if (categoriesSet && categoriesSet.size > 0 && newWordData) {
+          const categoryInserts = Array.from(categoriesSet).map(categoryId => ({
+            word_sign_id: newWordData.id,
+            category_id: categoryId
+          }));
+
+          await supabase
+            .from("word_sign_categories")
+            .insert(categoryInserts);
+        }
+
         toast.success("Mot ajouté avec succès");
-        setNewWord({});
+        setNewWord({ category: 'A1' });
+        setNewWordCategories(new Set());
       }
       fetchWordSigns();
     } catch (error) {
@@ -936,12 +1022,23 @@ const Admin = () => {
                     />
                   </div>
                   <div>
-                    <Label>Description (optionnel)</Label>
-                    <Textarea
-                      value={newWord.description || ""}
-                      onChange={(e) => setNewWord({ ...newWord, description: e.target.value })}
-                      placeholder="Description du signe"
-                    />
+                    <Label>Niveau CECRL</Label>
+                    <Select
+                      value={newWord.category || 'A1'}
+                      onValueChange={(value) => setNewWord({ ...newWord, category: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="A1">A1 - Débutant</SelectItem>
+                        <SelectItem value="A2">A2 - Élémentaire</SelectItem>
+                        <SelectItem value="B1">B1 - Intermédiaire</SelectItem>
+                        <SelectItem value="B2">B2 - Intermédiaire avancé</SelectItem>
+                        <SelectItem value="C1">C1 - Avancé</SelectItem>
+                        <SelectItem value="C2">C2 - Maîtrise</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>URL source (optionnel)</Label>
@@ -951,9 +1048,42 @@ const Admin = () => {
                       placeholder="URL de la source"
                     />
                   </div>
+                  <div className="md:col-span-2">
+                    <Label>Description (optionnel)</Label>
+                    <Textarea
+                      value={newWord.description || ""}
+                      onChange={(e) => setNewWord({ ...newWord, description: e.target.value })}
+                      placeholder="Description du signe"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label className="mb-2 block">Catégories</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 border rounded-lg">
+                      {categories.map((category) => (
+                        <div key={category.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`new-cat-${category.id}`}
+                            checked={newWordCategories.has(category.id)}
+                            onCheckedChange={(checked) => {
+                              const newSet = new Set(newWordCategories);
+                              if (checked) {
+                                newSet.add(category.id);
+                              } else {
+                                newSet.delete(category.id);
+                              }
+                              setNewWordCategories(newSet);
+                            }}
+                          />
+                          <Label htmlFor={`new-cat-${category.id}`} className="cursor-pointer">
+                            {category.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <Button
-                  onClick={() => saveWordSign(newWord)}
+                  onClick={() => saveWordSign(newWord, newWordCategories)}
                   disabled={!newWord.word || !newWord.video_url}
                   className="gap-2"
                 >
@@ -972,6 +1102,7 @@ const Admin = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Mot</TableHead>
+                        <TableHead>Niveau</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead>Vidéo</TableHead>
                         <TableHead>Actions</TableHead>
@@ -988,6 +1119,28 @@ const Admin = () => {
                               />
                             ) : (
                               word.word
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editingWord?.id === word.id ? (
+                              <Select
+                                value={editingWord.category || 'A1'}
+                                onValueChange={(value) => setEditingWord({ ...editingWord, category: value })}
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="A1">A1</SelectItem>
+                                  <SelectItem value="A2">A2</SelectItem>
+                                  <SelectItem value="B1">B1</SelectItem>
+                                  <SelectItem value="B2">B2</SelectItem>
+                                  <SelectItem value="C1">C1</SelectItem>
+                                  <SelectItem value="C2">C2</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              word.category || 'A1'
                             )}
                           </TableCell>
                           <TableCell>
@@ -1019,14 +1172,17 @@ const Admin = () => {
                                   <Button
                                     size="sm"
                                     variant="default"
-                                    onClick={() => saveWordSign(editingWord)}
+                                    onClick={() => saveWordSign(editingWord, editWordCategories)}
                                   >
                                     <Save className="w-4 h-4" />
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setEditingWord(null)}
+                                    onClick={() => {
+                                      setEditingWord(null);
+                                      setEditWordCategories(new Set());
+                                    }}
                                   >
                                     <X className="w-4 h-4" />
                                   </Button>
@@ -1036,7 +1192,11 @@ const Admin = () => {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setEditingWord(word)}
+                                    onClick={async () => {
+                                      setEditingWord(word);
+                                      const cats = await loadWordCategories(word.id);
+                                      setEditWordCategories(cats);
+                                    }}
                                   >
                                     <Edit className="w-4 h-4" />
                                   </Button>
@@ -1053,6 +1213,37 @@ const Admin = () => {
                           </TableCell>
                         </TableRow>
                       ))}
+                      {editingWord && (
+                        <TableRow>
+                          <TableCell colSpan={5}>
+                            <div className="p-4 bg-accent/10 rounded-lg">
+                              <Label className="mb-2 block font-semibold">Catégories de "{editingWord.word}"</Label>
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                {categories.map((category) => (
+                                  <div key={category.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`edit-cat-${category.id}`}
+                                      checked={editWordCategories.has(category.id)}
+                                      onCheckedChange={(checked) => {
+                                        const newSet = new Set(editWordCategories);
+                                        if (checked) {
+                                          newSet.add(category.id);
+                                        } else {
+                                          newSet.delete(category.id);
+                                        }
+                                        setEditWordCategories(newSet);
+                                      }}
+                                    />
+                                    <Label htmlFor={`edit-cat-${category.id}`} className="cursor-pointer">
+                                      {category.name}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </div>
