@@ -75,25 +75,50 @@ Deno.serve(async (req) => {
 
     // Insert or update job listings in database
     let insertedCount = 0
+    let updatedCount = 0
+    
     for (const job of jobListings) {
-      const { error } = await supabaseAdmin
+      // Check if job already exists
+      const { data: existing } = await supabaseAdmin
         .from('job_listings')
-        .upsert(job, { 
-          onConflict: 'source_url',
-          ignoreDuplicates: false 
-        })
+        .select('id')
+        .eq('source_url', job.source_url)
+        .single()
 
-      if (!error) {
-        insertedCount++
+      if (existing) {
+        // Update existing job
+        const { error } = await supabaseAdmin
+          .from('job_listings')
+          .update({ 
+            ...job,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id)
+
+        if (!error) {
+          updatedCount++
+        } else {
+          console.error('Error updating job:', error)
+        }
       } else {
-        console.error('Error inserting job:', error)
+        // Insert new job
+        const { error } = await supabaseAdmin
+          .from('job_listings')
+          .insert(job)
+
+        if (!error) {
+          insertedCount++
+        } else {
+          console.error('Error inserting job:', error)
+        }
       }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        count: insertedCount,
+        inserted: insertedCount,
+        updated: updatedCount,
         total: jobListings.length 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -74,7 +74,13 @@ export const JobListings = () => {
 
       if (error) throw error;
 
-      toast.success(`${data?.count || 0} offres importées avec succès`);
+      const inserted = data?.inserted || 0;
+      const updated = data?.updated || 0;
+      if (inserted > 0 || updated > 0) {
+        toast.success(`${inserted} nouvelle(s) offre(s) ajoutée(s), ${updated} mise(s) à jour`);
+      } else {
+        toast.info('Aucune nouvelle offre trouvée');
+      }
       fetchJobs();
     } catch (error) {
       console.error("Error scraping jobs:", error);
