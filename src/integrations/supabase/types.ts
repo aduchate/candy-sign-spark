@@ -334,6 +334,63 @@ export type Database = {
         }
         Relationships: []
       }
+      word_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      word_sign_categories: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          id: string
+          word_sign_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          id?: string
+          word_sign_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          id?: string
+          word_sign_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "word_sign_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "word_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "word_sign_categories_word_sign_id_fkey"
+            columns: ["word_sign_id"]
+            isOneToOne: false
+            referencedRelation: "word_signs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       word_signs: {
         Row: {
           category: string
