@@ -29,6 +29,7 @@ import { FoodGrid } from "@/components/FoodGrid";
 import { ToysGrid } from "@/components/ToysGrid";
 import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
+import { EmergencyGrid } from "@/components/EmergencyGrid";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
@@ -438,6 +439,7 @@ const Dashboard = () => {
                   {activeStarterSection === "numbers" && <NumbersGrid />}
                   {activeStarterSection === "work" && <WorkVocabGrid />}
                   {activeStarterSection === "dates" && <DatesGrid />}
+                  {activeStarterSection === "emergency" && <EmergencyGrid />}
 
                   {!activeStarterSection && (
                     <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
@@ -519,13 +521,16 @@ const Dashboard = () => {
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all opacity-50">
+                        <Card
+                          className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
+                          onClick={() => setActiveStarterSection("emergency")}
+                        >
                           <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">
                             🏥
                           </div>
-                          <h4 className="text-xl font-bold mb-2">Situations d'urgence</h4>
+                          <h4 className="text-xl font-bold mb-2">Situations d&apos;urgence</h4>
                           <p className="text-sm text-muted-foreground mb-4">Santé, sécurité, aide</p>
-                          <div className="text-sm text-muted-foreground font-medium">À venir</div>
+                          <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
                       </div>
                     </Card>
