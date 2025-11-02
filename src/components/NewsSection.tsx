@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, ExternalLink, RefreshCw, Search, Calendar, Newspaper } from "lucide-react";
@@ -23,6 +24,7 @@ export const NewsSection = () => {
   const [loading, setLoading] = useState(true);
   const [scraping, setScraping] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -75,16 +77,20 @@ export const NewsSection = () => {
     }
   };
 
-  const categories = [...new Set(articles.map(a => a.category).filter(Boolean))];
+  const categories = ["Actualités", "Atelier", "Événements", "Formations accessibles", "Projets"];
+  
+  const filteredArticles = activeCategory === "all" 
+    ? articles 
+    : articles.filter(a => a.category === activeCategory);
 
   return (
     <div className="space-y-6">
       <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-3xl font-bold mb-2 gradient-text">📰 Actualités SAREW</h2>
+            <h2 className="text-3xl font-bold mb-2 gradient-text">📰 Toutes les données SAREW</h2>
             <p className="text-muted-foreground">
-              Les dernières nouvelles et événements du SAREW
+              Actualités, ateliers, événements, formations et projets
             </p>
           </div>
           <Button
@@ -107,26 +113,37 @@ export const NewsSection = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card className="p-4 bg-primary/5">
-            <div className="flex items-center gap-2 mb-2">
-              <Newspaper className="w-5 h-5 text-primary" />
-              <span className="text-sm text-muted-foreground">Articles</span>
-            </div>
-            <p className="text-2xl font-bold">{articles.length}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+          <Card className="p-3 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors" onClick={() => setActiveCategory("all")}>
+            <div className="text-xs text-muted-foreground mb-1">Total</div>
+            <p className="text-xl font-bold">{articles.length}</p>
           </Card>
-          {categories.slice(0, 3).map((cat) => (
-            <Card key={cat} className="p-4 bg-accent/5">
-              <div className="flex items-center gap-2 mb-2">
-                <Newspaper className="w-5 h-5 text-accent" />
-                <span className="text-sm text-muted-foreground truncate">{cat}</span>
-              </div>
-              <p className="text-2xl font-bold">
+          {categories.map((cat) => (
+            <Card 
+              key={cat} 
+              className="p-3 bg-accent/5 cursor-pointer hover:bg-accent/10 transition-colors"
+              onClick={() => setActiveCategory(cat)}
+            >
+              <div className="text-xs text-muted-foreground mb-1 truncate">{cat}</div>
+              <p className="text-xl font-bold">
                 {articles.filter(a => a.category === cat).length}
               </p>
             </Card>
           ))}
         </div>
+
+        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mb-6">
+          <TabsList className="w-full flex-wrap h-auto">
+            <TabsTrigger value="all" className="flex-1 min-w-[100px]">
+              Tout
+            </TabsTrigger>
+            {categories.map((cat) => (
+              <TabsTrigger key={cat} value={cat} className="flex-1 min-w-[100px]">
+                {cat}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -152,7 +169,7 @@ export const NewsSection = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {articles.map((article) => (
+          {filteredArticles.map((article) => (
             <Card key={article.id} className="overflow-hidden hover:shadow-candy transition-shadow">
               {article.image_url && (
                 <div className="w-full h-48 overflow-hidden">
