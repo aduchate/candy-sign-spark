@@ -76,6 +76,54 @@ export type Database = {
           },
         ]
       }
+      job_listings: {
+        Row: {
+          category: string | null
+          company: string | null
+          contact_info: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          location: string | null
+          published_at: string | null
+          requirements: string | null
+          scraped_at: string | null
+          source_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          company?: string | null
+          contact_info?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          published_at?: string | null
+          requirements?: string | null
+          scraped_at?: string | null
+          source_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          company?: string | null
+          contact_info?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          published_at?: string | null
+          requirements?: string | null
+          scraped_at?: string | null
+          source_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           age_group: string | null

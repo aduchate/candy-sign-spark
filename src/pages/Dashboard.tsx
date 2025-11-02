@@ -30,6 +30,7 @@ import { ToysGrid } from "@/components/ToysGrid";
 import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
 import { EmergencyGrid } from "@/components/EmergencyGrid";
+import { JobListings } from "@/components/JobListings";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
@@ -58,7 +59,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens"
+    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -287,6 +288,13 @@ const Dashboard = () => {
             >
               Liens utiles
             </Button>
+            <Button
+              onClick={() => setActiveSection("emploi")}
+              variant={activeSection === "emploi" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Aide à l&apos;Emploi
+            </Button>
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
@@ -318,6 +326,7 @@ const Dashboard = () => {
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
+              {activeSection === "emploi" && "Aide à l'Emploi"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -696,6 +705,8 @@ const Dashboard = () => {
           )}
 
           {activeSection === "liens" && <UsefulLinks />}
+
+          {activeSection === "emploi" && <JobListings />}
         </div>
       </main>
     </div>
