@@ -754,7 +754,16 @@ const Admin = () => {
                     <TableBody>
                       {lessons.map((lesson) => (
                         <TableRow key={lesson.id}>
-                          <TableCell className="font-medium">{lesson.title}</TableCell>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              {lesson.is_quiz ? (
+                                <ClipboardList className="w-4 h-4 text-primary" />
+                              ) : (
+                                <BookOpen className="w-4 h-4 text-muted-foreground" />
+                              )}
+                              {lesson.title}
+                            </div>
+                          </TableCell>
                           <TableCell>{lesson.category}</TableCell>
                           <TableCell>{lesson.level}</TableCell>
                           <TableCell>{lesson.age_group}</TableCell>
