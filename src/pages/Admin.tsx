@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, UserCog, BookOpen, ClipboardList, Languages, ArrowLeft, Trash2, Edit, Plus, Save, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+import { ExerciseFormDialog } from "@/components/admin/ExerciseFormDialog";
 
 interface UserProfile {
   id: string;
@@ -72,6 +73,8 @@ const Admin = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loadingExercises, setLoadingExercises] = useState(false);
   const [selectedLessonId, setSelectedLessonId] = useState<string>("");
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [showExerciseDialog, setShowExerciseDialog] = useState(false);
 
   // Dictionary state
   const [wordSigns, setWordSigns] = useState<WordSign[]>([]);
@@ -267,6 +270,53 @@ const Admin = () => {
     } catch (error) {
       console.error("Error deleting lesson:", error);
       toast.error("Erreur lors de la suppression de la leçon");
+    }
+  };
+
+  const saveExercise = async (exercise: Partial<Exercise>) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-exercise', {
+        body: {
+          action: editingExercise ? 'update' : 'create',
+          exerciseId: editingExercise?.id,
+          exerciseData: exercise
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(editingExercise ? "Exercice modifié avec succès" : "Exercice créé avec succès");
+      setEditingExercise(null);
+      setShowExerciseDialog(false);
+      if (selectedLessonId) {
+        await fetchExercises(selectedLessonId);
+      }
+    } catch (error) {
+      console.error("Error saving exercise:", error);
+      toast.error("Erreur lors de la sauvegarde de l'exercice");
+    }
+  };
+
+  const deleteExercise = async (id: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cet exercice ?")) return;
+
+    try {
+      const { error } = await supabase.functions.invoke('manage-exercise', {
+        body: {
+          action: 'delete',
+          exerciseId: id
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("Exercice supprimé avec succès");
+      if (selectedLessonId) {
+        await fetchExercises(selectedLessonId);
+      }
+    } catch (error) {
+      console.error("Error deleting exercise:", error);
+      toast.error("Erreur lors de la suppression de l'exercice");
     }
   };
 
@@ -696,6 +746,15 @@ const Admin = () => {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Gestion des Exercices</h2>
+                {selectedLessonId && (
+                  <Button onClick={() => {
+                    setEditingExercise(null);
+                    setShowExerciseDialog(true);
+                  }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nouvel exercice
+                  </Button>
+                )}
               </div>
 
               <div className="mb-6">
@@ -717,10 +776,6 @@ const Admin = () => {
                 </Select>
               </div>
 
-              <p className="text-sm text-muted-foreground mb-4">
-                La modification et la création d'exercices seront bientôt disponibles.
-              </p>
-
               {loadingExercises ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-8 h-8 animate-spin" />
@@ -733,12 +788,13 @@ const Admin = () => {
                         <TableHead>Type</TableHead>
                         <TableHead>Ordre</TableHead>
                         <TableHead>Contenu</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {exercises.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={3} className="text-center text-muted-foreground">
+                          <TableCell colSpan={4} className="text-center text-muted-foreground">
                             Aucun exercice pour cette leçon
                           </TableCell>
                         </TableRow>
@@ -752,6 +808,27 @@ const Admin = () => {
                                 {JSON.stringify(exercise.content, null, 2).substring(0, 100)}...
                               </pre>
                             </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setEditingExercise(exercise);
+                                    setShowExerciseDialog(true);
+                                  }}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => deleteExercise(exercise.id)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
                           </TableRow>
                         ))
                       )}
@@ -764,6 +841,14 @@ const Admin = () => {
                 </p>
               )}
             </Card>
+
+            <ExerciseFormDialog
+              open={showExerciseDialog}
+              onOpenChange={setShowExerciseDialog}
+              exercise={editingExercise}
+              lessonId={selectedLessonId}
+              onSave={saveExercise}
+            />
           </TabsContent>
 
           {/* Dictionary Tab */}
