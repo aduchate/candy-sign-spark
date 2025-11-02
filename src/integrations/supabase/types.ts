@@ -78,37 +78,37 @@ export type Database = {
       }
       lessons: {
         Row: {
-          age_group: string
-          category: string
+          age_group: string | null
+          category: string | null
           created_at: string
           description: string | null
           id: string
           is_quiz: boolean
-          level: Database["public"]["Enums"]["cecrl_level"]
+          level: Database["public"]["Enums"]["cecrl_level"] | null
           order_index: number
           title: string
           updated_at: string
         }
         Insert: {
-          age_group: string
-          category: string
+          age_group?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
           is_quiz?: boolean
-          level: Database["public"]["Enums"]["cecrl_level"]
+          level?: Database["public"]["Enums"]["cecrl_level"] | null
           order_index: number
           title: string
           updated_at?: string
         }
         Update: {
-          age_group?: string
-          category?: string
+          age_group?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
           is_quiz?: boolean
-          level?: Database["public"]["Enums"]["cecrl_level"]
+          level?: Database["public"]["Enums"]["cecrl_level"] | null
           order_index?: number
           title?: string
           updated_at?: string
