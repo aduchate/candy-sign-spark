@@ -55,6 +55,7 @@ interface WordSign {
   description: string | null;
   source_url: string | null;
   category: string;
+  categories?: { id: string; name: string }[];
 }
 
 interface Category {
@@ -203,11 +204,30 @@ const Admin = () => {
     try {
       const { data, error } = await supabase
         .from("word_signs")
-        .select("*")
+        .select(`
+          *,
+          word_sign_categories (
+            category_id,
+            word_categories (
+              id,
+              name
+            )
+          )
+        `)
         .order("word", { ascending: true });
 
       if (error) throw error;
-      setWordSigns(data || []);
+      
+      // Transform data to flatten categories
+      const wordsWithCategories = data?.map(word => ({
+        ...word,
+        categories: word.word_sign_categories?.map((wsc: any) => ({
+          id: wsc.word_categories.id,
+          name: wsc.word_categories.name
+        })) || []
+      })) || [];
+      
+      setWordSigns(wordsWithCategories);
     } catch (error) {
       console.error("Error fetching word signs:", error);
       toast.error("Erreur lors du chargement du dictionnaire");
@@ -911,6 +931,7 @@ const Admin = () => {
                       <TableRow>
                         <TableHead>Mot</TableHead>
                         <TableHead>Niveau</TableHead>
+                        <TableHead>Catégories</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -920,6 +941,22 @@ const Admin = () => {
                         <TableRow key={word.id}>
                           <TableCell className="font-medium">{word.word}</TableCell>
                           <TableCell>{word.category || 'A1'}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {word.categories && word.categories.length > 0 ? (
+                                word.categories.map((cat) => (
+                                  <span 
+                                    key={cat.id} 
+                                    className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs"
+                                  >
+                                    {cat.name}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-xs text-muted-foreground">-</span>
+                              )}
+                            </div>
+                          </TableCell>
                           <TableCell className="max-w-md truncate">
                             {word.description || "-"}
                           </TableCell>
