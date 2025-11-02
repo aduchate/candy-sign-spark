@@ -19,6 +19,7 @@ interface JobListing {
   category: string | null;
   published_at: string | null;
   source_url: string | null;
+  image_url: string | null;
   scraped_at: string;
 }
 
@@ -133,6 +134,14 @@ export const JobListingsSection = () => {
         </Card>
         
         <Card className="p-6">
+          {selectedJob.image_url && (
+            <img 
+              src={selectedJob.image_url} 
+              alt={selectedJob.title}
+              className="w-full max-h-96 object-cover rounded-lg mb-6"
+            />
+          )}
+
           {selectedJob.description && (
             <div className="mb-6">
               <h4 className="text-lg font-semibold mb-3">Description du poste</h4>
@@ -239,6 +248,7 @@ export const JobListingsSection = () => {
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>
+                  <th className="text-left p-3 font-semibold">Image</th>
                   <th className="text-left p-3 font-semibold">Poste</th>
                   <th className="text-left p-3 font-semibold">Entreprise</th>
                   <th className="text-left p-3 font-semibold">Lieu</th>
@@ -250,6 +260,19 @@ export const JobListingsSection = () => {
               <tbody>
                 {jobs.map((job) => (
                   <tr key={job.id} className="border-b hover:bg-muted/30 transition-colors">
+                    <td className="p-3">
+                      {job.image_url ? (
+                        <img 
+                          src={job.image_url} 
+                          alt={job.title}
+                          className="w-20 h-20 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-muted rounded flex items-center justify-center">
+                          <Briefcase className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </td>
                     <td className="p-3 font-medium max-w-xs">
                       {job.title}
                     </td>
