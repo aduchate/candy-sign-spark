@@ -248,7 +248,6 @@ export const JobListingsSection = () => {
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="text-left p-3 font-semibold">Image</th>
                   <th className="text-left p-3 font-semibold">Poste</th>
                   <th className="text-left p-3 font-semibold">Entreprise</th>
                   <th className="text-left p-3 font-semibold">Lieu</th>
@@ -260,19 +259,6 @@ export const JobListingsSection = () => {
               <tbody>
                 {jobs.map((job) => (
                   <tr key={job.id} className="border-b hover:bg-muted/30 transition-colors">
-                    <td className="p-3">
-                      {job.image_url ? (
-                        <img 
-                          src={job.image_url} 
-                          alt={job.title}
-                          className="w-20 h-20 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-20 h-20 bg-muted rounded flex items-center justify-center">
-                          <Briefcase className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                      )}
-                    </td>
                     <td className="p-3 font-medium max-w-xs">
                       {job.title}
                     </td>
