@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -52,6 +52,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -107,6 +109,54 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
       setSelectedCategories(new Set(data?.map(d => d.category_id) || []));
     } catch (error) {
       console.error("Error loading word categories:", error);
+    }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('video/')) {
+      toast.error("Veuillez sélectionner un fichier vidéo");
+      return;
+    }
+
+    // Validate file size (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("La vidéo ne doit pas dépasser 50 MB");
+      return;
+    }
+
+    setVideoFile(file);
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('lsfb-videos')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('lsfb-videos')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, video_url: publicUrl });
+      toast.success("Vidéo uploadée avec succès");
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      toast.error("Erreur lors de l'upload de la vidéo");
+      setVideoFile(null);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -244,12 +294,40 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
 
             <div className="md:col-span-2">
               <Label htmlFor="video_url">URL de la vidéo *</Label>
-              <Input
-                id="video_url"
-                value={formData.video_url}
-                onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                placeholder="https://..."
-              />
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    id="video_url"
+                    value={formData.video_url}
+                    onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                    placeholder="https://..."
+                    className="flex-1"
+                  />
+                  <Label htmlFor="video-upload" className="cursor-pointer">
+                    <Button type="button" variant="outline" disabled={uploading} asChild>
+                      <span>
+                        {uploading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Upload className="w-4 h-4" />
+                        )}
+                      </span>
+                    </Button>
+                  </Label>
+                  <input
+                    id="video-upload"
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    className="hidden"
+                  />
+                </div>
+                {videoFile && (
+                  <p className="text-xs text-muted-foreground">
+                    Fichier sélectionné: {videoFile.name}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="md:col-span-2">
