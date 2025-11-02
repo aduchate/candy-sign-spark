@@ -60,6 +60,7 @@ const Dashboard = () => {
   const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [newLessons, setNewLessons] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
 
   useEffect(() => {
     // Check authentication
@@ -154,9 +155,25 @@ const Dashboard = () => {
     setNewLessons(data?.lessons || []);
   };
 
+  const fetchQuizzes = async () => {
+    const { data, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .eq('is_quiz', true)
+      .order('order_index', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching quizzes:', error);
+      return;
+    }
+
+    setQuizzes(data || []);
+  };
+
   useEffect(() => {
     if (user) {
       fetchNewLessons(user.id);
+      fetchQuizzes();
     }
   }, [ageGroup, level, user]);
 
@@ -345,12 +362,17 @@ const Dashboard = () => {
                     Testez vos connaissances de la langue des signes franco-belge avec nos quizz interactifs.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {lessons.filter(l => !l.locked).map((lesson) => (
-                      <Link key={lesson.id} to={`/lesson/${lesson.id}`}>
+                    {quizzes.map((quiz) => (
+                      <Link key={quiz.id} to={`/lesson/${quiz.id}`}>
                         <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
-                          <h4 className="font-bold mb-2">{lesson.title}</h4>
+                          <h4 className="font-bold mb-2">{quiz.title}</h4>
+                          {quiz.description && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {quiz.description}
+                            </p>
+                          )}
                           <p className="text-sm text-muted-foreground">
-                            {lesson.completed ? "Refaire le quizz" : "Commencer le quizz"}
+                            Commencer le quizz
                           </p>
                         </Card>
                       </Link>
