@@ -221,9 +221,17 @@ const Admin = () => {
 
   const toggleUserRole = async (userId: string, role: "admin" | "user") => {
     try {
-      const userRoles = users.find(u => u.id === userId)?.roles || [];
+      // Check current roles from database
+      const { data: currentRoles, error: fetchError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+
+      if (fetchError) throw fetchError;
+
+      const hasRole = currentRoles?.some(r => r.role === role);
       
-      if (userRoles.includes(role)) {
+      if (hasRole) {
         // Remove role
         const { error } = await supabase
           .from("user_roles")
@@ -234,13 +242,22 @@ const Admin = () => {
         if (error) throw error;
         toast.success(`Rôle ${role} retiré`);
       } else {
-        // Add role
+        // Add role with ON CONFLICT handling
         const { error } = await supabase
           .from("user_roles")
-          .insert({ user_id: userId, role });
+          .insert({ user_id: userId, role })
+          .select();
 
-        if (error) throw error;
-        toast.success(`Rôle ${role} ajouté`);
+        if (error) {
+          // If conflict, it means role already exists - just show success
+          if (error.code === '23505') {
+            toast.success(`Rôle ${role} déjà présent`);
+          } else {
+            throw error;
+          }
+        } else {
+          toast.success(`Rôle ${role} ajouté`);
+        }
       }
 
       fetchUsers();
