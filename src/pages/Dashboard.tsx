@@ -61,7 +61,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets"
+    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -332,6 +332,14 @@ const Dashboard = () => {
             >
               Projets
             </Button>
+            <Link to="/donations" className="w-full">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-lg h-14"
+              >
+                Dons pour votre cause
+              </Button>
+            </Link>
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
