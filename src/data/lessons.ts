@@ -12,4 +12,6 @@ export interface LessonData {
   questions: Question[];
 }
 
-export const lessons: Record<string, LessonData> = {};
+export const lessons: Record<string, LessonData> = {
+  "1": {},
+};
