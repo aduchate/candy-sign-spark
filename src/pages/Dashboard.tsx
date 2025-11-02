@@ -34,6 +34,7 @@ import { JobListings } from "@/components/JobListings";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
+import { NewsSection } from "@/components/NewsSection";
 
 interface LessonProgress {
   id: number;
@@ -59,7 +60,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi"
+    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -295,6 +296,13 @@ const Dashboard = () => {
             >
               Aide à l&apos;Emploi
             </Button>
+            <Button
+              onClick={() => setActiveSection("actualites")}
+              variant={activeSection === "actualites" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Actualités
+            </Button>
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
@@ -327,6 +335,7 @@ const Dashboard = () => {
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "emploi" && "Aide à l'Emploi"}
+              {activeSection === "actualites" && "Actualités"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -707,6 +716,8 @@ const Dashboard = () => {
           {activeSection === "liens" && <UsefulLinks />}
 
           {activeSection === "emploi" && <JobListings />}
+
+          {activeSection === "actualites" && <NewsSection />}
         </div>
       </main>
     </div>
