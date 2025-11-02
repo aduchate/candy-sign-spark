@@ -130,29 +130,13 @@ const Admin = () => {
   const fetchUsers = async () => {
     setLoadingUsers(true);
     try {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.functions.invoke('get-users-with-emails');
 
-      if (!profiles) return;
+      if (error) throw error;
 
-      // Get roles for each user
-      const { data: userRoles } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-
-      const usersWithDetails: UserProfile[] = profiles.map(profile => {
-        const roles = userRoles?.filter(r => r.user_id === profile.id).map(r => r.role) || [];
-        
-        return {
-          ...profile,
-          email: "Email non disponible", // Email accessible uniquement via edge function
-          roles
-        };
-      });
-
-      setUsers(usersWithDetails);
+      if (data?.users) {
+        setUsers(data.users);
+      }
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Erreur lors du chargement des utilisateurs");
