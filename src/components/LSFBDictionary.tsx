@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Search } from "lucide-react";
 import { WordCategoryEditor } from "./WordCategoryEditor";
+import { WordLevelEditor } from "./WordLevelEditor";
 
 interface LSFBSign {
   id?: string;
@@ -13,6 +14,7 @@ interface LSFBSign {
   videoUrl: string | null;
   description: string;
   sourceUrl: string;
+  level?: string;
 }
 
 export const LSFBDictionary = () => {
@@ -51,7 +53,7 @@ export const LSFBDictionary = () => {
       // Check if video already exists in database
       const { data: existingData } = await supabase
         .from('word_signs')
-        .select('id, word, video_url, source_url, description')
+        .select('id, word, video_url, source_url, description, category')
         .ilike('word', searchTerm.trim())
         .single();
 
@@ -62,6 +64,7 @@ export const LSFBDictionary = () => {
           videoUrl: existingData.video_url,
           description: existingData.description || `Signe pour "${existingData.word}" en LSFB`,
           sourceUrl: existingData.source_url || "https://dico.lsfb.be/",
+          level: existingData.category,
         }];
         setSigns(foundSigns);
         toast.success("Signe trouvé dans la base de données");
@@ -159,7 +162,10 @@ export const LSFBDictionary = () => {
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-bold text-lg">{sign.title}</h4>
                 {sign.id && (
-                  <WordCategoryEditor wordId={sign.id} wordText={sign.title} />
+                  <div className="flex gap-2">
+                    <WordLevelEditor wordId={sign.id} wordText={sign.title} currentLevel={sign.level} />
+                    <WordCategoryEditor wordId={sign.id} wordText={sign.title} />
+                  </div>
                 )}
               </div>
               {sign.videoUrl && (
@@ -191,7 +197,10 @@ export const LSFBDictionary = () => {
           <div className="flex items-start justify-between mb-4">
             <h3 className="text-2xl font-bold">{selectedSign.title}</h3>
             {selectedSign.id && (
-              <WordCategoryEditor wordId={selectedSign.id} wordText={selectedSign.title} />
+              <div className="flex gap-2">
+                <WordLevelEditor wordId={selectedSign.id} wordText={selectedSign.title} currentLevel={selectedSign.level} />
+                <WordCategoryEditor wordId={selectedSign.id} wordText={selectedSign.title} />
+              </div>
             )}
           </div>
           {selectedSign.videoUrl && (
