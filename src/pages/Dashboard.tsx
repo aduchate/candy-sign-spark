@@ -35,7 +35,7 @@ import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { NewsSection } from "@/components/NewsSection";
-import { CategorySection } from "@/components/CategorySection";
+import { CategoryArticleSection } from "@/components/CategoryArticleSection";
 
 interface LessonProgress {
   id: number;
@@ -753,7 +753,7 @@ const Dashboard = () => {
           {activeSection === "actualites" && <NewsSection />}
 
           {activeSection === "atelier" && (
-            <CategorySection 
+            <CategoryArticleSection 
               category="Atelier" 
               icon="🎨"
               description="Ateliers pratiques organisés par le SAREW"
@@ -761,7 +761,7 @@ const Dashboard = () => {
           )}
 
           {activeSection === "evenements" && (
-            <CategorySection 
+            <CategoryArticleSection 
               category="Événements" 
               icon="📅"
               description="Événements et rencontres du SAREW"
@@ -769,7 +769,7 @@ const Dashboard = () => {
           )}
 
           {activeSection === "formations" && (
-            <CategorySection 
+            <CategoryArticleSection 
               category="Formations accessibles" 
               icon="🎓"
               description="Formations accessibles aux personnes sourdes et malentendantes"
@@ -777,7 +777,7 @@ const Dashboard = () => {
           )}
 
           {activeSection === "projets" && (
-            <CategorySection 
+            <CategoryArticleSection 
               category="Projets" 
               icon="🚀"
               description="Projets en cours et à venir"
