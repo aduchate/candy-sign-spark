@@ -82,6 +82,7 @@ export type Database = {
           category: string
           created_at: string
           id: string
+          is_quiz: boolean
           level: Database["public"]["Enums"]["cecrl_level"]
           order_index: number
           title: string
@@ -92,6 +93,7 @@ export type Database = {
           category: string
           created_at?: string
           id?: string
+          is_quiz?: boolean
           level: Database["public"]["Enums"]["cecrl_level"]
           order_index: number
           title: string
@@ -102,6 +104,7 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          is_quiz?: boolean
           level?: Database["public"]["Enums"]["cecrl_level"]
           order_index?: number
           title?: string
