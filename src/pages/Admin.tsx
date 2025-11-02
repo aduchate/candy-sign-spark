@@ -229,16 +229,44 @@ const Admin = () => {
 
   const saveLesson = async (lesson: Partial<Lesson>) => {
     try {
-      if (editingLesson) {
-        // Update existing lesson (not implemented yet - read-only table)
-        toast.info("Modification de leçon non disponible pour le moment");
-      } else {
-        // Create new lesson (not implemented yet - read-only table)
-        toast.info("Création de leçon non disponible pour le moment");
-      }
+      const { data, error } = await supabase.functions.invoke('manage-lesson', {
+        body: {
+          action: editingLesson ? 'update' : 'create',
+          lessonId: editingLesson?.id,
+          lessonData: lesson
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(editingLesson ? "Leçon modifiée avec succès" : "Leçon créée avec succès");
+      setEditingLesson(null);
+      setNewLesson({});
+      await fetchLessons();
     } catch (error) {
       console.error("Error saving lesson:", error);
       toast.error("Erreur lors de la sauvegarde de la leçon");
+    }
+  };
+
+  const deleteLesson = async (id: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette leçon ? Tous les exercices associés seront également supprimés.")) return;
+
+    try {
+      const { error } = await supabase.functions.invoke('manage-lesson', {
+        body: {
+          action: 'delete',
+          lessonId: id
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("Leçon supprimée avec succès");
+      await fetchLessons();
+    } catch (error) {
+      console.error("Error deleting lesson:", error);
+      toast.error("Erreur lors de la suppression de la leçon");
     }
   };
 
@@ -419,14 +447,197 @@ const Admin = () => {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Gestion des Leçons</h2>
-                <Button onClick={fetchLessons} disabled={loadingLessons}>
-                  {loadingLessons ? <Loader2 className="w-4 h-4 animate-spin" /> : "Actualiser"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={fetchLessons} disabled={loadingLessons} variant="outline">
+                    {loadingLessons ? <Loader2 className="w-4 h-4 animate-spin" /> : "Actualiser"}
+                  </Button>
+                  <Button onClick={() => setNewLesson({ order_index: lessons.length })}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nouvelle leçon
+                  </Button>
+                </div>
               </div>
 
-              <p className="text-sm text-muted-foreground mb-4">
-                La modification et la création de leçons seront bientôt disponibles.
-              </p>
+              {/* New Lesson Form */}
+              {Object.keys(newLesson).length > 0 && (
+                <Card className="p-4 mb-6 bg-muted">
+                  <h3 className="text-lg font-semibold mb-4">Nouvelle leçon</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Titre</Label>
+                      <Input
+                        value={newLesson.title || ""}
+                        onChange={(e) => setNewLesson({ ...newLesson, title: e.target.value })}
+                        placeholder="Ex: L'alphabet LSFB"
+                      />
+                    </div>
+                    <div>
+                      <Label>Catégorie</Label>
+                      <Select
+                        value={newLesson.category || ""}
+                        onValueChange={(value) => setNewLesson({ ...newLesson, category: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner une catégorie" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="alphabet">Alphabet</SelectItem>
+                          <SelectItem value="numbers">Nombres</SelectItem>
+                          <SelectItem value="greetings">Salutations</SelectItem>
+                          <SelectItem value="family">Famille</SelectItem>
+                          <SelectItem value="colors">Couleurs</SelectItem>
+                          <SelectItem value="animals">Animaux</SelectItem>
+                          <SelectItem value="food">Nourriture</SelectItem>
+                          <SelectItem value="emotions">Émotions</SelectItem>
+                          <SelectItem value="dates">Dates</SelectItem>
+                          <SelectItem value="work">Travail</SelectItem>
+                          <SelectItem value="toys">Jouets</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Niveau</Label>
+                      <Select
+                        value={newLesson.level || ""}
+                        onValueChange={(value) => setNewLesson({ ...newLesson, level: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un niveau" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="debutant">Débutant</SelectItem>
+                          <SelectItem value="intermediaire">Intermédiaire</SelectItem>
+                          <SelectItem value="avance">Avancé</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Groupe d'âge</Label>
+                      <Select
+                        value={newLesson.age_group || ""}
+                        onValueChange={(value) => setNewLesson({ ...newLesson, age_group: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un âge" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="enfant">Enfant (3-12 ans)</SelectItem>
+                          <SelectItem value="adolescent">Adolescent (13-17 ans)</SelectItem>
+                          <SelectItem value="adulte">Adulte (18+ ans)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Ordre</Label>
+                      <Input
+                        type="number"
+                        value={newLesson.order_index || 0}
+                        onChange={(e) => setNewLesson({ ...newLesson, order_index: parseInt(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button onClick={() => saveLesson(newLesson)}>
+                      <Save className="w-4 h-4 mr-2" />
+                      Enregistrer
+                    </Button>
+                    <Button variant="outline" onClick={() => setNewLesson({})}>
+                      <X className="w-4 h-4 mr-2" />
+                      Annuler
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {/* Edit Lesson Form */}
+              {editingLesson && (
+                <Card className="p-4 mb-6 bg-muted">
+                  <h3 className="text-lg font-semibold mb-4">Modifier la leçon</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Titre</Label>
+                      <Input
+                        value={editingLesson.title}
+                        onChange={(e) => setEditingLesson({ ...editingLesson, title: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Catégorie</Label>
+                      <Select
+                        value={editingLesson.category}
+                        onValueChange={(value) => setEditingLesson({ ...editingLesson, category: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="alphabet">Alphabet</SelectItem>
+                          <SelectItem value="numbers">Nombres</SelectItem>
+                          <SelectItem value="greetings">Salutations</SelectItem>
+                          <SelectItem value="family">Famille</SelectItem>
+                          <SelectItem value="colors">Couleurs</SelectItem>
+                          <SelectItem value="animals">Animaux</SelectItem>
+                          <SelectItem value="food">Nourriture</SelectItem>
+                          <SelectItem value="emotions">Émotions</SelectItem>
+                          <SelectItem value="dates">Dates</SelectItem>
+                          <SelectItem value="work">Travail</SelectItem>
+                          <SelectItem value="toys">Jouets</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Niveau</Label>
+                      <Select
+                        value={editingLesson.level}
+                        onValueChange={(value) => setEditingLesson({ ...editingLesson, level: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="debutant">Débutant</SelectItem>
+                          <SelectItem value="intermediaire">Intermédiaire</SelectItem>
+                          <SelectItem value="avance">Avancé</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Groupe d'âge</Label>
+                      <Select
+                        value={editingLesson.age_group}
+                        onValueChange={(value) => setEditingLesson({ ...editingLesson, age_group: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="enfant">Enfant (3-12 ans)</SelectItem>
+                          <SelectItem value="adolescent">Adolescent (13-17 ans)</SelectItem>
+                          <SelectItem value="adulte">Adulte (18+ ans)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Ordre</Label>
+                      <Input
+                        type="number"
+                        value={editingLesson.order_index}
+                        onChange={(e) => setEditingLesson({ ...editingLesson, order_index: parseInt(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button onClick={() => saveLesson(editingLesson)}>
+                      <Save className="w-4 h-4 mr-2" />
+                      Enregistrer
+                    </Button>
+                    <Button variant="outline" onClick={() => setEditingLesson(null)}>
+                      <X className="w-4 h-4 mr-2" />
+                      Annuler
+                    </Button>
+                  </div>
+                </Card>
+              )}
 
               {loadingLessons ? (
                 <div className="flex justify-center py-8">
@@ -442,6 +653,7 @@ const Admin = () => {
                         <TableHead>Niveau</TableHead>
                         <TableHead>Âge</TableHead>
                         <TableHead>Ordre</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -452,6 +664,24 @@ const Admin = () => {
                           <TableCell>{lesson.level}</TableCell>
                           <TableCell>{lesson.age_group}</TableCell>
                           <TableCell>{lesson.order_index}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingLesson(lesson)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteLesson(lesson.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
