@@ -163,6 +163,9 @@ function parseJobListings(html: string, baseUrl: string): any[] {
     // Create a unique source URL for each job using the title as identifier
     const jobSourceUrl = `${baseUrl}#${encodeURIComponent(title)}`
 
+    // Associate image with job (if available)
+    const imageUrl = images[index] || null
+
     jobs.push({
       title: title,
       description: `${position}${contractType ? ' - ' + contractType : ''}\n\nConsultez les détails complets sur le site SAREW.`,
@@ -171,7 +174,8 @@ function parseJobListings(html: string, baseUrl: string): any[] {
       location: 'Wallonie, Belgique',
       company: 'SAREW asbl',
       contact_info: 'info@sarew.be',
-      published_at: new Date().toISOString()
+      published_at: new Date().toISOString(),
+      image_url: imageUrl
     })
   })
 
