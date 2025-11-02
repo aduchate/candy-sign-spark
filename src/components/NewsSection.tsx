@@ -25,6 +25,7 @@ export const NewsSection = () => {
   const [scraping, setScraping] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [selectedArticleUrl, setSelectedArticleUrl] = useState<string | null>(null);
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -82,6 +83,32 @@ export const NewsSection = () => {
   const filteredArticles = activeCategory === "all" 
     ? articles 
     : articles.filter(a => a.category === activeCategory);
+
+  if (selectedArticleUrl) {
+    return (
+      <div className="space-y-4">
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Affichage de la page SAREW</h3>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setSelectedArticleUrl(null)}
+            >
+              ← Retour à la liste
+            </Button>
+          </div>
+        </Card>
+        <Card className="p-0 overflow-hidden">
+          <iframe
+            src={selectedArticleUrl}
+            className="w-full h-[calc(100vh-200px)] border-0"
+            title="Article SAREW"
+          />
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -231,15 +258,22 @@ export const NewsSection = () => {
                           </td>
                           <td className="p-3">
                             {article.source_url && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="gap-2"
-                                onClick={() => window.open(article.source_url!, "_blank")}
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                                Voir
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => setSelectedArticleUrl(article.source_url!)}
+                                >
+                                  Afficher
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(article.source_url!, "_blank")}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                              </div>
                             )}
                           </td>
                         </tr>
@@ -309,15 +343,22 @@ export const NewsSection = () => {
                     </td>
                     <td className="p-3">
                       {article.source_url && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-2"
-                          onClick={() => window.open(article.source_url!, "_blank")}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          Voir
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => setSelectedArticleUrl(article.source_url!)}
+                          >
+                            Afficher
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(article.source_url!, "_blank")}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </td>
                   </tr>
