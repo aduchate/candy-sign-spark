@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Heart, Coins, Users, HandHeart } from "lucide-react";
+import sarewDonationImage from "@/assets/sarew-donation.png";
 
 interface DonationSectionProps {
   organization: string;
@@ -35,6 +36,14 @@ export const DonationSection = ({
         </div>
       </Card>
 
+      <Card className="p-0 overflow-hidden">
+        <img 
+          src={sarewDonationImage} 
+          alt="SAREW - Soutenir l'insertion professionnelle des personnes sourdes"
+          className="w-full h-auto"
+        />
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="p-6 text-center hover:shadow-lg transition-shadow">
           <Coins className="w-12 h-12 mx-auto mb-4 text-primary" />
@@ -64,11 +73,18 @@ export const DonationSection = ({
       <Card className="p-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold mb-4">Pourquoi nous soutenir ?</h3>
-            <p className="text-lg text-muted-foreground mb-6">
-              SAREW œuvre pour l'inclusion et l'accessibilité des personnes sourdes et malentendantes. 
-              Votre générosité nous permet de continuer notre mission et d'accompagner notre communauté.
-            </p>
+            <h3 className="text-2xl font-bold mb-4">Informations bancaires</h3>
+            <div className="bg-muted/50 p-6 rounded-lg">
+              <p className="text-lg font-semibold mb-2">
+                IBAN : BE85 5230 8131 7906
+              </p>
+              <p className="text-lg font-semibold mb-4">
+                BIC : TRIOBEBB
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Une attestation fiscale pour tout don à partir de 40 € est délivrée en fin d'année
+              </p>
+            </div>
           </div>
 
           <div className="bg-muted/50 p-6 rounded-lg mb-8">
