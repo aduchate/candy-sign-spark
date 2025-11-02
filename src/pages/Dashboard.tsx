@@ -356,7 +356,7 @@ const Dashboard = () => {
                       <Link key={quiz.id} to={`/lesson/${quiz.id}`}>
                         <Card className="p-6 hover:shadow-candy transition-shadow cursor-pointer border-2">
                           <h4 className="font-bold mb-2">{quiz.title}</h4>
-                          {quiz.description && <p className="text-sm text-muted-foreground mb-2">{quiz.description}</p>}
+                          {quiz.description && <p className="text-sm text-muted-foreground/60 mb-2">{quiz.description}</p>}
                           <p className="text-sm text-muted-foreground">Commencer le quizz</p>
                         </Card>
                       </Link>
