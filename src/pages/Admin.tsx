@@ -13,8 +13,8 @@ import { toast } from "sonner";
 import { Loader2, UserCog, BookOpen, ClipboardList, Languages, ArrowLeft, Trash2, Edit, Plus, Save, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { ExerciseFormDialog } from "@/components/admin/ExerciseFormDialog";
+import { WordFormDialog } from "@/components/admin/WordFormDialog";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
 
 interface UserProfile {
   id: string;
@@ -90,10 +90,7 @@ const Admin = () => {
   const [wordSigns, setWordSigns] = useState<WordSign[]>([]);
   const [loadingWordSigns, setLoadingWordSigns] = useState(false);
   const [editingWord, setEditingWord] = useState<WordSign | null>(null);
-  const [newWord, setNewWord] = useState<Partial<WordSign>>({ category: 'A1' });
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [newWordCategories, setNewWordCategories] = useState<Set<string>>(new Set());
-  const [editWordCategories, setEditWordCategories] = useState<Set<string>>(new Set());
+  const [showWordDialog, setShowWordDialog] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -138,10 +135,7 @@ const Admin = () => {
       if (activeTab === "users") fetchUsers();
       if (activeTab === "lessons") fetchLessons();
       if (activeTab === "exercises") fetchLessons(); // Need lessons for dropdown
-      if (activeTab === "dictionary") {
-        fetchWordSigns();
-        fetchCategories();
-      }
+      if (activeTab === "dictionary") fetchWordSigns();
     }
   }, [activeTab, isAdmin]);
 
@@ -219,38 +213,6 @@ const Admin = () => {
       toast.error("Erreur lors du chargement du dictionnaire");
     } finally {
       setLoadingWordSigns(false);
-    }
-  };
-
-  // Fetch Categories
-  const fetchCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("word_categories")
-        .select("*")
-        .order("name", { ascending: true });
-
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      toast.error("Erreur lors du chargement des catégories");
-    }
-  };
-
-  // Load word categories
-  const loadWordCategories = async (wordId: string): Promise<Set<string>> => {
-    try {
-      const { data, error } = await supabase
-        .from("word_sign_categories")
-        .select("category_id")
-        .eq("word_sign_id", wordId);
-
-      if (error) throw error;
-      return new Set<string>(data?.map(d => d.category_id) || []);
-    } catch (error) {
-      console.error("Error loading word categories:", error);
-      return new Set<string>();
     }
   };
 
@@ -368,85 +330,6 @@ const Admin = () => {
     }
   };
 
-  const saveWordSign = async (wordSign: Partial<WordSign>, categoriesSet?: Set<string>) => {
-    try {
-      if (editingWord) {
-        // Update
-        const { error } = await supabase
-          .from("word_signs")
-          .update({
-            word: wordSign.word,
-            description: wordSign.description,
-            video_url: wordSign.video_url,
-            source_url: wordSign.source_url,
-            category: wordSign.category || 'A1'
-          })
-          .eq("id", editingWord.id);
-
-        if (error) throw error;
-
-        // Update categories
-        if (categoriesSet) {
-          // Delete existing categories
-          await supabase
-            .from("word_sign_categories")
-            .delete()
-            .eq("word_sign_id", editingWord.id);
-
-          // Insert new categories
-          if (categoriesSet.size > 0) {
-            const categoryInserts = Array.from(categoriesSet).map(categoryId => ({
-              word_sign_id: editingWord.id,
-              category_id: categoryId
-            }));
-
-            await supabase
-              .from("word_sign_categories")
-              .insert(categoryInserts);
-          }
-        }
-
-        toast.success("Mot modifié avec succès");
-        setEditingWord(null);
-        setEditWordCategories(new Set());
-      } else {
-        // Create
-        const { data: newWordData, error } = await supabase
-          .from("word_signs")
-          .insert([{
-            word: wordSign.word,
-            description: wordSign.description,
-            video_url: wordSign.video_url,
-            source_url: wordSign.source_url,
-            category: wordSign.category || 'A1'
-          }])
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        // Insert categories
-        if (categoriesSet && categoriesSet.size > 0 && newWordData) {
-          const categoryInserts = Array.from(categoriesSet).map(categoryId => ({
-            word_sign_id: newWordData.id,
-            category_id: categoryId
-          }));
-
-          await supabase
-            .from("word_sign_categories")
-            .insert(categoryInserts);
-        }
-
-        toast.success("Mot ajouté avec succès");
-        setNewWord({ category: 'A1' });
-        setNewWordCategories(new Set());
-      }
-      fetchWordSigns();
-    } catch (error) {
-      console.error("Error saving word sign:", error);
-      toast.error("Erreur lors de la sauvegarde du mot");
-    }
-  };
 
   const deleteWordSign = async (id: string) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer ce mot ?")) return;
@@ -991,106 +874,31 @@ const Admin = () => {
             />
           </TabsContent>
 
+          <WordFormDialog
+            open={showWordDialog}
+            onOpenChange={setShowWordDialog}
+            word={editingWord}
+            onSave={fetchWordSigns}
+          />
+
           {/* Dictionary Tab */}
           <TabsContent value="dictionary">
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Gestion du Dictionnaire</h2>
-                <Button onClick={fetchWordSigns} disabled={loadingWordSigns}>
-                  {loadingWordSigns ? <Loader2 className="w-4 h-4 animate-spin" /> : "Actualiser"}
-                </Button>
-              </div>
-
-              {/* Add New Word Form */}
-              <Card className="p-4 mb-6 bg-accent/5">
-                <h3 className="font-bold mb-4">Ajouter un nouveau mot</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <Label>Mot</Label>
-                    <Input
-                      value={newWord.word || ""}
-                      onChange={(e) => setNewWord({ ...newWord, word: e.target.value })}
-                      placeholder="Ex: Bonjour"
-                    />
-                  </div>
-                  <div>
-                    <Label>URL de la vidéo</Label>
-                    <Input
-                      value={newWord.video_url || ""}
-                      onChange={(e) => setNewWord({ ...newWord, video_url: e.target.value })}
-                      placeholder="URL de la vidéo"
-                    />
-                  </div>
-                  <div>
-                    <Label>Niveau CECRL</Label>
-                    <Select
-                      value={newWord.category || 'A1'}
-                      onValueChange={(value) => setNewWord({ ...newWord, category: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="A1">A1 - Débutant</SelectItem>
-                        <SelectItem value="A2">A2 - Élémentaire</SelectItem>
-                        <SelectItem value="B1">B1 - Intermédiaire</SelectItem>
-                        <SelectItem value="B2">B2 - Intermédiaire avancé</SelectItem>
-                        <SelectItem value="C1">C1 - Avancé</SelectItem>
-                        <SelectItem value="C2">C2 - Maîtrise</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>URL source (optionnel)</Label>
-                    <Input
-                      value={newWord.source_url || ""}
-                      onChange={(e) => setNewWord({ ...newWord, source_url: e.target.value })}
-                      placeholder="URL de la source"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label>Description (optionnel)</Label>
-                    <Textarea
-                      value={newWord.description || ""}
-                      onChange={(e) => setNewWord({ ...newWord, description: e.target.value })}
-                      placeholder="Description du signe"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label className="mb-2 block">Catégories</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 border rounded-lg">
-                      {categories.map((category) => (
-                        <div key={category.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`new-cat-${category.id}`}
-                            checked={newWordCategories.has(category.id)}
-                            onCheckedChange={(checked) => {
-                              const newSet = new Set(newWordCategories);
-                              if (checked) {
-                                newSet.add(category.id);
-                              } else {
-                                newSet.delete(category.id);
-                              }
-                              setNewWordCategories(newSet);
-                            }}
-                          />
-                          <Label htmlFor={`new-cat-${category.id}`} className="cursor-pointer">
-                            {category.name}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => {
+                    setEditingWord(null);
+                    setShowWordDialog(true);
+                  }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nouveau mot
+                  </Button>
+                  <Button variant="outline" onClick={fetchWordSigns} disabled={loadingWordSigns}>
+                    {loadingWordSigns ? <Loader2 className="w-4 h-4 animate-spin" /> : "Actualiser"}
+                  </Button>
                 </div>
-                <Button
-                  onClick={() => saveWordSign(newWord, newWordCategories)}
-                  disabled={!newWord.word || !newWord.video_url}
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Ajouter
-                </Button>
-              </Card>
+              </div>
 
               {loadingWordSigns ? (
                 <div className="flex justify-center py-8">
@@ -1104,146 +912,40 @@ const Admin = () => {
                         <TableHead>Mot</TableHead>
                         <TableHead>Niveau</TableHead>
                         <TableHead>Description</TableHead>
-                        <TableHead>Vidéo</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {wordSigns.map((word) => (
                         <TableRow key={word.id}>
-                          <TableCell className="font-medium">
-                            {editingWord?.id === word.id ? (
-                              <Input
-                                value={editingWord.word}
-                                onChange={(e) => setEditingWord({ ...editingWord, word: e.target.value })}
-                              />
-                            ) : (
-                              word.word
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editingWord?.id === word.id ? (
-                              <Select
-                                value={editingWord.category || 'A1'}
-                                onValueChange={(value) => setEditingWord({ ...editingWord, category: value })}
-                              >
-                                <SelectTrigger className="w-32">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="A1">A1</SelectItem>
-                                  <SelectItem value="A2">A2</SelectItem>
-                                  <SelectItem value="B1">B1</SelectItem>
-                                  <SelectItem value="B2">B2</SelectItem>
-                                  <SelectItem value="C1">C1</SelectItem>
-                                  <SelectItem value="C2">C2</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              word.category || 'A1'
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editingWord?.id === word.id ? (
-                              <Textarea
-                                value={editingWord.description || ""}
-                                onChange={(e) => setEditingWord({ ...editingWord, description: e.target.value })}
-                              />
-                            ) : (
-                              word.description || "-"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {editingWord?.id === word.id ? (
-                              <Input
-                                value={editingWord.video_url}
-                                onChange={(e) => setEditingWord({ ...editingWord, video_url: e.target.value })}
-                              />
-                            ) : (
-                              <a href={word.video_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                Voir vidéo
-                              </a>
-                            )}
+                          <TableCell className="font-medium">{word.word}</TableCell>
+                          <TableCell>{word.category || 'A1'}</TableCell>
+                          <TableCell className="max-w-md truncate">
+                            {word.description || "-"}
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              {editingWord?.id === word.id ? (
-                                <>
-                                  <Button
-                                    size="sm"
-                                    variant="default"
-                                    onClick={() => saveWordSign(editingWord, editWordCategories)}
-                                  >
-                                    <Save className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      setEditingWord(null);
-                                      setEditWordCategories(new Set());
-                                    }}
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </>
-                              ) : (
-                                <>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={async () => {
-                                      setEditingWord(word);
-                                      const cats = await loadWordCategories(word.id);
-                                      setEditWordCategories(cats);
-                                    }}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => deleteWordSign(word.id)}
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </>
-                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingWord(word);
+                                  setShowWordDialog(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteWordSign(word.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
                       ))}
-                      {editingWord && (
-                        <TableRow>
-                          <TableCell colSpan={5}>
-                            <div className="p-4 bg-accent/10 rounded-lg">
-                              <Label className="mb-2 block font-semibold">Catégories de "{editingWord.word}"</Label>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                {categories.map((category) => (
-                                  <div key={category.id} className="flex items-center space-x-2">
-                                    <Checkbox
-                                      id={`edit-cat-${category.id}`}
-                                      checked={editWordCategories.has(category.id)}
-                                      onCheckedChange={(checked) => {
-                                        const newSet = new Set(editWordCategories);
-                                        if (checked) {
-                                          newSet.add(category.id);
-                                        } else {
-                                          newSet.delete(category.id);
-                                        }
-                                        setEditWordCategories(newSet);
-                                      }}
-                                    />
-                                    <Label htmlFor={`edit-cat-${category.id}`} className="cursor-pointer">
-                                      {category.name}
-                                    </Label>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
                     </TableBody>
                   </Table>
                 </div>
