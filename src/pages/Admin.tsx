@@ -205,48 +205,24 @@ const Admin = () => {
 
   const toggleUserRole = async (userId: string, role: "admin" | "user") => {
     try {
-      // Check current roles from database
-      const { data: currentRoles, error: fetchError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
+      // Check current roles from UI state
+      const currentUser = users.find(u => u.id === userId);
+      const hasRole = currentUser?.roles?.includes(role);
 
-      if (fetchError) throw fetchError;
-
-      const hasRole = currentRoles?.some(r => r.role === role);
-      
-      if (hasRole) {
-        // Remove role
-        const { error } = await supabase
-          .from("user_roles")
-          .delete()
-          .eq("user_id", userId)
-          .eq("role", role);
-
-        if (error) throw error;
-        toast.success(`Rôle ${role} retiré`);
-      } else {
-        // Add role with ON CONFLICT handling
-        const { error } = await supabase
-          .from("user_roles")
-          .insert({ user_id: userId, role })
-          .select();
-
-        if (error) {
-          // If conflict, it means role already exists - just show success
-          if (error.code === '23505') {
-            toast.success(`Rôle ${role} déjà présent`);
-          } else {
-            throw error;
-          }
-        } else {
-          toast.success(`Rôle ${role} ajouté`);
+      const { data, error } = await supabase.functions.invoke('manage-user-role', {
+        body: {
+          targetUserId: userId,
+          role,
+          action: hasRole ? 'remove' : 'add'
         }
-      }
+      });
 
-      fetchUsers();
+      if (error) throw error;
+
+      toast.success(hasRole ? `Rôle ${role} retiré avec succès` : `Rôle ${role} ajouté avec succès`);
+      await fetchUsers();
     } catch (error) {
-      console.error("Error toggling role:", error);
+      console.error("Error toggling user role:", error);
       toast.error("Erreur lors de la modification du rôle");
     }
   };
