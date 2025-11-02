@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Search } from "lucide-react";
+import { WordCategoryEditor } from "./WordCategoryEditor";
 
 interface LSFBSign {
+  id?: string;
   title: string;
   videoUrl: string | null;
   description: string;
@@ -49,12 +51,13 @@ export const LSFBDictionary = () => {
       // Check if video already exists in database
       const { data: existingData } = await supabase
         .from('word_signs')
-        .select('word, video_url, source_url, description')
+        .select('id, word, video_url, source_url, description')
         .ilike('word', searchTerm.trim())
         .single();
 
       if (existingData) {
         const foundSigns: LSFBSign[] = [{
+          id: existingData.id,
           title: existingData.word.charAt(0).toUpperCase() + existingData.word.slice(1),
           videoUrl: existingData.video_url,
           description: existingData.description || `Signe pour "${existingData.word}" en LSFB`,
@@ -153,7 +156,12 @@ export const LSFBDictionary = () => {
               className="p-4 cursor-pointer hover:shadow-glow transition-all duration-300 border-2"
               onClick={() => setSelectedSign(sign)}
             >
-              <h4 className="font-bold text-lg mb-2">{sign.title}</h4>
+              <div className="flex items-start justify-between mb-2">
+                <h4 className="font-bold text-lg">{sign.title}</h4>
+                {sign.id && (
+                  <WordCategoryEditor wordId={sign.id} wordText={sign.title} />
+                )}
+              </div>
               {sign.videoUrl && (
                 <div className="aspect-video bg-muted rounded-md overflow-hidden mb-2">
                   <video
@@ -180,7 +188,12 @@ export const LSFBDictionary = () => {
       {/* Détails du signe sélectionné */}
       {selectedSign && (
         <Card className="p-6 border-2 border-primary">
-          <h3 className="text-2xl font-bold mb-4">{selectedSign.title}</h3>
+          <div className="flex items-start justify-between mb-4">
+            <h3 className="text-2xl font-bold">{selectedSign.title}</h3>
+            {selectedSign.id && (
+              <WordCategoryEditor wordId={selectedSign.id} wordText={selectedSign.title} />
+            )}
+          </div>
           {selectedSign.videoUrl && (
             <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-4">
               <video
