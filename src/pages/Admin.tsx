@@ -514,6 +514,14 @@ const Admin = () => {
               {Object.keys(newLesson).length > 0 && (
                 <Card className="p-4 mb-6 bg-muted">
                   <h3 className="text-lg font-semibold mb-4">Nouvelle leçon</h3>
+                  <div className="mb-4 flex items-center gap-2">
+                    <Switch
+                      id="new-is-quiz"
+                      checked={newLesson.is_quiz || false}
+                      onCheckedChange={(checked) => setNewLesson({ ...newLesson, is_quiz: checked })}
+                    />
+                    <Label htmlFor="new-is-quiz" className="font-semibold">C'est un quiz</Label>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Titre</Label>
@@ -524,62 +532,6 @@ const Admin = () => {
                       />
                     </div>
                     <div>
-                      <Label>Catégorie</Label>
-                      <Select
-                        value={newLesson.category || ""}
-                        onValueChange={(value) => setNewLesson({ ...newLesson, category: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner une catégorie" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="alphabet">Alphabet</SelectItem>
-                          <SelectItem value="numbers">Nombres</SelectItem>
-                          <SelectItem value="greetings">Salutations</SelectItem>
-                          <SelectItem value="family">Famille</SelectItem>
-                          <SelectItem value="colors">Couleurs</SelectItem>
-                          <SelectItem value="animals">Animaux</SelectItem>
-                          <SelectItem value="food">Nourriture</SelectItem>
-                          <SelectItem value="emotions">Émotions</SelectItem>
-                          <SelectItem value="dates">Dates</SelectItem>
-                          <SelectItem value="work">Travail</SelectItem>
-                          <SelectItem value="toys">Jouets</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Niveau</Label>
-                      <Select
-                        value={newLesson.level || ""}
-                        onValueChange={(value) => setNewLesson({ ...newLesson, level: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un niveau" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="debutant">Débutant</SelectItem>
-                          <SelectItem value="intermediaire">Intermédiaire</SelectItem>
-                          <SelectItem value="avance">Avancé</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Groupe d'âge</Label>
-                      <Select
-                        value={newLesson.age_group || ""}
-                        onValueChange={(value) => setNewLesson({ ...newLesson, age_group: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un âge" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="enfant">Enfant (3-12 ans)</SelectItem>
-                          <SelectItem value="adolescent">Adolescent (13-17 ans)</SelectItem>
-                          <SelectItem value="adulte">Adulte (18+ ans)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
                       <Label>Ordre</Label>
                       <Input
                         type="number"
@@ -587,14 +539,66 @@ const Admin = () => {
                         onChange={(e) => setNewLesson({ ...newLesson, order_index: parseInt(e.target.value) })}
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="new-is-quiz"
-                        checked={newLesson.is_quiz || false}
-                        onCheckedChange={(checked) => setNewLesson({ ...newLesson, is_quiz: checked })}
-                      />
-                      <Label htmlFor="new-is-quiz">C'est un quiz</Label>
-                    </div>
+                    {!newLesson.is_quiz && (
+                      <>
+                        <div>
+                          <Label>Catégorie</Label>
+                          <Select
+                            value={newLesson.category || ""}
+                            onValueChange={(value) => setNewLesson({ ...newLesson, category: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionner une catégorie" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="alphabet">Alphabet</SelectItem>
+                              <SelectItem value="numbers">Nombres</SelectItem>
+                              <SelectItem value="greetings">Salutations</SelectItem>
+                              <SelectItem value="family">Famille</SelectItem>
+                              <SelectItem value="colors">Couleurs</SelectItem>
+                              <SelectItem value="animals">Animaux</SelectItem>
+                              <SelectItem value="food">Nourriture</SelectItem>
+                              <SelectItem value="emotions">Émotions</SelectItem>
+                              <SelectItem value="dates">Dates</SelectItem>
+                              <SelectItem value="work">Travail</SelectItem>
+                              <SelectItem value="toys">Jouets</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Niveau</Label>
+                          <Select
+                            value={newLesson.level || ""}
+                            onValueChange={(value) => setNewLesson({ ...newLesson, level: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionner un niveau" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="debutant">Débutant</SelectItem>
+                              <SelectItem value="intermediaire">Intermédiaire</SelectItem>
+                              <SelectItem value="avance">Avancé</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Groupe d'âge</Label>
+                          <Select
+                            value={newLesson.age_group || ""}
+                            onValueChange={(value) => setNewLesson({ ...newLesson, age_group: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionner un âge" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="enfant">Enfant (3-12 ans)</SelectItem>
+                              <SelectItem value="adolescent">Adolescent (13-17 ans)</SelectItem>
+                              <SelectItem value="adulte">Adulte (18+ ans)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="flex gap-2 mt-4">
                     <Button onClick={() => saveLesson(newLesson)}>
@@ -613,6 +617,14 @@ const Admin = () => {
               {editingLesson && (
                 <Card className="p-4 mb-6 bg-muted">
                   <h3 className="text-lg font-semibold mb-4">Modifier la leçon</h3>
+                  <div className="mb-4 flex items-center gap-2">
+                    <Switch
+                      id="edit-is-quiz"
+                      checked={editingLesson.is_quiz || false}
+                      onCheckedChange={(checked) => setEditingLesson({ ...editingLesson, is_quiz: checked })}
+                    />
+                    <Label htmlFor="edit-is-quiz" className="font-semibold">C'est un quiz</Label>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Titre</Label>
@@ -622,62 +634,6 @@ const Admin = () => {
                       />
                     </div>
                     <div>
-                      <Label>Catégorie</Label>
-                      <Select
-                        value={editingLesson.category}
-                        onValueChange={(value) => setEditingLesson({ ...editingLesson, category: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="alphabet">Alphabet</SelectItem>
-                          <SelectItem value="numbers">Nombres</SelectItem>
-                          <SelectItem value="greetings">Salutations</SelectItem>
-                          <SelectItem value="family">Famille</SelectItem>
-                          <SelectItem value="colors">Couleurs</SelectItem>
-                          <SelectItem value="animals">Animaux</SelectItem>
-                          <SelectItem value="food">Nourriture</SelectItem>
-                          <SelectItem value="emotions">Émotions</SelectItem>
-                          <SelectItem value="dates">Dates</SelectItem>
-                          <SelectItem value="work">Travail</SelectItem>
-                          <SelectItem value="toys">Jouets</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Niveau</Label>
-                      <Select
-                        value={editingLesson.level}
-                        onValueChange={(value) => setEditingLesson({ ...editingLesson, level: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="debutant">Débutant</SelectItem>
-                          <SelectItem value="intermediaire">Intermédiaire</SelectItem>
-                          <SelectItem value="avance">Avancé</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Groupe d'âge</Label>
-                      <Select
-                        value={editingLesson.age_group}
-                        onValueChange={(value) => setEditingLesson({ ...editingLesson, age_group: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="enfant">Enfant (3-12 ans)</SelectItem>
-                          <SelectItem value="adolescent">Adolescent (13-17 ans)</SelectItem>
-                          <SelectItem value="adulte">Adulte (18+ ans)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
                       <Label>Ordre</Label>
                       <Input
                         type="number"
@@ -685,14 +641,66 @@ const Admin = () => {
                         onChange={(e) => setEditingLesson({ ...editingLesson, order_index: parseInt(e.target.value) })}
                       />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="edit-is-quiz"
-                        checked={editingLesson.is_quiz || false}
-                        onCheckedChange={(checked) => setEditingLesson({ ...editingLesson, is_quiz: checked })}
-                      />
-                      <Label htmlFor="edit-is-quiz">C'est un quiz</Label>
-                    </div>
+                    {!editingLesson.is_quiz && (
+                      <>
+                        <div>
+                          <Label>Catégorie</Label>
+                          <Select
+                            value={editingLesson.category}
+                            onValueChange={(value) => setEditingLesson({ ...editingLesson, category: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="alphabet">Alphabet</SelectItem>
+                              <SelectItem value="numbers">Nombres</SelectItem>
+                              <SelectItem value="greetings">Salutations</SelectItem>
+                              <SelectItem value="family">Famille</SelectItem>
+                              <SelectItem value="colors">Couleurs</SelectItem>
+                              <SelectItem value="animals">Animaux</SelectItem>
+                              <SelectItem value="food">Nourriture</SelectItem>
+                              <SelectItem value="emotions">Émotions</SelectItem>
+                              <SelectItem value="dates">Dates</SelectItem>
+                              <SelectItem value="work">Travail</SelectItem>
+                              <SelectItem value="toys">Jouets</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Niveau</Label>
+                          <Select
+                            value={editingLesson.level}
+                            onValueChange={(value) => setEditingLesson({ ...editingLesson, level: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="debutant">Débutant</SelectItem>
+                              <SelectItem value="intermediaire">Intermédiaire</SelectItem>
+                              <SelectItem value="avance">Avancé</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Groupe d'âge</Label>
+                          <Select
+                            value={editingLesson.age_group}
+                            onValueChange={(value) => setEditingLesson({ ...editingLesson, age_group: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="enfant">Enfant (3-12 ans)</SelectItem>
+                              <SelectItem value="adolescent">Adolescent (13-17 ans)</SelectItem>
+                              <SelectItem value="adulte">Adulte (18+ ans)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="flex gap-2 mt-4">
                     <Button onClick={() => saveLesson(editingLesson)}>
