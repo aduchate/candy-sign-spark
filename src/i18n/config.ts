@@ -70,68 +70,7 @@ const resources = {
           "signExpert": "Expert en signes"
         }
       },
-      "lessons": {
-        "basicGreetings": {
-          "title": "Salutations de base",
-          "q1": {
-            "question": "Quel est le signe pour 'Bonjour' ?",
-            "options": ["Agiter la main", "Pouce levé", "Applaudir", "Pointer vers le haut"]
-          },
-          "q2": {
-            "question": "Comment signer 'Merci' ?",
-            "options": ["Agiter", "S'incliner", "Toucher le menton puis l'avant", "Applaudir"]
-          },
-          "q3": {
-            "question": "Que signifie ce signe ?",
-            "options": ["Bien", "Oui", "D'accord", "Toutes ces réponses"]
-          }
-        },
-        "familySigns": {
-          "title": "Signes de la famille",
-          "q1": {
-            "question": "Quel est le signe pour 'Mère' ?",
-            "options": ["Pointer la tête", "Toucher le menton", "Agiter la main", "Toucher la poitrine"]
-          },
-          "q2": {
-            "question": "Comment signer 'Père' ?",
-            "options": ["Toucher le front", "Toucher le nez", "Agiter la main", "Pointer vers le haut"]
-          },
-          "q3": {
-            "question": "Que signifie ce signe ?",
-            "options": ["Enfant", "Bébé", "Petit", "Jeune"]
-          }
-        },
-        "colorsNumbers": {
-          "title": "Couleurs et nombres",
-          "q1": {
-            "question": "Quel est le signe pour 'Rouge' ?",
-            "options": ["Toucher les lèvres", "Pointer le ciel", "Toucher le nez", "Agiter la main"]
-          },
-          "q2": {
-            "question": "Comment signer le nombre '5' ?",
-            "options": ["Main ouverte", "Poing fermé", "Deux doigts", "Trois doigts"]
-          },
-          "q3": {
-            "question": "De quelle couleur est ce signe ?",
-            "options": ["Vert", "Bleu", "Jaune", "Violet"]
-          }
-        },
-        "dailyActivities": {
-          "title": "Activités quotidiennes",
-          "q1": {
-            "question": "Quel est le signe pour 'Manger' ?",
-            "options": ["Main à la bouche", "Frotter l'estomac", "Pointer l'assiette", "Ouvrir la bouche"]
-          },
-          "q2": {
-            "question": "Comment signer 'Dormir' ?",
-            "options": ["Mains jointes près du visage", "Fermer les yeux", "Mouvement de s'allonger", "Bâiller"]
-          },
-          "q3": {
-            "question": "Que signifie ce signe ?",
-            "options": ["Marcher", "Courir", "Sauter", "Danser"]
-          }
-        }
-      },
+      "lessons": {},
       "notFound": {
         "title": "404",
         "message": "Oups ! Page non trouvée",
