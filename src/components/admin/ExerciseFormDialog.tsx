@@ -154,31 +154,61 @@ export const ExerciseFormDialog = ({
                 setFormData({ ...formData, content: { questions: newQuestions } });
               }}
             />
-            {q.options.map((option: string, oIndex: number) => (
-              <div key={oIndex} className="flex items-center gap-2">
-                <Input
-                  placeholder={`Option ${oIndex + 1}`}
-                  value={option}
-                  onChange={(e) => {
-                    const newQuestions = [...questions];
-                    newQuestions[qIndex].options[oIndex] = e.target.value;
-                    setFormData({ ...formData, content: { questions: newQuestions } });
-                  }}
-                />
-                <label className="flex items-center gap-1">
-                  <input
-                    type="radio"
-                    checked={q.correctAnswer === oIndex}
-                    onChange={() => {
+            <div className="space-y-2">
+              {q.options.map((option: string, oIndex: number) => (
+                <div key={oIndex} className="flex items-center gap-2">
+                  <Input
+                    placeholder={`Option ${oIndex + 1}`}
+                    value={option}
+                    onChange={(e) => {
                       const newQuestions = [...questions];
-                      newQuestions[qIndex].correctAnswer = oIndex;
+                      newQuestions[qIndex].options[oIndex] = e.target.value;
                       setFormData({ ...formData, content: { questions: newQuestions } });
                     }}
                   />
-                  <span className="text-sm text-muted-foreground">Correcte</span>
-                </label>
-              </div>
-            ))}
+                  <label className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      checked={q.correctAnswer === oIndex}
+                      onChange={() => {
+                        const newQuestions = [...questions];
+                        newQuestions[qIndex].correctAnswer = oIndex;
+                        setFormData({ ...formData, content: { questions: newQuestions } });
+                      }}
+                    />
+                    <span className="text-sm text-muted-foreground">Correcte</span>
+                  </label>
+                  {q.options.length > 2 && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        const newQuestions = [...questions];
+                        newQuestions[qIndex].options = newQuestions[qIndex].options.filter((_: string, i: number) => i !== oIndex);
+                        if (newQuestions[qIndex].correctAnswer >= oIndex) {
+                          newQuestions[qIndex].correctAnswer = Math.max(0, newQuestions[qIndex].correctAnswer - 1);
+                        }
+                        setFormData({ ...formData, content: { questions: newQuestions } });
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const newQuestions = [...questions];
+                  newQuestions[qIndex].options.push("");
+                  setFormData({ ...formData, content: { questions: newQuestions } });
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter une option
+              </Button>
+            </div>
           </div>
         ))}
         <Button
