@@ -269,45 +269,64 @@ function parseNewsArticles(html: string, baseUrl: string): any[] {
 }
 
 function extractArticleContent(html: string): string {
-  // Extract main content from article page
+  // Extract main content from article page - more permissive approach
   let content = ''
   
-  // Try to find the main content area
+  // Try to find the main content area with multiple patterns
   const contentPatterns = [
-    /<div[^>]*class="[^"]*entry-content[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i,
-    /<article[^>]*class="[^"]*post[^"]*"[^>]*>([\s\S]*?)<\/article>/i,
+    // WordPress standard patterns
+    /<div[^>]*class="[^"]*entry-content[^"]*"[^>]*>([\s\S]*?)<footer/i,
+    /<div[^>]*class="[^"]*entry-content[^"]*"[^>]*>([\s\S]*?)<\/article>/i,
+    /<article[^>]*>([\s\S]*?)<\/article>/i,
     /<div[^>]*class="[^"]*post-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
-    /<main[^>]*>([\s\S]*?)<\/main>/i
+    /<main[^>]*>([\s\S]*?)<\/main>/i,
+    // Broader fallback patterns
+    /<div[^>]*class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
   ]
   
   for (const pattern of contentPatterns) {
     const match = html.match(pattern)
-    if (match) {
+    if (match && match[1].length > 100) {  // Ensure we got substantial content
       content = match[1]
       break
     }
   }
   
-  if (!content) {
-    // Fallback: try to extract any significant text
+  if (!content || content.length < 100) {
+    console.log('Failed to extract content with patterns, trying body fallback')
+    // Fallback: extract body content
     const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
-    content = bodyMatch ? bodyMatch[1] : html
+    if (bodyMatch) {
+      content = bodyMatch[1]
+      // Remove header, nav, footer, sidebar
+      content = content
+        .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '')
+        .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
+        .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
+        .replace(/<aside[^>]*>[\s\S]*?<\/aside>/gi, '')
+        .replace(/<div[^>]*class="[^"]*sidebar[^"]*"[^>]*>[\s\S]*?<\/div>/gi, '')
+    }
   }
   
-  // Clean up the content
+  if (!content) {
+    console.log('No content extracted')
+    return ''
+  }
+  
+  // Clean up the content but keep HTML structure for display
   content = content
     // Remove script and style tags
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    // Remove navigation, sidebar, footer
-    .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
-    .replace(/<aside[^>]*>[\s\S]*?<\/aside>/gi, '')
-    .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '')
     // Remove comments
     .replace(/<!--[\s\S]*?-->/g, '')
-    // Clean up whitespace
-    .replace(/\s+/g, ' ')
+    // Remove navigation, sidebar elements
+    .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '')
+    .replace(/<aside[^>]*>[\s\S]*?<\/aside>/gi, '')
+    // Clean up excessive whitespace but keep paragraph structure
+    .replace(/\n\s*\n\s*\n/g, '\n\n')
     .trim()
   
+  console.log(`Extracted content length: ${content.length} characters`)
   return content
 }

@@ -246,7 +246,7 @@ export const NewsSection = () => {
         </Card>
       ) : activeCategory === "all" ? (
         <div className="space-y-8">
-          {["Actualités", ...categories].map((cat) => {
+          {categories.map((cat) => {
             const categoryArticles = articles.filter(a => a.category === cat)
             if (categoryArticles.length === 0) return null
             
