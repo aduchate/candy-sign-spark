@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Loader2, UserCog, BookOpen, ClipboardList, Languages, ArrowLeft, Trash2, Edit, Plus, Save, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { ExerciseFormDialog } from "@/components/admin/ExerciseFormDialog";
+import { Switch } from "@/components/ui/switch";
 
 interface UserProfile {
   id: string;
@@ -34,6 +35,7 @@ interface Lesson {
   level: string;
   age_group: string;
   order_index: number;
+  is_quiz: boolean;
 }
 
 interface Exercise {
@@ -585,6 +587,14 @@ const Admin = () => {
                         onChange={(e) => setNewLesson({ ...newLesson, order_index: parseInt(e.target.value) })}
                       />
                     </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="new-is-quiz"
+                        checked={newLesson.is_quiz || false}
+                        onCheckedChange={(checked) => setNewLesson({ ...newLesson, is_quiz: checked })}
+                      />
+                      <Label htmlFor="new-is-quiz">C'est un quiz</Label>
+                    </div>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <Button onClick={() => saveLesson(newLesson)}>
@@ -674,6 +684,14 @@ const Admin = () => {
                         value={editingLesson.order_index}
                         onChange={(e) => setEditingLesson({ ...editingLesson, order_index: parseInt(e.target.value) })}
                       />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="edit-is-quiz"
+                        checked={editingLesson.is_quiz || false}
+                        onCheckedChange={(checked) => setEditingLesson({ ...editingLesson, is_quiz: checked })}
+                      />
+                      <Label htmlFor="edit-is-quiz">C'est un quiz</Label>
                     </div>
                   </div>
                   <div className="flex gap-2 mt-4">

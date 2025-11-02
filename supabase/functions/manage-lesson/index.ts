@@ -81,7 +81,8 @@ Deno.serve(async (req) => {
           category: lessonData.category,
           level: lessonData.level,
           age_group: lessonData.age_group,
-          order_index: lessonData.order_index
+          order_index: lessonData.order_index,
+          is_quiz: lessonData.is_quiz || false
         })
         .select()
         .single()
@@ -107,7 +108,8 @@ Deno.serve(async (req) => {
           category: lessonData.category,
           level: lessonData.level,
           age_group: lessonData.age_group,
-          order_index: lessonData.order_index
+          order_index: lessonData.order_index,
+          is_quiz: lessonData.is_quiz || false
         })
         .eq('id', lessonId)
         .select()
