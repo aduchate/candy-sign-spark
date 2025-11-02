@@ -12,6 +12,4 @@ export interface LessonData {
   questions: Question[];
 }
 
-export const lessons: Record<string, LessonData> = {
-  "1": {},
-};
+export const lessons: Record<string, LessonData> = {};
