@@ -43,14 +43,14 @@ Deno.serve(async (req) => {
     } else {
       const { data: existing } = await supabase
         .from('word_signs')
-        .select('video_url, source_url, description')
+        .select('video_url, source_url, signed_grammar')
         .ilike('word', word)
         .single();
       
       if (existing) {
         console.log(`Video already exists for word ${word}`);
         return new Response(
-          JSON.stringify({ success: true, video_url: existing.video_url, source_url: existing.source_url, description: existing.description }),
+          JSON.stringify({ success: true, video_url: existing.video_url, source_url: existing.source_url, signed_grammar: existing.signed_grammar }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -192,11 +192,11 @@ Deno.serve(async (req) => {
     const publicUrl = urlData.publicUrl;
     console.log(`Video uploaded successfully: ${publicUrl}`);
 
-    // Extract description if available
-    let description = '';
+    // Extract grammar info if available (could be used for signed_grammar field)
+    let signedGrammar = '';
     const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
     if (descMatch && descMatch[1]) {
-      description = descMatch[1];
+      signedGrammar = descMatch[1];
     }
 
     // Save to database
@@ -223,7 +223,7 @@ Deno.serve(async (req) => {
           word: searchWord,
           video_url: publicUrl,
           source_url: pageUrl,
-          description,
+          signed_grammar: signedGrammar || null,
         });
 
       if (dbError) {
@@ -240,7 +240,7 @@ Deno.serve(async (req) => {
         success: true,
         video_url: publicUrl,
         source_url: pageUrl,
-        description: description || undefined,
+        signed_grammar: signedGrammar || undefined,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
