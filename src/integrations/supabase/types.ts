@@ -434,8 +434,9 @@ export type Database = {
         Row: {
           category: string
           created_at: string
-          description: string | null
           id: string
+          phrase: string | null
+          signed_grammar: string | null
           source_url: string | null
           updated_at: string
           video_url: string
@@ -444,8 +445,9 @@ export type Database = {
         Insert: {
           category?: string
           created_at?: string
-          description?: string | null
           id?: string
+          phrase?: string | null
+          signed_grammar?: string | null
           source_url?: string | null
           updated_at?: string
           video_url: string
@@ -454,8 +456,9 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
-          description?: string | null
           id?: string
+          phrase?: string | null
+          signed_grammar?: string | null
           source_url?: string | null
           updated_at?: string
           video_url?: string

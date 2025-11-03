@@ -19,7 +19,8 @@ interface WordSign {
   id: string;
   word: string;
   video_url: string;
-  description: string | null;
+  signed_grammar: string | null;
+  phrase: string | null;
   source_url: string | null;
   category: string;
 }
@@ -44,7 +45,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
   const [formData, setFormData] = useState({
     word: "",
     video_url: "",
-    description: "",
+    signed_grammar: "",
+    phrase: "",
     source_url: "",
     category: "A1"
   });
@@ -62,7 +64,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
         setFormData({
           word: word.word,
           video_url: word.video_url,
-          description: word.description || "",
+          signed_grammar: word.signed_grammar || "",
+          phrase: word.phrase || "",
           source_url: word.source_url || "",
           category: word.category || "A1"
         });
@@ -71,7 +74,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
         setFormData({
           word: "",
           video_url: "",
-          description: "",
+          signed_grammar: "",
+          phrase: "",
           source_url: "",
           category: "A1"
         });
@@ -175,7 +179,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
           .update({
             word: formData.word.trim(),
             video_url: formData.video_url.trim(),
-            description: formData.description.trim() || null,
+            signed_grammar: formData.signed_grammar.trim() || null,
+            phrase: formData.phrase.trim() || null,
             source_url: formData.source_url.trim() || null,
             category: formData.category
           })
@@ -208,7 +213,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
           .insert([{
             word: formData.word.trim(),
             video_url: formData.video_url.trim(),
-            description: formData.description.trim() || null,
+            signed_grammar: formData.signed_grammar.trim() || null,
+            phrase: formData.phrase.trim() || null,
             source_url: formData.source_url.trim() || null,
             category: formData.category
           }])
@@ -341,13 +347,24 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="description">Description (optionnel)</Label>
+              <Label htmlFor="signed_grammar">Grammaire signée (optionnel)</Label>
               <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Description du signe"
-                rows={3}
+                id="signed_grammar"
+                value={formData.signed_grammar}
+                onChange={(e) => setFormData({ ...formData, signed_grammar: e.target.value })}
+                placeholder="Ex: TOI - NOM - QUOI ?"
+                rows={2}
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <Label htmlFor="phrase">Phrase de base (optionnel)</Label>
+              <Textarea
+                id="phrase"
+                value={formData.phrase}
+                onChange={(e) => setFormData({ ...formData, phrase: e.target.value })}
+                placeholder="Ex: comment tu t'appelles ?"
+                rows={2}
               />
             </div>
           </div>

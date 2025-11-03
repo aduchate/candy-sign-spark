@@ -53,7 +53,7 @@ export const LSFBDictionary = () => {
       // Check if video already exists in database
       const { data: existingData } = await supabase
         .from('word_signs')
-        .select('id, word, video_url, source_url, description, category')
+        .select('id, word, video_url, source_url, signed_grammar, category')
         .ilike('word', searchTerm.trim())
         .single();
 
@@ -62,7 +62,7 @@ export const LSFBDictionary = () => {
           id: existingData.id,
           title: existingData.word.charAt(0).toUpperCase() + existingData.word.slice(1),
           videoUrl: existingData.video_url,
-          description: existingData.description || `Signe pour "${existingData.word}" en LSFB`,
+          description: existingData.signed_grammar || `Signe pour "${existingData.word}" en LSFB`,
           sourceUrl: existingData.source_url || "https://dico.lsfb.be/",
           level: existingData.category,
         }];

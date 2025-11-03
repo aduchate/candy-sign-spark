@@ -52,7 +52,8 @@ interface WordSign {
   id: string;
   word: string;
   video_url: string;
-  description: string | null;
+  signed_grammar: string | null;
+  phrase: string | null;
   source_url: string | null;
   category: string;
   categories?: { id: string; name: string }[];
@@ -932,7 +933,8 @@ const Admin = () => {
                         <TableHead>Mot</TableHead>
                         <TableHead>Niveau</TableHead>
                         <TableHead>Catégories</TableHead>
-                        <TableHead>Description</TableHead>
+                        <TableHead>Grammaire signée</TableHead>
+                        <TableHead>Phrase</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -958,7 +960,10 @@ const Admin = () => {
                             </div>
                           </TableCell>
                           <TableCell className="max-w-md truncate">
-                            {word.description || "-"}
+                            {word.signed_grammar || "-"}
+                          </TableCell>
+                          <TableCell className="max-w-md truncate">
+                            {word.phrase || "-"}
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
