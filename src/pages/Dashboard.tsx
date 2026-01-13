@@ -36,6 +36,7 @@ import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { NewsSection } from "@/components/NewsSection";
 import { CategoryArticleSection } from "@/components/CategoryArticleSection";
+import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 
 interface LessonProgress {
   id: number;
@@ -61,7 +62,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons"
+    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons" | "rendezvous"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -332,6 +333,13 @@ const Dashboard = () => {
             >
               Projets
             </Button>
+            <Button
+              onClick={() => setActiveSection("rendezvous")}
+              variant={activeSection === "rendezvous" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Prise de rendez-vous
+            </Button>
             <Link to="/donations" className="w-full">
               <Button
                 variant="ghost"
@@ -377,6 +385,7 @@ const Dashboard = () => {
               {activeSection === "evenements" && "Événements"}
               {activeSection === "formations" && "Formations accessibles"}
               {activeSection === "projets" && "Projets"}
+              {activeSection === "rendezvous" && "Prise de rendez-vous"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -791,6 +800,8 @@ const Dashboard = () => {
               description="Projets en cours et à venir"
             />
           )}
+
+          {activeSection === "rendezvous" && <AppointmentBookingSection />}
         </div>
       </main>
     </div>
