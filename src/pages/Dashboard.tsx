@@ -37,6 +37,7 @@ import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { NewsSection } from "@/components/NewsSection";
 import { CategoryArticleSection } from "@/components/CategoryArticleSection";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
+import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 
 interface LessonProgress {
   id: number;
@@ -62,7 +63,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons" | "rendezvous"
+    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons" | "rendezvous" | "hopitaux"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -340,6 +341,13 @@ const Dashboard = () => {
             >
               Prise de rendez-vous
             </Button>
+            <Button
+              onClick={() => setActiveSection("hopitaux")}
+              variant={activeSection === "hopitaux" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Plans hôpitaux
+            </Button>
             <Link to="/donations" className="w-full">
               <Button
                 variant="ghost"
@@ -386,6 +394,7 @@ const Dashboard = () => {
               {activeSection === "formations" && "Formations accessibles"}
               {activeSection === "projets" && "Projets"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
+              {activeSection === "hopitaux" && "Plans hôpitaux"}
             </h2>
             <Link to="/stats">
               <Button variant="outline" size="sm" className="gap-2">
@@ -802,6 +811,8 @@ const Dashboard = () => {
           )}
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
+
+          {activeSection === "hopitaux" && <HospitalPlansSection />}
         </div>
       </main>
     </div>
