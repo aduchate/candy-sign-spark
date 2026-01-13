@@ -15,7 +15,7 @@ import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
 import lsfbGreetings from "@/assets/lsfb-greetings.jpg";
 import { AlphabetGrid } from "@/components/AlphabetGrid";
 import { NumbersGrid } from "@/components/NumbersGrid";
-import { LSFBDictionary } from "@/components/LSFBDictionary";
+import { MedicalGlossary } from "@/components/MedicalGlossary";
 import { SentenceTranslator } from "@/components/SentenceTranslator";
 import { ProfileSelector } from "@/components/ProfileSelector";
 import { LevelTabs } from "@/components/LevelTabs";
@@ -56,14 +56,14 @@ const Dashboard = () => {
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
   const sectionParam = searchParams.get("section") as
     | "apprentissage"
-    | "dictionnaire"
+    | "glossaire"
     | "quizz"
     | "traduction"
     | "starterpack"
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "dictionnaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons" | "rendezvous" | "hopitaux"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons" | "rendezvous" | "hopitaux"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -258,11 +258,11 @@ const Dashboard = () => {
               Apprentissage
             </Button>
             <Button
-              onClick={() => setActiveSection("dictionnaire")}
-              variant={activeSection === "dictionnaire" ? "default" : "ghost"}
+              onClick={() => setActiveSection("glossaire")}
+              variant={activeSection === "glossaire" ? "default" : "ghost"}
               className="w-full justify-start text-lg h-14"
             >
-              Dictionnaire
+              Glossaire
             </Button>
             <Button
               onClick={() => setActiveSection("quizz")}
@@ -382,7 +382,7 @@ const Dashboard = () => {
           <div className="px-8 py-4 flex items-center justify-between">
             <h2 className="text-2xl font-bold">
               {activeSection === "apprentissage" && "Section Apprentissage"}
-              {activeSection === "dictionnaire" && "Section Dictionnaire"}
+              {activeSection === "glossaire" && "Glossaire Paramédical"}
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "starterpack" && "Section Starter Pack"}
@@ -408,9 +408,9 @@ const Dashboard = () => {
         <div className="p-8">
           {activeSection === "apprentissage" && <LearningDecisionTree />}
 
-          {activeSection === "dictionnaire" && (
+          {activeSection === "glossaire" && (
             <div className="max-w-6xl">
-              <LSFBDictionary />
+              <MedicalGlossary />
             </div>
           )}
 
