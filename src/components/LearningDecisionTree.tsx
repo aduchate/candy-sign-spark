@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Briefcase, GraduationCap, ChevronLeft, Stethoscope, Brain, Dumbbell, UserCheck, Heart, TestTube2, CheckCircle, XCircle } from "lucide-react";
+import { ChevronLeft, Stethoscope, Brain, Dumbbell, UserCheck, Heart, TestTube2, CheckCircle } from "lucide-react";
 import { LevelTabs } from "./LevelTabs";
 import { ExerciseSelector } from "./exercises/ExerciseSelector";
 import { FlashCards } from "./exercises/FlashCards";
@@ -10,8 +10,7 @@ import { QuizExercise } from "./exercises/QuizExercise";
 import { MatchingExercise } from "./exercises/MatchingExercise";
 import { supabase } from "@/integrations/supabase/client";
 
-type Step = "choice" | "professions" | "level-test" | "leisure-levels";
-type AdultPath = "professionnel" | "loisir" | null;
+type Step = "professions" | "level-test" | "lessons";
 
 const professions = [
   { id: "logopédie", name: "Logopédie", icon: Heart },
@@ -57,8 +56,7 @@ const levelTestQuestions = [
 ];
 
 export const LearningDecisionTree = () => {
-  const [currentStep, setCurrentStep] = useState<Step>("choice");
-  const [adultPath, setAdultPath] = useState<AdultPath>(null);
+  const [currentStep, setCurrentStep] = useState<Step>("professions");
   const [selectedLevel, setSelectedLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
   const [adultExerciseType, setAdultExerciseType] = useState<"flashcards" | "quiz" | "matching" | null>(null);
@@ -102,13 +100,9 @@ export const LearningDecisionTree = () => {
     }
   };
 
-  const handleAdultPathSelect = (path: "professionnel" | "loisir") => {
-    setAdultPath(path);
-    if (path === "professionnel") {
-      setCurrentStep("professions");
-    } else {
-      setCurrentStep("level-test");
-    }
+  const handleProfessionSelect = (professionId: string) => {
+    setSelectedProfession(professionId);
+    setCurrentStep("level-test");
   };
 
   const handleTestAnswer = (questionId: number, optionIndex: number) => {
@@ -143,7 +137,7 @@ export const LearningDecisionTree = () => {
   };
 
   const handleStartLearning = () => {
-    setCurrentStep("leisure-levels");
+    setCurrentStep("lessons");
   };
 
   const handleBack = () => {
@@ -152,14 +146,12 @@ export const LearningDecisionTree = () => {
       return;
     }
 
-    if (currentStep === "professions" || currentStep === "level-test") {
-      setCurrentStep("choice");
-      setAdultPath(null);
-      setSelectedProfession(null);
+    if (currentStep === "level-test") {
+      setCurrentStep("professions");
       setTestAnswers({});
       setTestCompleted(false);
       setRecommendedLevel(null);
-    } else if (currentStep === "leisure-levels") {
+    } else if (currentStep === "lessons") {
       setCurrentStep("level-test");
     }
   };
@@ -229,10 +221,8 @@ export const LearningDecisionTree = () => {
   const renderBreadcrumb = () => {
     const items = [];
     
-    if (adultPath === "professionnel") items.push("Professionnel");
-    if (adultPath === "loisir") items.push("Loisir");
     if (selectedProfession) items.push(professions.find(p => p.id === selectedProfession)?.name || "");
-    if (recommendedLevel && currentStep === "leisure-levels") items.push(`Niveau ${recommendedLevel}`);
+    if (recommendedLevel && currentStep === "lessons") items.push(`Niveau ${recommendedLevel}`);
 
     return items.length > 0 ? (
       <div className="mb-6 text-sm text-muted-foreground flex items-center gap-2">
@@ -251,7 +241,7 @@ export const LearningDecisionTree = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {currentStep !== "choice" && (
+      {currentStep !== "professions" && (
         <Button variant="ghost" onClick={handleBack} className="mb-4">
           <ChevronLeft className="w-4 h-4 mr-2" />
           Retour
@@ -259,44 +249,6 @@ export const LearningDecisionTree = () => {
       )}
 
       {renderBreadcrumb()}
-
-      {/* Étape 1: Choix du parcours */}
-      {currentStep === "choice" && (
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Commençons votre parcours d'apprentissage</h2>
-            <p className="text-muted-foreground">Sélectionnez votre objectif pour une expérience adaptée</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card 
-              className="p-8 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
-              onClick={() => handleAdultPathSelect("professionnel")}
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full gradient-candy flex items-center justify-center mb-4">
-                  <Briefcase className="w-10 h-10 text-primary-foreground" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Professionnel</h3>
-                <p className="text-muted-foreground">Formations adaptées aux métiers de la santé et du social</p>
-              </div>
-            </Card>
-
-            <Card 
-              className="p-8 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
-              onClick={() => handleAdultPathSelect("loisir")}
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full gradient-accent flex items-center justify-center mb-4">
-                  <GraduationCap className="w-10 h-10 text-accent-foreground" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Loisir (par niveaux)</h3>
-                <p className="text-muted-foreground">Apprentissage progressif du LSFB de A1 à B2</p>
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
 
       {/* Étape 2a: Test de niveau */}
       {currentStep === "level-test" && (
@@ -397,12 +349,12 @@ export const LearningDecisionTree = () => {
         </div>
       )}
 
-      {/* Étape 2b: Choix de la profession */}
+      {/* Étape 1: Choix de la profession */}
       {currentStep === "professions" && (
         <div className="space-y-6">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Sélectionnez votre domaine professionnel</h2>
-            <p className="text-muted-foreground">Contenu spécialisé pour votre profession</p>
+            <h2 className="text-3xl font-bold mb-2">Commençons votre parcours d'apprentissage</h2>
+            <p className="text-muted-foreground">Sélectionnez votre domaine professionnel</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -411,10 +363,8 @@ export const LearningDecisionTree = () => {
               return (
                 <Card 
                   key={profession.id}
-                  className={`p-6 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2 ${
-                    selectedProfession === profession.id ? "ring-2 ring-primary" : ""
-                  }`}
-                  onClick={() => setSelectedProfession(profession.id)}
+                  className="p-6 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
+                  onClick={() => handleProfessionSelect(profession.id)}
                 >
                   <div className="flex flex-col items-center text-center">
                     <div className="w-16 h-16 rounded-full gradient-candy flex items-center justify-center mb-3">
@@ -426,23 +376,17 @@ export const LearningDecisionTree = () => {
               );
             })}
           </div>
-
-          {selectedProfession && (
-            <Card className="p-6 mt-6 bg-muted">
-              <p className="text-center text-muted-foreground">
-                Contenu professionnel pour {professions.find(p => p.id === selectedProfession)?.name} en cours de développement
-              </p>
-            </Card>
-          )}
         </div>
       )}
 
       {/* Étape 3: Apprentissage par niveaux */}
-      {currentStep === "leisure-levels" && (
+      {currentStep === "lessons" && (
         <div className="space-y-6">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2">Votre parcours d'apprentissage</h2>
-            <p className="text-muted-foreground">Niveau recommandé : {recommendedLevel}</p>
+            <p className="text-muted-foreground">
+              {professions.find(p => p.id === selectedProfession)?.name} - Niveau recommandé : {recommendedLevel}
+            </p>
           </div>
 
           <LevelTabs selected={selectedLevel} onSelect={setSelectedLevel} />
