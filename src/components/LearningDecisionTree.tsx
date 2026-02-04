@@ -2,20 +2,16 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Baby, Briefcase, GraduationCap, ChevronLeft, Stethoscope, Brain, Dumbbell, UserCheck, Heart, TestTube2 } from "lucide-react";
+import { Briefcase, GraduationCap, ChevronLeft, Stethoscope, Brain, Dumbbell, UserCheck, Heart, TestTube2, CheckCircle, XCircle } from "lucide-react";
 import { LevelTabs } from "./LevelTabs";
-import { AlphabetGrid } from "./AlphabetGrid";
-import { NumbersGrid } from "./NumbersGrid";
 import { ExerciseSelector } from "./exercises/ExerciseSelector";
 import { FlashCards } from "./exercises/FlashCards";
 import { QuizExercise } from "./exercises/QuizExercise";
 import { MatchingExercise } from "./exercises/MatchingExercise";
 import { supabase } from "@/integrations/supabase/client";
 
-type Step = "age" | "adult-choice" | "professions" | "leisure-levels" | "child-choice" | "early-childhood" | "childhood";
-type AgeGroup = "adulte" | "enfant" | null;
+type Step = "choice" | "professions" | "level-test" | "leisure-levels";
 type AdultPath = "professionnel" | "loisir" | null;
-type ChildPath = "petite-enfance" | "enfance" | null;
 
 const professions = [
   { id: "logopédie", name: "Logopédie", icon: Heart },
@@ -26,19 +22,54 @@ const professions = [
   { id: "éducateur", name: "Éducateur spécialisé", icon: UserCheck },
 ];
 
+// Questions du test de niveau
+const levelTestQuestions = [
+  {
+    id: 1,
+    question: "Savez-vous épeler votre nom en dactylologie (alphabet manuel) ?",
+    options: ["Oui, couramment", "Quelques lettres seulement", "Non, pas du tout"],
+    weights: { A1: [0, 1, 2], A2: [0, 0, 1], B1: [0, 0, 0], B2: [0, 0, 0] }
+  },
+  {
+    id: 2,
+    question: "Pouvez-vous comprendre les salutations de base en LSFB ?",
+    options: ["Oui, facilement", "Avec difficulté", "Non"],
+    weights: { A1: [0, 1, 2], A2: [0, 0, 1], B1: [0, 0, 0], B2: [0, 0, 0] }
+  },
+  {
+    id: 3,
+    question: "Êtes-vous capable de tenir une conversation simple sur des sujets quotidiens ?",
+    options: ["Oui, avec aisance", "Oui, mais avec hésitations", "Non, pas encore"],
+    weights: { A1: [0, 0, 0], A2: [0, 1, 2], B1: [0, 0, 1], B2: [0, 0, 0] }
+  },
+  {
+    id: 4,
+    question: "Comprenez-vous des récits ou explications en LSFB sur des sujets familiers ?",
+    options: ["Oui, sans problème", "Partiellement", "Très peu ou pas"],
+    weights: { A1: [0, 0, 0], A2: [0, 0, 1], B1: [0, 1, 2], B2: [0, 0, 0] }
+  },
+  {
+    id: 5,
+    question: "Pouvez-vous exprimer des opinions nuancées et argumenter en LSFB ?",
+    options: ["Oui, couramment", "Avec des efforts", "Non"],
+    weights: { A1: [0, 0, 0], A2: [0, 0, 0], B1: [0, 1, 2], B2: [0, 0, 1] }
+  },
+];
+
 export const LearningDecisionTree = () => {
-  const [currentStep, setCurrentStep] = useState<Step>("age");
-  const [ageGroup, setAgeGroup] = useState<AgeGroup>(null);
+  const [currentStep, setCurrentStep] = useState<Step>("choice");
   const [adultPath, setAdultPath] = useState<AdultPath>(null);
-  const [childPath, setChildPath] = useState<ChildPath>(null);
   const [selectedLevel, setSelectedLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
-  const [childTab, setChildTab] = useState<"alphabet" | "chiffres">("alphabet");
   const [adultExerciseType, setAdultExerciseType] = useState<"flashcards" | "quiz" | "matching" | null>(null);
-  const [childExerciseType, setChildExerciseType] = useState<"flashcards" | "quiz" | "matching" | null>(null);
   const [alphabetData, setAlphabetData] = useState<any[]>([]);
   const [numbersData, setNumbersData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // État du test de niveau
+  const [testAnswers, setTestAnswers] = useState<Record<number, number>>({});
+  const [testCompleted, setTestCompleted] = useState(false);
+  const [recommendedLevel, setRecommendedLevel] = useState<"A1" | "A2" | "B1" | "B2" | null>(null);
 
   useEffect(() => {
     loadExerciseData();
@@ -46,7 +77,6 @@ export const LearningDecisionTree = () => {
 
   const loadExerciseData = async () => {
     try {
-      // Load alphabet
       const { data: alphabetSigns } = await supabase
         .from('alphabet_signs')
         .select('letter, video_url')
@@ -56,7 +86,6 @@ export const LearningDecisionTree = () => {
         setAlphabetData(alphabetSigns);
       }
 
-      // Load numbers
       const numbersWords = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
       const { data: numberSigns } = await supabase
         .from('word_signs')
@@ -73,56 +102,65 @@ export const LearningDecisionTree = () => {
     }
   };
 
-  const handleAgeSelect = (age: "adulte" | "enfant") => {
-    setAgeGroup(age);
-    if (age === "adulte") {
-      setCurrentStep("adult-choice");
-    } else {
-      setCurrentStep("child-choice");
-    }
-  };
-
   const handleAdultPathSelect = (path: "professionnel" | "loisir") => {
     setAdultPath(path);
     if (path === "professionnel") {
       setCurrentStep("professions");
     } else {
-      setCurrentStep("leisure-levels");
+      setCurrentStep("level-test");
     }
   };
 
-  const handleChildPathSelect = (path: "petite-enfance" | "enfance") => {
-    setChildPath(path);
-    if (path === "petite-enfance") {
-      setCurrentStep("early-childhood");
-    } else {
-      setCurrentStep("childhood");
-    }
+  const handleTestAnswer = (questionId: number, optionIndex: number) => {
+    setTestAnswers(prev => ({ ...prev, [questionId]: optionIndex }));
+  };
+
+  const calculateLevel = () => {
+    const scores = { A1: 0, A2: 0, B1: 0, B2: 0 };
+    
+    levelTestQuestions.forEach(q => {
+      const answer = testAnswers[q.id];
+      if (answer !== undefined) {
+        scores.A1 += q.weights.A1[answer] || 0;
+        scores.A2 += q.weights.A2[answer] || 0;
+        scores.B1 += q.weights.B1[answer] || 0;
+        scores.B2 += q.weights.B2[answer] || 0;
+      }
+    });
+
+    // Déterminer le niveau recommandé
+    if (scores.B2 >= 2) return "B2";
+    if (scores.B1 >= 3) return "B1";
+    if (scores.A2 >= 3) return "A2";
+    return "A1";
+  };
+
+  const handleTestComplete = () => {
+    const level = calculateLevel();
+    setRecommendedLevel(level);
+    setSelectedLevel(level);
+    setTestCompleted(true);
+  };
+
+  const handleStartLearning = () => {
+    setCurrentStep("leisure-levels");
   };
 
   const handleBack = () => {
-    // Reset exercise types when going back
     if (adultExerciseType) {
       setAdultExerciseType(null);
       return;
     }
-    if (childExerciseType) {
-      setChildExerciseType(null);
-      return;
-    }
 
-    if (currentStep === "adult-choice" || currentStep === "child-choice") {
-      setCurrentStep("age");
-      setAgeGroup(null);
-      setAdultPath(null);
-      setChildPath(null);
-    } else if (currentStep === "professions" || currentStep === "leisure-levels") {
-      setCurrentStep("adult-choice");
+    if (currentStep === "professions" || currentStep === "level-test") {
+      setCurrentStep("choice");
       setAdultPath(null);
       setSelectedProfession(null);
-    } else if (currentStep === "early-childhood" || currentStep === "childhood") {
-      setCurrentStep("child-choice");
-      setChildPath(null);
+      setTestAnswers({});
+      setTestCompleted(false);
+      setRecommendedLevel(null);
+    } else if (currentStep === "leisure-levels") {
+      setCurrentStep("level-test");
     }
   };
 
@@ -154,11 +192,10 @@ export const LearningDecisionTree = () => {
       "cinq": "5", "six": "6", "sept": "7", "huit": "8", "neuf": "9", "dix": "10"
     };
 
-    return data.slice(0, 10).map((item, index) => {
+    return data.slice(0, 10).map((item) => {
       const allVideos = data.map(d => d.video_url).filter(Boolean);
       const correctAnswer = item.video_url;
       
-      // Get 3 random distractors
       const distractors = allVideos
         .filter(v => v !== correctAnswer)
         .sort(() => Math.random() - 0.5)
@@ -192,13 +229,10 @@ export const LearningDecisionTree = () => {
   const renderBreadcrumb = () => {
     const items = [];
     
-    if (ageGroup === "adulte") items.push("Adulte");
-    if (ageGroup === "enfant") items.push("Enfant");
     if (adultPath === "professionnel") items.push("Professionnel");
     if (adultPath === "loisir") items.push("Loisir");
-    if (childPath === "petite-enfance") items.push("Petite enfance");
-    if (childPath === "enfance") items.push("Enfance");
     if (selectedProfession) items.push(professions.find(p => p.id === selectedProfession)?.name || "");
+    if (recommendedLevel && currentStep === "leisure-levels") items.push(`Niveau ${recommendedLevel}`);
 
     return items.length > 0 ? (
       <div className="mb-6 text-sm text-muted-foreground flex items-center gap-2">
@@ -213,9 +247,11 @@ export const LearningDecisionTree = () => {
     ) : null;
   };
 
+  const allQuestionsAnswered = Object.keys(testAnswers).length === levelTestQuestions.length;
+
   return (
     <div className="max-w-4xl mx-auto">
-      {currentStep !== "age" && (
+      {currentStep !== "choice" && (
         <Button variant="ghost" onClick={handleBack} className="mb-4">
           <ChevronLeft className="w-4 h-4 mr-2" />
           Retour
@@ -224,50 +260,12 @@ export const LearningDecisionTree = () => {
 
       {renderBreadcrumb()}
 
-      {/* Étape 1: Choix de l'âge */}
-      {currentStep === "age" && (
+      {/* Étape 1: Choix du parcours */}
+      {currentStep === "choice" && (
         <div className="space-y-6">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2">Commençons votre parcours d'apprentissage</h2>
-            <p className="text-muted-foreground">Sélectionnez votre profil pour une expérience adaptée</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card 
-              className="p-8 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
-              onClick={() => handleAgeSelect("adulte")}
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full gradient-candy flex items-center justify-center mb-4">
-                  <Users className="w-10 h-10 text-primary-foreground" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Adulte</h3>
-                <p className="text-muted-foreground">Apprentissage professionnel ou par niveaux</p>
-              </div>
-            </Card>
-
-            <Card 
-              className="p-8 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
-              onClick={() => handleAgeSelect("enfant")}
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full gradient-accent flex items-center justify-center mb-4">
-                  <Baby className="w-10 h-10 text-accent-foreground" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Enfant</h3>
-                <p className="text-muted-foreground">Apprentissage ludique et adapté</p>
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
-
-      {/* Étape 2: Choix adulte - Professionnel ou Loisir */}
-      {currentStep === "adult-choice" && (
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Quel est votre objectif ?</h2>
-            <p className="text-muted-foreground">Choisissez le type d'apprentissage qui vous correspond</p>
+            <p className="text-muted-foreground">Sélectionnez votre objectif pour une expérience adaptée</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -300,7 +298,106 @@ export const LearningDecisionTree = () => {
         </div>
       )}
 
-      {/* Étape 3a: Choix de la profession */}
+      {/* Étape 2a: Test de niveau */}
+      {currentStep === "level-test" && (
+        <div className="space-y-6">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">
+              {testCompleted ? "Résultat de votre test" : "Test de niveau LSFB"}
+            </h2>
+            <p className="text-muted-foreground">
+              {testCompleted 
+                ? "Voici le niveau recommandé pour votre apprentissage" 
+                : "Répondez à ces questions pour évaluer votre niveau actuel"}
+            </p>
+          </div>
+
+          {!testCompleted ? (
+            <div className="space-y-6">
+              {levelTestQuestions.map((q, qIndex) => (
+                <Card key={q.id} className="p-6">
+                  <h3 className="font-semibold mb-4">
+                    {qIndex + 1}. {q.question}
+                  </h3>
+                  <div className="space-y-3">
+                    {q.options.map((option, optionIndex) => (
+                      <button
+                        key={optionIndex}
+                        onClick={() => handleTestAnswer(q.id, optionIndex)}
+                        className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                          testAnswers[q.id] === optionIndex
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            testAnswers[q.id] === optionIndex
+                              ? "border-primary bg-primary"
+                              : "border-muted-foreground"
+                          }`}>
+                            {testAnswers[q.id] === optionIndex && (
+                              <CheckCircle className="w-3 h-3 text-primary-foreground" />
+                            )}
+                          </div>
+                          <span>{option}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handleTestComplete}
+                  disabled={!allQuestionsAnswered}
+                  className="gradient-candy px-8 py-6 text-lg"
+                >
+                  <TestTube2 className="w-5 h-5 mr-2" />
+                  Voir mon résultat
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <Card className="p-8 text-center bg-gradient-to-br from-primary/10 to-accent/10">
+                <div className="w-24 h-24 rounded-full gradient-candy flex items-center justify-center mx-auto mb-6">
+                  <span className="text-4xl font-bold text-primary-foreground">{recommendedLevel}</span>
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Niveau recommandé : {recommendedLevel}</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  {recommendedLevel === "A1" && "Vous débutez en LSFB. Commencez par les bases : alphabet, chiffres et salutations."}
+                  {recommendedLevel === "A2" && "Vous avez des notions de base. Continuez à développer votre vocabulaire et vos premières phrases."}
+                  {recommendedLevel === "B1" && "Vous avez un niveau intermédiaire. Travaillez sur les conversations et la compréhension."}
+                  {recommendedLevel === "B2" && "Vous avez un bon niveau. Perfectionnez votre expression et abordez des sujets complexes."}
+                </p>
+              </Card>
+
+              <div className="flex justify-center gap-4">
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setTestAnswers({});
+                    setTestCompleted(false);
+                    setRecommendedLevel(null);
+                  }}
+                >
+                  Refaire le test
+                </Button>
+                <Button 
+                  onClick={handleStartLearning}
+                  className="gradient-candy"
+                >
+                  Commencer l'apprentissage
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Étape 2b: Choix de la profession */}
       {currentStep === "professions" && (
         <div className="space-y-6">
           <div className="text-center mb-8">
@@ -340,26 +437,13 @@ export const LearningDecisionTree = () => {
         </div>
       )}
 
-      {/* Étape 3b: Choix des niveaux avec test */}
+      {/* Étape 3: Apprentissage par niveaux */}
       {currentStep === "leisure-levels" && (
         <div className="space-y-6">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Choisissez votre niveau</h2>
-            <p className="text-muted-foreground">Ou passez notre test pour évaluer votre niveau actuel</p>
+            <h2 className="text-3xl font-bold mb-2">Votre parcours d'apprentissage</h2>
+            <p className="text-muted-foreground">Niveau recommandé : {recommendedLevel}</p>
           </div>
-
-          <Card className="p-6 mb-6 bg-primary/10 border-primary">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold mb-1">Pas sûr de votre niveau ?</h3>
-                <p className="text-muted-foreground">Passez notre test d'évaluation pour découvrir votre niveau</p>
-              </div>
-              <Button className="gradient-candy">
-                <TestTube2 className="w-4 h-4 mr-2" />
-                Passer le test
-              </Button>
-            </div>
-          </Card>
 
           <LevelTabs selected={selectedLevel} onSelect={setSelectedLevel} />
 
@@ -422,129 +506,6 @@ export const LearningDecisionTree = () => {
               </p>
             </Card>
           )}
-        </div>
-      )}
-
-      {/* Étape 2b: Choix enfant - Petite enfance ou Enfance */}
-      {currentStep === "child-choice" && (
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Quelle tranche d'âge ?</h2>
-            <p className="text-muted-foreground">Sélectionnez la catégorie adaptée</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card 
-              className="p-8 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
-              onClick={() => handleChildPathSelect("petite-enfance")}
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full gradient-candy flex items-center justify-center mb-4">
-                  <Baby className="w-10 h-10 text-primary-foreground" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Petite enfance</h3>
-                <p className="text-muted-foreground">Jeux et activités pour les tout-petits</p>
-              </div>
-            </Card>
-
-            <Card 
-              className="p-8 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
-              onClick={() => handleChildPathSelect("enfance")}
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-20 h-20 rounded-full gradient-success flex items-center justify-center mb-4">
-                  <GraduationCap className="w-10 h-10 text-success-foreground" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Enfance</h3>
-                <p className="text-muted-foreground">Apprentissage ludique et interactif</p>
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
-
-      {/* Étape 3c: Petite enfance - Jeu désignation buzzer */}
-      {currentStep === "early-childhood" && (
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Jeu désignation buzzer</h2>
-            <p className="text-muted-foreground">Jeux interactifs pour la petite enfance</p>
-          </div>
-
-          <Card className="p-12 text-center bg-muted">
-            <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
-                <Baby className="w-12 h-12 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">À venir très prochainement !</h3>
-              <p className="text-muted-foreground">
-                Des jeux amusants et éducatifs spécialement conçus pour les tout-petits seront bientôt disponibles.
-              </p>
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Étape 3d: Enfance - Onglets Alphabet et Chiffres avec exercices ludiques */}
-      {currentStep === "childhood" && (
-        <div className="space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Apprends en t'amusant ! 🎨
-            </h2>
-            <p className="text-muted-foreground">Découvre l'alphabet et les chiffres en LSFB</p>
-          </div>
-
-          <Tabs value={childTab} onValueChange={(v) => setChildTab(v as "alphabet" | "chiffres")} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="alphabet" className="text-lg">
-                🔤 Alphabet
-              </TabsTrigger>
-              <TabsTrigger value="chiffres" className="text-lg">
-                🔢 Chiffres
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="alphabet" className="mt-0">
-              {childExerciseType ? (
-                <Card className="p-6">
-                  {childExerciseType === "flashcards" && (
-                    <FlashCards items={getFlashCardsData("alphabet")} title="Cartes Magiques - Alphabet 🎴" isChildMode />
-                  )}
-                  {childExerciseType === "quiz" && (
-                    <QuizExercise items={getQuizData("alphabet")} title="Quiz Rigolo - Alphabet 🎯" isChildMode />
-                  )}
-                  {childExerciseType === "matching" && (
-                    <MatchingExercise items={getMatchingData("alphabet")} title="Jeu des Paires - Alphabet 🔗" isChildMode />
-                  )}
-                </Card>
-              ) : (
-                <Card className="p-6">
-                  <ExerciseSelector onSelectExercise={setChildExerciseType} isChildMode />
-                </Card>
-              )}
-            </TabsContent>
-
-            <TabsContent value="chiffres" className="mt-0">
-              {childExerciseType ? (
-                <Card className="p-6">
-                  {childExerciseType === "flashcards" && (
-                    <FlashCards items={getFlashCardsData("numbers")} title="Cartes Magiques - Chiffres 🎴" isChildMode />
-                  )}
-                  {childExerciseType === "quiz" && (
-                    <QuizExercise items={getQuizData("numbers")} title="Quiz Rigolo - Chiffres 🎯" isChildMode />
-                  )}
-                  {childExerciseType === "matching" && (
-                    <MatchingExercise items={getMatchingData("numbers")} title="Jeu des Paires - Chiffres 🔗" isChildMode />
-                  )}
-                </Card>
-              ) : (
-                <Card className="p-6">
-                  <ExerciseSelector onSelectExercise={setChildExerciseType} isChildMode />
-                </Card>
-              )}
-            </TabsContent>
-          </Tabs>
         </div>
       )}
     </div>
