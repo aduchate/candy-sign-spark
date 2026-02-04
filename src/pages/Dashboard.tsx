@@ -30,14 +30,12 @@ import { ToysGrid } from "@/components/ToysGrid";
 import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
 import { EmergencyGrid } from "@/components/EmergencyGrid";
-import { JobListingsSection } from "@/components/JobListingsSection";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
-import { NewsSection } from "@/components/NewsSection";
-import { CategoryArticleSection } from "@/components/CategoryArticleSection";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
+import { UtilitairesSection } from "@/components/UtilitairesSection";
 
 interface LessonProgress {
   id: number;
@@ -63,7 +61,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "emploi" | "actualites" | "atelier" | "evenements" | "formations" | "projets" | "dons" | "rendezvous" | "hopitaux"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux"
   >(sectionParam || "apprentissage");
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
@@ -293,46 +291,11 @@ const Dashboard = () => {
               Liens utiles
             </Button>
             <Button
-              onClick={() => setActiveSection("emploi")}
-              variant={activeSection === "emploi" ? "default" : "ghost"}
+              onClick={() => setActiveSection("utilitaires")}
+              variant={activeSection === "utilitaires" ? "default" : "ghost"}
               className="w-full justify-start text-lg h-14"
             >
-              Aide à l&apos;Emploi
-            </Button>
-            <Button
-              onClick={() => setActiveSection("actualites")}
-              variant={activeSection === "actualites" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Actualités
-            </Button>
-            <Button
-              onClick={() => setActiveSection("atelier")}
-              variant={activeSection === "atelier" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Atelier
-            </Button>
-            <Button
-              onClick={() => setActiveSection("evenements")}
-              variant={activeSection === "evenements" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Événements
-            </Button>
-            <Button
-              onClick={() => setActiveSection("formations")}
-              variant={activeSection === "formations" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Formations accessibles
-            </Button>
-            <Button
-              onClick={() => setActiveSection("projets")}
-              variant={activeSection === "projets" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Projets
+              Utilitaires
             </Button>
             <Button
               onClick={() => setActiveSection("rendezvous")}
@@ -387,12 +350,7 @@ const Dashboard = () => {
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
-              {activeSection === "emploi" && "Aide à l'Emploi"}
-              {activeSection === "actualites" && "Actualités"}
-              {activeSection === "atelier" && "Atelier"}
-              {activeSection === "evenements" && "Événements"}
-              {activeSection === "formations" && "Formations accessibles"}
-              {activeSection === "projets" && "Projets"}
+              {activeSection === "utilitaires" && "Utilitaires"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
             </h2>
@@ -774,41 +732,7 @@ const Dashboard = () => {
 
           {activeSection === "liens" && <UsefulLinks />}
 
-          {activeSection === "emploi" && <JobListingsSection />}
-
-          {activeSection === "actualites" && <NewsSection />}
-
-          {activeSection === "atelier" && (
-            <CategoryArticleSection 
-              category="Atelier" 
-              icon="🎨"
-              description="Ateliers pratiques organisés par le SAREW"
-            />
-          )}
-
-          {activeSection === "evenements" && (
-            <CategoryArticleSection 
-              category="Événements" 
-              icon="📅"
-              description="Événements et rencontres du SAREW"
-            />
-          )}
-
-          {activeSection === "formations" && (
-            <CategoryArticleSection 
-              category="Formations accessibles" 
-              icon="🎓"
-              description="Formations accessibles aux personnes sourdes et malentendantes"
-            />
-          )}
-
-          {activeSection === "projets" && (
-            <CategoryArticleSection 
-              category="Projets" 
-              icon="🚀"
-              description="Projets en cours et à venir"
-            />
-          )}
+          {activeSection === "utilitaires" && <UtilitairesSection />}
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
