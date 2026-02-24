@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, Trophy, Target, BarChart3, LogOut, Loader2, Shield, WifiOff } from "lucide-react";
+
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -267,7 +267,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="text-muted-foreground">Chargement...</span>
       </div>
     );
   }
@@ -279,12 +279,7 @@ const Dashboard = () => {
       {/* Menu latéral */}
       <aside className="w-80 bg-card border-r border-border flex flex-col">
         <div className="p-6 border-b border-border">
-          <div className="flex items-center gap-2 mb-2">
-            {isOfflineMode ? (
-              <WifiOff className="w-6 h-6 text-amber-500" />
-            ) : (
-              <Sparkles className="w-6 h-6 text-primary" />
-            )}
+          <div className="mb-2">
             <h1 className="text-xl font-bold">
               {isOfflineMode ? "Mode hors ligne" : `Bienvenue ${displayName}`}
             </h1>
@@ -326,7 +321,7 @@ const Dashboard = () => {
               className="w-full justify-start text-lg h-14"
               disabled={isOfflineMode}
             >
-              Traduction {isOfflineMode && <WifiOff className="w-4 h-4 ml-2 text-muted-foreground" />}
+              Traduction {isOfflineMode && <span className="text-xs ml-2 text-muted-foreground">(hors ligne)</span>}
             </Button>
             <Button
               onClick={() => setActiveSection("starterpack")}
@@ -374,19 +369,16 @@ const Dashboard = () => {
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
-                  <Shield className="w-5 h-5 mr-2" />
-                  Administration
-                </Button>
+                   Administration
+                 </Button>
               </Link>
             )}
             {isOfflineMode ? (
               <Button onClick={() => navigate("/auth")} variant="ghost" className="w-full justify-start text-lg h-14">
-                <LogOut className="w-5 h-5 mr-2" />
                 Se connecter
               </Button>
             ) : (
               <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-lg h-14">
-                <LogOut className="w-5 h-5 mr-2" />
                 Quitter
               </Button>
             )}
@@ -415,8 +407,7 @@ const Dashboard = () => {
             </h2>
             {!isOfflineMode && (
               <Link to="/stats">
-                <Button variant="outline" size="sm" className="gap-2">
-                  <BarChart3 className="w-4 h-4" />
+                <Button variant="outline" size="sm">
                   {t("common.stats")}
                 </Button>
               </Link>
@@ -470,7 +461,6 @@ const Dashboard = () => {
             <div className="max-w-6xl">
               {isOfflineMode ? (
                 <Card className="p-8 text-center">
-                  <WifiOff className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                   <h3 className="text-xl font-semibold mb-2">Traduction indisponible hors ligne</h3>
                   <p className="text-muted-foreground">
                     La traduction nécessite une connexion internet. Reconnectez-vous pour utiliser cette fonctionnalité.
@@ -488,14 +478,10 @@ const Dashboard = () => {
                 <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
                   <h3 className="text-3xl font-bold mb-6 text-center gradient-text">Vous souhaitez communiquer avec</h3>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Section Adulte */}
-                    <Card className="p-8 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
-                      <div className="text-center space-y-4">
-                        <div className="w-24 h-24 mx-auto rounded-full gradient-candy flex items-center justify-center">
-                          <span className="text-5xl">👨‍💼</span>
-                        </div>
-                        <h4 className="text-2xl font-bold">Adulte</h4>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <Card className="p-8 border-2 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                       <div className="text-center space-y-4">
+                         <h4 className="text-2xl font-bold">Adulte</h4>
                         <p className="text-muted-foreground">
                           Apprenez les signes essentiels pour communiquer avec des adultes sourds ou malentendants
                         </p>
@@ -505,21 +491,17 @@ const Dashboard = () => {
                       </div>
                     </Card>
 
-                    {/* Section Enfant */}
-                    <Card className="p-8 bg-gradient-to-br from-accent/5 to-success/5 backdrop-blur-sm border-2 hover:shadow-candy transition-all duration-300 cursor-pointer">
-                      <div className="text-center space-y-4">
-                        <div className="w-24 h-24 mx-auto rounded-full gradient-accent flex items-center justify-center">
-                          <span className="text-5xl">👶</span>
-                        </div>
-                        <h4 className="text-2xl font-bold">Enfant</h4>
-                        <p className="text-muted-foreground">
-                          Découvrez les signes adaptés pour communiquer avec des enfants sourds ou malentendants
-                        </p>
-                        <Button className="w-full gradient-accent mt-4" onClick={() => setStarterPackView("enfant")}>
-                          Commencer
-                        </Button>
-                      </div>
-                    </Card>
+                     <Card className="p-8 border-2 hover:shadow-lg transition-all duration-300 cursor-pointer">
+                       <div className="text-center space-y-4">
+                         <h4 className="text-2xl font-bold">Enfant</h4>
+                         <p className="text-muted-foreground">
+                           Découvrez les signes adaptés pour communiquer avec des enfants sourds ou malentendants
+                         </p>
+                         <Button className="w-full mt-4" onClick={() => setStarterPackView("enfant")}>
+                           Commencer
+                         </Button>
+                       </div>
+                     </Card>
                   </div>
                 </Card>
               )}
@@ -579,21 +561,21 @@ const Dashboard = () => {
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("work")}>
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🏢</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Vocabulaire professionnel</h4>
                           <p className="text-sm text-muted-foreground mb-4">Métiers, entreprise, réunions</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("dates")}>
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🕐</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Temps et dates</h4>
                           <p className="text-sm text-muted-foreground mb-4">Heures, jours, mois, années</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("emergency")}>
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🏥</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Situations d&apos;urgence</h4>
                           <p className="text-sm text-muted-foreground mb-4">Santé, sécurité, aide</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
@@ -662,42 +644,42 @@ const Dashboard = () => {
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("colors")}>
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🎨</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Couleurs</h4>
                           <p className="text-sm text-muted-foreground mb-4">Rouge, bleu, jaune et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("animals")}>
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🐶</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Animaux</h4>
                           <p className="text-sm text-muted-foreground mb-4">Chat, chien, lapin et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("emotions")}>
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">😊</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Émotions</h4>
                           <p className="text-sm text-muted-foreground mb-4">Content, triste, en colère</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("family")}>
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">👨‍👩‍👧‍👦</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Famille</h4>
                           <p className="text-sm text-muted-foreground mb-4">Papa, maman, frère, sœur</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("food")}>
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🍎</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Nourriture</h4>
                           <p className="text-sm text-muted-foreground mb-4">Fruits, légumes, repas</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("toys")}>
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🎮</div>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
                           <h4 className="text-xl font-bold mb-2">Jeux et jouets</h4>
                           <p className="text-sm text-muted-foreground mb-4">Ballon, poupée, jeux</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>

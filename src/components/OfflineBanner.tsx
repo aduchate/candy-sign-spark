@@ -1,6 +1,6 @@
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { offlineSync } from '@/lib/offlineSync';
-import { WifiOff, Wifi, Loader2 } from 'lucide-react';
+
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -55,7 +55,6 @@ export const OfflineBanner = () => {
       <div className="flex items-center justify-center gap-2">
         {!isOnline && (
           <>
-            <WifiOff className="w-4 h-4" />
             <span>Mode hors ligne — Les données en cache sont utilisées</span>
             {pendingCount > 0 && (
               <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
@@ -66,13 +65,11 @@ export const OfflineBanner = () => {
         )}
         {isOnline && isSyncing && (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" />
             <span>Synchronisation des progrès...</span>
           </>
         )}
         {isOnline && !isSyncing && wasOffline && (
           <>
-            <Wifi className="w-4 h-4" />
             <span>Connexion rétablie</span>
           </>
         )}
