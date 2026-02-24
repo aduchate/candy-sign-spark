@@ -5,20 +5,22 @@ import { ArrowLeft, Heart } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { DonationSection } from "@/components/DonationSection";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const Donations = () => {
   const navigate = useNavigate();
+  const isOnline = useOnlineStatus();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
+      if (!session && isOnline) {
         navigate("/auth");
-      } else {
+      } else if (session) {
         setUser(session.user);
       }
     });
-  }, [navigate]);
+  }, [navigate, isOnline]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">

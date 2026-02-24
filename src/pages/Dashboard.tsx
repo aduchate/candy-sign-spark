@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, Trophy, Target, BarChart3, LogOut, Loader2, Shield } from "lucide-react";
+import { Sparkles, Trophy, Target, BarChart3, LogOut, Loader2, Shield, WifiOff } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -36,6 +36,9 @@ import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { UtilitairesSection } from "@/components/UtilitairesSection";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
+import { offlineSync } from "@/lib/offlineSync";
 
 interface LessonProgress {
   id: number;
@@ -48,9 +51,11 @@ interface LessonProgress {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const isOnline = useOnlineStatus();
   const [searchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [lessons, setLessons] = useState<LessonProgress[]>([]);
   const sectionParam = searchParams.get("section") as
     | "apprentissage"
@@ -76,12 +81,17 @@ const Dashboard = () => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
 
   useEffect(() => {
-    // Check authentication
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
-        navigate("/auth");
+        if (!isOnline) {
+          // Allow offline access without authentication
+          setIsOfflineMode(true);
+          loadCachedData();
+          setLoading(false);
+        } else {
+          navigate("/auth");
+        }
       } else {
-        // Check if onboarding is completed
         const { data: profile } = await supabase
           .from("profiles")
           .select("onboarding_completed")
@@ -100,32 +110,50 @@ const Dashboard = () => {
       setLoading(false);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
-        navigate("/auth");
+        if (!isOnline) {
+          setIsOfflineMode(true);
+        } else {
+          navigate("/auth");
+        }
       } else {
         setUser(session.user);
+        setIsOfflineMode(false);
         fetchUserProgress(session.user.id);
         checkAdminStatus(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isOnline]);
+
+  const loadCachedData = () => {
+    const cachedLessons = offlineCache.get<LessonProgress[]>(CACHE_KEYS.LESSONS);
+    if (cachedLessons) setLessons(cachedLessons);
+
+    const cachedQuizzes = offlineCache.get<any[]>(CACHE_KEYS.QUIZZES);
+    if (cachedQuizzes) setQuizzes(cachedQuizzes);
+
+    const cachedNewLessons = offlineCache.get<any[]>('new_lessons');
+    if (cachedNewLessons) setNewLessons(cachedNewLessons);
+  };
 
   const checkAdminStatus = async (userId: string) => {
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-
     const hasAdminRole = roles?.some((r) => r.role === "admin");
     setIsAdmin(hasAdminRole || false);
   };
 
   const fetchUserProgress = async (userId: string) => {
-    // Fetch old lessons data for backward compatibility
     const { data: progressData } = await supabase.from("user_progress").select("*").eq("user_id", userId);
+
+    // Cache progress for offline use
+    if (progressData) {
+      offlineCache.set(CACHE_KEYS.USER_PROGRESS, progressData);
+    }
 
     const allLessons = [
       { id: 1, title: lessonsData["1"].title, progress: 0, locked: false, completed: false },
@@ -146,8 +174,8 @@ const Dashboard = () => {
     });
 
     setLessons(lessonsWithProgress);
+    offlineCache.set(CACHE_KEYS.LESSONS, lessonsWithProgress);
 
-    // Fetch new lessons structure
     await fetchNewLessons(userId);
   };
 
@@ -158,10 +186,15 @@ const Dashboard = () => {
 
     if (error) {
       console.error("Error fetching lessons:", error);
+      // Fall back to cache
+      const cached = offlineCache.get<any[]>('new_lessons');
+      if (cached) setNewLessons(cached);
       return;
     }
 
-    setNewLessons(data?.lessons || []);
+    const lessons = data?.lessons || [];
+    setNewLessons(lessons);
+    offlineCache.set('new_lessons', lessons);
   };
 
   const fetchQuizzes = async () => {
@@ -173,16 +206,21 @@ const Dashboard = () => {
 
     if (error) {
       console.error("Error fetching quizzes:", error);
+      const cached = offlineCache.get<any[]>(CACHE_KEYS.QUIZZES);
+      if (cached) setQuizzes(cached);
       return;
     }
 
     setQuizzes(data || []);
+    offlineCache.set(CACHE_KEYS.QUIZZES, data || []);
   };
 
   useEffect(() => {
     if (user) {
       fetchNewLessons(user.id);
       fetchQuizzes();
+    } else if (isOfflineMode) {
+      loadCachedData();
     }
   }, [ageGroup, level, user]);
 
@@ -234,15 +272,28 @@ const Dashboard = () => {
     );
   }
 
+  const displayName = user?.email?.split("@")[0] || "Utilisateur";
+
   return (
     <div className="min-h-screen flex bg-background">
       {/* Menu latéral */}
       <aside className="w-80 bg-card border-r border-border flex flex-col">
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold">Bienvenue {user?.email?.split("@")[0]}</h1>
+            {isOfflineMode ? (
+              <WifiOff className="w-6 h-6 text-amber-500" />
+            ) : (
+              <Sparkles className="w-6 h-6 text-primary" />
+            )}
+            <h1 className="text-xl font-bold">
+              {isOfflineMode ? "Mode hors ligne" : `Bienvenue ${displayName}`}
+            </h1>
           </div>
+          {isOfflineMode && (
+            <p className="text-xs text-muted-foreground">
+              Modules d'apprentissage disponibles
+            </p>
+          )}
         </div>
 
         <nav className="flex-1 p-4">
@@ -273,8 +324,9 @@ const Dashboard = () => {
               onClick={() => setActiveSection("traduction")}
               variant={activeSection === "traduction" ? "default" : "ghost"}
               className="w-full justify-start text-lg h-14"
+              disabled={isOfflineMode}
             >
-              Traduction
+              Traduction {isOfflineMode && <WifiOff className="w-4 h-4 ml-2 text-muted-foreground" />}
             </Button>
             <Button
               onClick={() => setActiveSection("starterpack")}
@@ -327,10 +379,17 @@ const Dashboard = () => {
                 </Button>
               </Link>
             )}
-            <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-lg h-14">
-              <LogOut className="w-5 h-5 mr-2" />
-              Quitter
-            </Button>
+            {isOfflineMode ? (
+              <Button onClick={() => navigate("/auth")} variant="ghost" className="w-full justify-start text-lg h-14">
+                <LogOut className="w-5 h-5 mr-2" />
+                Se connecter
+              </Button>
+            ) : (
+              <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-lg h-14">
+                <LogOut className="w-5 h-5 mr-2" />
+                Quitter
+              </Button>
+            )}
           </div>
         </nav>
 
@@ -354,12 +413,14 @@ const Dashboard = () => {
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
             </h2>
-            <Link to="/stats">
-              <Button variant="outline" size="sm" className="gap-2">
-                <BarChart3 className="w-4 h-4" />
-                {t("common.stats")}
-              </Button>
-            </Link>
+            {!isOfflineMode && (
+              <Link to="/stats">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  {t("common.stats")}
+                </Button>
+              </Link>
+            )}
           </div>
         </header>
 
@@ -407,7 +468,17 @@ const Dashboard = () => {
 
           {activeSection === "traduction" && (
             <div className="max-w-6xl">
-              <SentenceTranslator />
+              {isOfflineMode ? (
+                <Card className="p-8 text-center">
+                  <WifiOff className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Traduction indisponible hors ligne</h3>
+                  <p className="text-muted-foreground">
+                    La traduction nécessite une connexion internet. Reconnectez-vous pour utiliser cette fonctionnalité.
+                  </p>
+                </Card>
+              ) : (
+                <SentenceTranslator />
+              )}
             </div>
           )}
 
@@ -486,83 +557,43 @@ const Dashboard = () => {
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <Card
-                          className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("alphabet")}
-                        >
-                          <img
-                            src={lsfbAlphabet}
-                            alt="Alphabet LSFB"
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                          />
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("alphabet")}>
+                          <img src={lsfbAlphabet} alt="Alphabet LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
                           <h4 className="text-xl font-bold mb-2">Alphabet</h4>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Maîtrisez l'alphabet pour épeler noms et mots techniques
-                          </p>
+                          <p className="text-sm text-muted-foreground mb-4">Maîtrisez l'alphabet pour épeler noms et mots techniques</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("greetings")}
-                        >
-                          <img
-                            src={lsfbGreetings}
-                            alt="Salutations LSFB"
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                          />
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("greetings")}>
+                          <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
                           <h4 className="text-xl font-bold mb-2">Salutations professionnelles</h4>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Les formules de politesse pour le travail
-                          </p>
+                          <p className="text-sm text-muted-foreground mb-4">Les formules de politesse pour le travail</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("numbers")}
-                        >
-                          <img
-                            src={lsfbNumbers}
-                            alt="Chiffres LSFB"
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                          />
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("numbers")}>
+                          <img src={lsfbNumbers} alt="Chiffres LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
                           <h4 className="text-xl font-bold mb-2">Chiffres et nombres</h4>
                           <p className="text-sm text-muted-foreground mb-4">Essentiels pour dates, prix et quantités</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("work")}
-                        >
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            🏢
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("work")}>
+                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🏢</div>
                           <h4 className="text-xl font-bold mb-2">Vocabulaire professionnel</h4>
                           <p className="text-sm text-muted-foreground mb-4">Métiers, entreprise, réunions</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("dates")}
-                        >
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            🕐
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("dates")}>
+                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🕐</div>
                           <h4 className="text-xl font-bold mb-2">Temps et dates</h4>
                           <p className="text-sm text-muted-foreground mb-4">Heures, jours, mois, années</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("emergency")}
-                        >
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            🏥
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("emergency")}>
+                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🏥</div>
                           <h4 className="text-xl font-bold mb-2">Situations d&apos;urgence</h4>
                           <p className="text-sm text-muted-foreground mb-4">Santé, sécurité, aide</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
@@ -609,115 +640,64 @@ const Dashboard = () => {
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("alphabet")}
-                        >
-                          <img
-                            src={lsfbAlphabet}
-                            alt="Alphabet LSFB"
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                          />
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("alphabet")}>
+                          <img src={lsfbAlphabet} alt="Alphabet LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
                           <h4 className="text-xl font-bold mb-2">Alphabet ludique</h4>
                           <p className="text-sm text-muted-foreground mb-4">Apprendre l'alphabet en s'amusant</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("numbers")}
-                        >
-                          <img
-                            src={lsfbNumbers}
-                            alt="Chiffres LSFB"
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                          />
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("numbers")}>
+                          <img src={lsfbNumbers} alt="Chiffres LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
                           <h4 className="text-xl font-bold mb-2">Compter avec les mains</h4>
                           <p className="text-sm text-muted-foreground mb-4">Les chiffres de 1 à 10 et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("greetings")}
-                        >
-                          <img
-                            src={lsfbGreetings}
-                            alt="Salutations LSFB"
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                          />
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("greetings")}>
+                          <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
                           <h4 className="text-xl font-bold mb-2">Bonjour et au revoir</h4>
                           <p className="text-sm text-muted-foreground mb-4">Les premières salutations</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("colors")}
-                        >
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            🎨
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("colors")}>
+                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">🎨</div>
                           <h4 className="text-xl font-bold mb-2">Couleurs</h4>
                           <p className="text-sm text-muted-foreground mb-4">Rouge, bleu, jaune et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("animals")}
-                        >
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            🐶
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("animals")}>
+                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🐶</div>
                           <h4 className="text-xl font-bold mb-2">Animaux</h4>
                           <p className="text-sm text-muted-foreground mb-4">Chat, chien, lapin et plus</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("emotions")}
-                        >
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            😊
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("emotions")}>
+                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">😊</div>
                           <h4 className="text-xl font-bold mb-2">Émotions</h4>
                           <p className="text-sm text-muted-foreground mb-4">Content, triste, en colère</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("family")}
-                        >
-                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            👨‍👩‍👧‍👦
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("family")}>
+                          <div className="w-full h-48 bg-gradient-candy rounded-lg mb-4 flex items-center justify-center text-6xl">👨‍👩‍👧‍👦</div>
                           <h4 className="text-xl font-bold mb-2">Famille</h4>
                           <p className="text-sm text-muted-foreground mb-4">Papa, maman, frère, sœur</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("food")}
-                        >
-                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            🍎
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("food")}>
+                          <div className="w-full h-48 bg-gradient-accent rounded-lg mb-4 flex items-center justify-center text-6xl">🍎</div>
                           <h4 className="text-xl font-bold mb-2">Nourriture</h4>
                           <p className="text-sm text-muted-foreground mb-4">Fruits, légumes, repas</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card
-                          className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer"
-                          onClick={() => setActiveStarterSection("toys")}
-                        >
-                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">
-                            🎮
-                          </div>
+                        <Card className="p-6 bg-gradient-to-br from-accent/10 to-success/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("toys")}>
+                          <div className="w-full h-48 bg-gradient-success rounded-lg mb-4 flex items-center justify-center text-6xl">🎮</div>
                           <h4 className="text-xl font-bold mb-2">Jeux et jouets</h4>
                           <p className="text-sm text-muted-foreground mb-4">Ballon, poupée, jeux</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>

@@ -9,6 +9,8 @@ import { FlashCards } from "./exercises/FlashCards";
 import { QuizExercise } from "./exercises/QuizExercise";
 import { MatchingExercise } from "./exercises/MatchingExercise";
 import { supabase } from "@/integrations/supabase/client";
+import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 type Step = "professions" | "level-test" | "categories";
 type CategoryType = "glossaire" | "vocabulaire" | "culture";
@@ -66,6 +68,7 @@ export const LearningDecisionTree = () => {
   const [numbersData, setNumbersData] = useState<any[]>([]);
   const [glossaryWords, setGlossaryWords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const isOnline = useOnlineStatus();
   
   // État du test de niveau
   const [testAnswers, setTestAnswers] = useState<Record<number, number>>({});
@@ -78,6 +81,16 @@ export const LearningDecisionTree = () => {
 
   const loadExerciseData = async () => {
     try {
+      if (!isOnline) {
+        // Load from cache when offline
+        const cachedAlphabet = offlineCache.get<any[]>(CACHE_KEYS.ALPHABET_SIGNS);
+        const cachedNumbers = offlineCache.get<any[]>('numbers_signs');
+        if (cachedAlphabet) setAlphabetData(cachedAlphabet);
+        if (cachedNumbers) setNumbersData(cachedNumbers);
+        setLoading(false);
+        return;
+      }
+
       const { data: alphabetSigns } = await supabase
         .from('alphabet_signs')
         .select('letter, video_url')
@@ -85,6 +98,7 @@ export const LearningDecisionTree = () => {
 
       if (alphabetSigns) {
         setAlphabetData(alphabetSigns);
+        offlineCache.set(CACHE_KEYS.ALPHABET_SIGNS, alphabetSigns);
       }
 
       const numbersWords = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
@@ -95,9 +109,15 @@ export const LearningDecisionTree = () => {
 
       if (numberSigns) {
         setNumbersData(numberSigns);
+        offlineCache.set('numbers_signs', numberSigns);
       }
     } catch (error) {
       console.error('Error loading exercise data:', error);
+      // Fallback to cache
+      const cachedAlphabet = offlineCache.get<any[]>(CACHE_KEYS.ALPHABET_SIGNS);
+      const cachedNumbers = offlineCache.get<any[]>('numbers_signs');
+      if (cachedAlphabet) setAlphabetData(cachedAlphabet);
+      if (cachedNumbers) setNumbersData(cachedNumbers);
     } finally {
       setLoading(false);
     }

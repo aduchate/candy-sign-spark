@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Languages, MessageSquare, Users, Video, Link as LinkIcon, GraduationCap, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 const Index = () => {
   const navigate = useNavigate();
+  const isOnline = useOnlineStatus();
 
   useEffect(() => {
     // Check if user is logged in and if onboarding is completed

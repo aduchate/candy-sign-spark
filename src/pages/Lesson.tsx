@@ -9,11 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { lessons } from "@/data/lessons";
 import { SentenceOrderingExercise } from "@/components/SentenceOrderingExercise";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { offlineSync } from "@/lib/offlineSync";
+import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 
 const Lesson = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const isOnline = useOnlineStatus();
   const [loading, setLoading] = useState(true);
   const [currentExercise, setCurrentExercise] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -21,14 +25,19 @@ const Lesson = () => {
   const [score, setScore] = useState(0);
   const [lessonData, setLessonData] = useState<any>(null);
   const [isNewFormat, setIsNewFormat] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
 
   useEffect(() => {
     const loadLesson = async () => {
       // Check authentication
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        navigate("/auth");
-        return;
+        if (!isOnline) {
+          setIsOfflineMode(true);
+        } else {
+          navigate("/auth");
+          return;
+        }
       }
 
       // Try to load from new format first
@@ -128,9 +137,17 @@ const Lesson = () => {
 
         // Save progress
         const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const progressPercentage = Math.round((finalScore / exercises.length) * 100);
+        const progressPercentage = Math.round((finalScore / exercises.length) * 100);
+        const progressData = {
+          lesson_id: id || "",
+          score: finalScore,
+          total_questions: exercises.length,
+          completed: progressPercentage === 100,
+          completed_at: progressPercentage === 100 ? new Date().toISOString() : null,
+          best_time: timeSpent
+        };
 
+        if (user && isOnline) {
           const { data: existingProgress } = await supabase
             .from('user_progress')
             .select('*')
@@ -143,27 +160,23 @@ const Lesson = () => {
               await supabase
                 .from('user_progress')
                 .update({
-                  score: finalScore,
-                  total_questions: exercises.length,
-                  completed: progressPercentage === 100,
+                  ...progressData,
                   completed_at: progressPercentage === 100 ? new Date().toISOString() : existingProgress.completed_at,
-                  best_time: timeSpent
                 })
                 .eq('id', existingProgress.id);
             }
           } else {
             await supabase
               .from('user_progress')
-              .insert({
-                user_id: user.id,
-                lesson_id: id || "",
-                score: finalScore,
-                total_questions: exercises.length,
-                completed: progressPercentage === 100,
-                completed_at: progressPercentage === 100 ? new Date().toISOString() : null,
-                best_time: timeSpent
-              });
+              .insert({ user_id: user.id, ...progressData });
           }
+        } else {
+          // Queue for sync when back online
+          offlineSync.enqueue({
+            table: 'user_progress',
+            operation: 'upsert',
+            data: progressData,
+          });
         }
 
         setTimeout(() => navigate("/"), 2000);
@@ -411,10 +424,16 @@ const Lesson = () => {
       
       // Save progress to database
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const progressPercentage = Math.round((finalScore / lessonData.questions.length) * 100);
-        
-        // Check if progress exists for this lesson
+      const progressPercentage = Math.round((finalScore / lessonData.questions.length) * 100);
+      const progressData = {
+        lesson_id: id || "1",
+        score: finalScore,
+        total_questions: lessonData.questions.length,
+        completed: progressPercentage === 100,
+        completed_at: progressPercentage === 100 ? new Date().toISOString() : null,
+      };
+
+      if (user && isOnline) {
         const { data: existingProgress } = await supabase
           .from('user_progress')
           .select('*')
@@ -423,31 +442,26 @@ const Lesson = () => {
           .maybeSingle();
 
         if (existingProgress) {
-          // Update existing progress only if new score is better
           if (finalScore > existingProgress.score) {
             await supabase
               .from('user_progress')
               .update({
-                score: finalScore,
-                total_questions: lessonData.questions.length,
-                completed: progressPercentage === 100,
+                ...progressData,
                 completed_at: progressPercentage === 100 ? new Date().toISOString() : existingProgress.completed_at
               })
               .eq('id', existingProgress.id);
           }
         } else {
-          // Insert new progress
           await supabase
             .from('user_progress')
-            .insert({
-              user_id: user.id,
-              lesson_id: id || "1",
-              score: finalScore,
-              total_questions: lessonData.questions.length,
-              completed: progressPercentage === 100,
-              completed_at: progressPercentage === 100 ? new Date().toISOString() : null
-            });
+            .insert({ user_id: user.id, ...progressData });
         }
+      } else {
+        offlineSync.enqueue({
+          table: 'user_progress',
+          operation: 'upsert',
+          data: progressData,
+        });
       }
       
       setTimeout(() => navigate("/"), 2000);

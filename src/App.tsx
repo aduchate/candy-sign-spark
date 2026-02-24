@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Donations from "./pages/Donations";
 import NotFound from "./pages/NotFound";
 import { StarterPackVideoLoader } from "./components/StarterPackVideoLoader";
+import { OfflineBanner } from "./components/OfflineBanner";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <OfflineBanner />
       <StarterPackVideoLoader />
       <BrowserRouter>
         <Routes>
