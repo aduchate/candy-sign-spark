@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Languages, MessageSquare, Users, Video, Link as LinkIcon, GraduationCap, List } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
@@ -38,49 +38,42 @@ const Index = () => {
       id: "apprentissage",
       title: "Apprentissage",
       description: "Apprenez la LSFB en fonction de votre niveau",
-      icon: GraduationCap,
       color: "from-blue-500 to-cyan-500",
     },
     {
       id: "dictionnaire",
       title: "Dictionnaire",
       description: "Recherchez des mots et découvrez leur traduction en LSFB",
-      icon: BookOpen,
       color: "from-purple-500 to-pink-500",
     },
     {
       id: "quizz",
       title: "Quizz",
       description: "Testez vos connaissances avec des exercices interactifs",
-      icon: List,
       color: "from-green-500 to-emerald-500",
     },
     {
       id: "traduction",
       title: "Traduction",
       description: "Traduisez des phrases complètes en langue des signes",
-      icon: Languages,
       color: "from-orange-500 to-red-500",
     },
     {
       id: "stereotype",
       title: "Stéréotype",
       description: "Découvrez et déconstruisez les stéréotypes sur la surdité",
-      icon: Users,
       color: "from-indigo-500 to-purple-500",
     },
     {
       id: "starterpack",
       title: "Starter Pack",
       description: "Commencez avec les bases essentielles de la LSFB",
-      icon: Video,
       color: "from-yellow-500 to-orange-500",
     },
     {
       id: "liens",
       title: "Liens Utiles",
       description: "Ressources et liens pour approfondir votre apprentissage",
-      icon: LinkIcon,
       color: "from-teal-500 to-cyan-500",
     },
   ];
@@ -99,7 +92,6 @@ const Index = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {sections.map((section) => {
-            const Icon = section.icon;
             return (
               <Card
                 key={section.id}
@@ -107,11 +99,6 @@ const Index = () => {
                 onClick={() => navigate(`/dashboard?section=${section.id}`)}
               >
                 <CardHeader>
-                  <div
-                    className={`w-16 h-16 rounded-lg bg-gradient-to-br ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
-                  >
-                    <Icon className="w-8 h-8 text-white" />
-                  </div>
                   <CardTitle className="text-2xl">{section.title}</CardTitle>
                   <CardDescription className="text-base">{section.description}</CardDescription>
                 </CardHeader>
@@ -130,7 +117,6 @@ const Index = () => {
 
         <div className="text-center mt-12">
           <Button size="lg" onClick={() => navigate("/dashboard")} className="text-lg px-8">
-            <MessageSquare className="mr-2 h-5 w-5" />
             Voir toutes les sections
           </Button>
         </div>
