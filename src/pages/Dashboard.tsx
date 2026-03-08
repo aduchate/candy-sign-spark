@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CursorTrail } from "@/components/CursorTrail";
 
 
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
