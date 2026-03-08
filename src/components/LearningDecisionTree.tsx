@@ -186,10 +186,11 @@ export const LearningDecisionTree = () => {
       }
     });
 
-    // Déterminer le niveau recommandé
-    if (scores.B2 >= 2) return "B2";
-    if (scores.B1 >= 3) return "B1";
-    if (scores.A2 >= 3) return "A2";
+    // Higher score = more likely that level. "Oui" answers boost B1/B2.
+    const maxScore = Math.max(scores.A1, scores.A2, scores.B1, scores.B2);
+    if (scores.B2 === maxScore) return "B2";
+    if (scores.B1 === maxScore) return "B1";
+    if (scores.A2 === maxScore) return "A2";
     return "A1";
   };
 
@@ -198,6 +199,41 @@ export const LearningDecisionTree = () => {
     setRecommendedLevel(level);
     setSelectedLevel(level);
     setTestCompleted(true);
+    // Load profession-specific vocabulary from Supabase
+    if (selectedProfession) {
+      loadProfessionVocabulary(selectedProfession, level);
+    }
+  };
+
+  const [professionWords, setProfessionWords] = useState<any[]>([]);
+
+  const loadProfessionVocabulary = async (profession: string, level: string) => {
+    const vocab = professionVocabulary[profession]?.[level] || [];
+    if (vocab.length === 0) return;
+
+    const cacheKey = `profession_vocab_${profession}_${level}`;
+    
+    if (!isOnline) {
+      const cached = offlineCache.get<any[]>(cacheKey);
+      if (cached) setProfessionWords(cached);
+      return;
+    }
+
+    try {
+      const { data } = await supabase
+        .from('word_signs')
+        .select('word, video_url, phrase, signed_grammar')
+        .in('word', vocab.map(w => w.toLowerCase()));
+      
+      if (data && data.length > 0) {
+        setProfessionWords(data);
+        offlineCache.set(cacheKey, data);
+      }
+    } catch (err) {
+      console.error('Error loading profession vocabulary:', err);
+      const cached = offlineCache.get<any[]>(cacheKey);
+      if (cached) setProfessionWords(cached);
+    }
   };
 
   const handleStartLearning = () => {
