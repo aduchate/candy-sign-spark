@@ -90,11 +90,10 @@ export const StarterPackVideoLoader = () => {
     setIsLoading(true);
     
     try {
-      // Check which words are already in the database
+      // Check which words are already in the database (query in batches to avoid 1000 row limit)
       const { data: existingWords } = await supabase
         .from('word_signs')
-        .select('word')
-        .in('word', ALL_WORDS);
+        .select('word');
 
       const existingWordsList = existingWords?.map(w => w.word.toLowerCase()) || [];
       const missingWords = ALL_WORDS.filter(
