@@ -303,7 +303,7 @@ const Dashboard = () => {
                 variant={["apprentissage", "glossaire", "starterpack"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
-                Notion {notionOpen ? "▾" : "▸"}
+                Pro de santé {notionOpen ? "▾" : "▸"}
               </Button>
               {notionOpen && (
                 <div className="ml-4 mt-1 space-y-1">
@@ -337,7 +337,7 @@ const Dashboard = () => {
                 variant={["rendezvous", "hopitaux", "dons", "liens"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
-                Médical {medicalOpen ? "▾" : "▸"}
+                Patient signant {medicalOpen ? "▾" : "▸"}
               </Button>
               {medicalOpen && (
                 <div className="ml-4 mt-1 space-y-1">
