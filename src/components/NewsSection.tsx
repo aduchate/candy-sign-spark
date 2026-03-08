@@ -33,6 +33,7 @@ export const NewsSection = () => {
     let query = supabase
       .from("news_articles")
       .select("*")
+      .eq("category", "Actualités")
       .order("published_at", { ascending: false, nullsFirst: false });
 
     if (searchTerm) {
