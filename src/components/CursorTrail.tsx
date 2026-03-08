@@ -88,7 +88,7 @@ export const CursorTrail = () => {
           ctx.globalAlpha = alpha * 0.8;
           ctx.fillStyle = color;
           ctx.shadowColor = color;
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 6;
           
           // Star sparkle shape
           ctx.translate(p.x, p.y);
