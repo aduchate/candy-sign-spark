@@ -177,23 +177,23 @@
   }
 }
 
-/* Section color themes */
-.theme-apprentissage { --section-color: 220 80% 55%; --cursor-color: hsl(220 80% 55%); }
-.theme-glossaire { --section-color: 280 70% 55%; --cursor-color: hsl(280 70% 55%); }
-.theme-starterpack { --section-color: 160 70% 45%; --cursor-color: hsl(160 70% 45%); }
-.theme-rendezvous { --section-color: 35 90% 55%; --cursor-color: hsl(35 90% 55%); }
-.theme-hopitaux { --section-color: 0 75% 55%; --cursor-color: hsl(0 75% 55%); }
-.theme-dons { --section-color: 340 80% 55%; --cursor-color: hsl(340 80% 55%); }
-.theme-liens { --section-color: 200 80% 50%; --cursor-color: hsl(200 80% 50%); }
-.theme-actualites { --section-color: 250 70% 60%; --cursor-color: hsl(250 70% 60%); }
-.theme-emploi { --section-color: 45 90% 50%; --cursor-color: hsl(45 90% 50%); }
-.theme-administration { --section-color: 180 60% 45%; --cursor-color: hsl(180 60% 45%); }
-.theme-projets { --section-color: 15 85% 55%; --cursor-color: hsl(15 85% 55%); }
-.theme-formations { --section-color: 270 65% 55%; --cursor-color: hsl(270 65% 55%); }
-.theme-evenements { --section-color: 320 75% 55%; --cursor-color: hsl(320 75% 55%); }
-.theme-profil { --section-color: 190 80% 45%; --cursor-color: hsl(190 80% 45%); }
-.theme-quizz { --section-color: 120 60% 45%; --cursor-color: hsl(120 60% 45%); }
-.theme-traduction { --section-color: 50 80% 50%; --cursor-color: hsl(50 80% 50%); }
+/* Section color themes — dark enough to be visible on white */
+.theme-apprentissage { --section-color: 220 80% 35%; --cursor-color: hsl(220 80% 30%); }
+.theme-glossaire { --section-color: 280 70% 35%; --cursor-color: hsl(280 70% 30%); }
+.theme-starterpack { --section-color: 160 70% 30%; --cursor-color: hsl(160 70% 25%); }
+.theme-rendezvous { --section-color: 35 90% 35%; --cursor-color: hsl(35 90% 30%); }
+.theme-hopitaux { --section-color: 0 75% 38%; --cursor-color: hsl(0 75% 33%); }
+.theme-dons { --section-color: 340 80% 35%; --cursor-color: hsl(340 80% 30%); }
+.theme-liens { --section-color: 200 80% 32%; --cursor-color: hsl(200 80% 28%); }
+.theme-actualites { --section-color: 250 70% 38%; --cursor-color: hsl(250 70% 33%); }
+.theme-emploi { --section-color: 45 90% 32%; --cursor-color: hsl(45 90% 28%); }
+.theme-administration { --section-color: 180 60% 30%; --cursor-color: hsl(180 60% 25%); }
+.theme-projets { --section-color: 15 85% 38%; --cursor-color: hsl(15 85% 33%); }
+.theme-formations { --section-color: 270 65% 35%; --cursor-color: hsl(270 65% 30%); }
+.theme-evenements { --section-color: 320 75% 35%; --cursor-color: hsl(320 75% 30%); }
+.theme-profil { --section-color: 190 80% 30%; --cursor-color: hsl(190 80% 25%); }
+.theme-quizz { --section-color: 120 60% 30%; --cursor-color: hsl(120 60% 25%); }
+.theme-traduction { --section-color: 50 80% 32%; --cursor-color: hsl(50 80% 28%); }
 
 /* Section accent bar on header */
 .section-header-bar {
