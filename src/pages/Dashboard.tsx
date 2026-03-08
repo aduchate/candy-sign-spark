@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,12 +9,17 @@ import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
 import { lessons as lessonsData } from "@/data/lessons";
+import ReactMarkdown from "react-markdown";
 import lsfbAlphabet from "@/assets/lsfb-alphabet.jpg";
 import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
 import lsfbGreetings from "@/assets/lsfb-greetings.jpg";
 import { AlphabetGrid } from "@/components/AlphabetGrid";
 import { NumbersGrid } from "@/components/NumbersGrid";
 import { MedicalGlossary } from "@/components/MedicalGlossary";
+import { SentenceTranslator } from "@/components/SentenceTranslator";
+import { ProfileSelector } from "@/components/ProfileSelector";
+import { LevelTabs } from "@/components/LevelTabs";
+import { LessonCard } from "@/components/LessonCard";
 import { GreetingsGrid } from "@/components/GreetingsGrid";
 import { AnimalsGrid } from "@/components/AnimalsGrid";
 import { ColorsGrid } from "@/components/ColorsGrid";
@@ -26,10 +32,14 @@ import { DatesGrid } from "@/components/DatesGrid";
 import { EmergencyGrid } from "@/components/EmergencyGrid";
 import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
+import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
+import { UtilitairesSection } from "@/components/UtilitairesSection";
 import { DonationSection } from "@/components/DonationSection";
 import { NewsSection } from "@/components/NewsSection";
+import { JobListingsSection } from "@/components/JobListingsSection";
+import { CategoryArticleSection } from "@/components/CategoryArticleSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
@@ -54,21 +64,28 @@ const Dashboard = () => {
   const sectionParam = searchParams.get("section") as
     | "apprentissage"
     | "glossaire"
+    | "quizz"
+    | "traduction"
     | "starterpack"
     | "liens"
-    | "actualites"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "glossaire" | "starterpack" | "liens" | "dons" | "rendezvous" | "hopitaux" | "actualites"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements"
   >(sectionParam || "apprentissage");
   const [notionOpen, setNotionOpen] = useState(true);
   const [medicalOpen, setMedicalOpen] = useState(false);
+  const [utilitairesOpen, setUtilitairesOpen] = useState(false);
+  const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
+  const [textToTranslate, setTextToTranslate] = useState("");
+  const [translation, setTranslation] = useState("");
+  const [isTranslating, setIsTranslating] = useState(false);
   const [ageGroup, setAgeGroup] = useState<"enfant" | "adulte">("adulte");
   const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [newLessons, setNewLessons] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -356,13 +373,25 @@ const Dashboard = () => {
                   >
                     Liens utiles
                   </Button>
-                  <Button
-                    onClick={() => setActiveSection("actualites")}
-                    variant={activeSection === "actualites" ? "secondary" : "ghost"}
-                    className="w-full justify-start text-base h-12"
-                  >
-                    Actualités
-                  </Button>
+                  <div>
+                    <Button
+                      onClick={() => setUtilitairesOpen(!utilitairesOpen)}
+                      variant={["actualites", "emploi", "administration", "projets", "formations", "evenements"].includes(activeSection) ? "secondary" : "ghost"}
+                      className="w-full justify-start text-base h-12"
+                    >
+                      Utilitaires {utilitairesOpen ? "▾" : "▸"}
+                    </Button>
+                    {utilitairesOpen && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        <Button onClick={() => setActiveSection("actualites")} variant={activeSection === "actualites" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Actualités</Button>
+                        <Button onClick={() => setActiveSection("emploi")} variant={activeSection === "emploi" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Aide à l'Emploi</Button>
+                        <Button onClick={() => setActiveSection("administration")} variant={activeSection === "administration" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Administration</Button>
+                        <Button onClick={() => setActiveSection("projets")} variant={activeSection === "projets" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Projets</Button>
+                        <Button onClick={() => setActiveSection("formations")} variant={activeSection === "formations" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Formations</Button>
+                        <Button onClick={() => setActiveSection("evenements")} variant={activeSection === "evenements" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Événements</Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
