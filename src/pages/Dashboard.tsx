@@ -36,6 +36,7 @@ import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { UtilitairesSection } from "@/components/UtilitairesSection";
+import { DonationSection } from "@/components/DonationSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
@@ -69,6 +70,7 @@ const Dashboard = () => {
     "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux"
   >(sectionParam || "apprentissage");
   const [notionOpen, setNotionOpen] = useState(true);
+  const [medicalOpen, setMedicalOpen] = useState(false);
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
@@ -343,28 +345,40 @@ const Dashboard = () => {
             >
               Utilitaires
             </Button>
-            <Button
-              onClick={() => setActiveSection("rendezvous")}
-              variant={activeSection === "rendezvous" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Prise de rendez-vous
-            </Button>
-            <Button
-              onClick={() => setActiveSection("hopitaux")}
-              variant={activeSection === "hopitaux" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Plans hôpitaux
-            </Button>
-            <Link to="/donations" className="w-full">
+            <div>
               <Button
-                variant="ghost"
+                onClick={() => setMedicalOpen(!medicalOpen)}
+                variant={["rendezvous", "hopitaux", "dons"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
-                Dons pour votre cause
+                Médical {medicalOpen ? "▾" : "▸"}
               </Button>
-            </Link>
+              {medicalOpen && (
+                <div className="ml-4 mt-1 space-y-1">
+                  <Button
+                    onClick={() => setActiveSection("rendezvous")}
+                    variant={activeSection === "rendezvous" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Prise de rendez-vous
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("hopitaux")}
+                    variant={activeSection === "hopitaux" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Plans hôpitaux
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("dons")}
+                    variant={activeSection === "dons" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Dons pour votre cause
+                  </Button>
+                </div>
+              )}
+            </div>
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
@@ -403,6 +417,7 @@ const Dashboard = () => {
               {activeSection === "utilitaires" && "Utilitaires"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
+              {activeSection === "dons" && "Dons pour votre cause"}
             </h2>
             {!isOfflineMode && (
               <Link to="/stats">
@@ -698,6 +713,27 @@ const Dashboard = () => {
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
           {activeSection === "hopitaux" && <HospitalPlansSection />}
+
+          {activeSection === "dons" && (
+            <div className="max-w-4xl">
+              <Card className="p-8 mb-8">
+                <div className="text-center max-w-3xl mx-auto">
+                  <h2 className="text-3xl font-bold mb-4">
+                    Soutenez les ASBL qui œuvrent pour la communauté sourde
+                  </h2>
+                  <p className="text-lg text-muted-foreground">
+                    Votre générosité permet aux associations de continuer leur mission d'inclusion
+                    et d'accompagnement des personnes sourdes et malentendantes.
+                  </p>
+                </div>
+              </Card>
+              <DonationSection
+                organization="SAREW"
+                icon="❤️"
+                description="Soutenez SAREW dans sa mission d'inclusion et d'accessibilité pour les personnes sourdes"
+              />
+            </div>
+          )}
         </div>
       </main>
     </div>
