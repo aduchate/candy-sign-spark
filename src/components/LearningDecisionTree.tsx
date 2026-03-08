@@ -30,33 +30,74 @@ const levelTestQuestions = [
     id: 1,
     question: "Savez-vous épeler votre nom en dactylologie (alphabet manuel) ?",
     options: ["Oui, couramment", "Quelques lettres seulement", "Non, pas du tout"],
-    weights: { A1: [0, 1, 2], A2: [0, 0, 1], B1: [0, 0, 0], B2: [0, 0, 0] }
+    // "Oui" = skilled → points for higher levels; "Non" = beginner → points for A1
+    weights: { A1: [0, 1, 3], A2: [1, 2, 0], B1: [2, 0, 0], B2: [3, 0, 0] }
   },
   {
     id: 2,
     question: "Pouvez-vous comprendre les salutations de base en LSFB ?",
     options: ["Oui, facilement", "Avec difficulté", "Non"],
-    weights: { A1: [0, 1, 2], A2: [0, 0, 1], B1: [0, 0, 0], B2: [0, 0, 0] }
+    weights: { A1: [0, 1, 3], A2: [1, 2, 0], B1: [2, 0, 0], B2: [3, 0, 0] }
   },
   {
     id: 3,
     question: "Êtes-vous capable de tenir une conversation simple sur des sujets quotidiens ?",
     options: ["Oui, avec aisance", "Oui, mais avec hésitations", "Non, pas encore"],
-    weights: { A1: [0, 0, 0], A2: [0, 1, 2], B1: [0, 0, 1], B2: [0, 0, 0] }
+    weights: { A1: [0, 0, 3], A2: [0, 2, 1], B1: [2, 1, 0], B2: [3, 0, 0] }
   },
   {
     id: 4,
     question: "Comprenez-vous des récits ou explications en LSFB sur des sujets familiers ?",
     options: ["Oui, sans problème", "Partiellement", "Très peu ou pas"],
-    weights: { A1: [0, 0, 0], A2: [0, 0, 1], B1: [0, 1, 2], B2: [0, 0, 0] }
+    weights: { A1: [0, 0, 3], A2: [0, 1, 1], B1: [1, 2, 0], B2: [3, 0, 0] }
   },
   {
     id: 5,
     question: "Pouvez-vous exprimer des opinions nuancées et argumenter en LSFB ?",
     options: ["Oui, couramment", "Avec des efforts", "Non"],
-    weights: { A1: [0, 0, 0], A2: [0, 0, 0], B1: [0, 1, 2], B2: [0, 0, 1] }
+    weights: { A1: [0, 0, 2], A2: [0, 0, 1], B1: [1, 2, 0], B2: [3, 1, 0] }
   },
 ];
+
+// Vocabulaire professionnel par profession et par niveau
+const professionVocabulary: Record<string, Record<string, string[]>> = {
+  "logopédie": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "bouche", "parler", "écouter"],
+    A2: ["langue", "voix", "son", "mot", "phrase", "entendre", "comprendre", "exercice"],
+    B1: ["articulation", "prononciation", "bégaiement", "rééducation", "déglutition", "thérapie", "bilan", "diagnostic"],
+    B2: ["trouble", "dysphasie", "aphasie", "neurologie", "programme", "évaluation", "progrès", "consultation", "réunion", "projet"],
+  },
+  "audiologie": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "oreille", "entendre", "son"],
+    A2: ["bruit", "silence", "fort", "faible", "test", "appareil", "gauche", "droite"],
+    B1: ["audiogramme", "surdité", "prothèse", "fréquence", "décibel", "acouphène", "implant", "calibrage"],
+    B2: ["presbyacousie", "otoscopie", "tympanométrie", "réhabilitation", "programme", "diagnostic", "consultation", "réunion", "projet", "directeur"],
+  },
+  "psychologie": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "content", "triste", "peur"],
+    A2: ["colere", "surpris", "fatigue", "parler", "écouter", "comprendre", "aider", "famille"],
+    B1: ["anxiété", "dépression", "thérapie", "séance", "confiance", "émotion", "stress", "soutien"],
+    B2: ["traumatisme", "résilience", "inconscient", "transfert", "diagnostic", "évaluation", "programme", "consultation", "réunion", "projet"],
+  },
+  "médecine": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bien", "où"],
+    A2: ["douleur", "tête", "ventre", "dos", "médicament", "repos", "eau", "manger"],
+    B1: ["ordonnance", "examen", "résultat", "tension", "fièvre", "allergie", "chirurgie", "urgence"],
+    B2: ["pathologie", "anesthésie", "intervention", "scanner", "diagnostic", "pronostic", "programme", "consultation", "réunion", "projet"],
+  },
+  "kinésithérapeute": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bouger", "marcher"],
+    A2: ["douleur", "dos", "jambe", "bras", "exercice", "repos", "courir", "sauter"],
+    B1: ["articulation", "muscle", "étirement", "renforcement", "rééducation", "posture", "équilibre", "séance"],
+    B2: ["tendinite", "fracture", "prothèse", "réhabilitation", "programme", "bilan", "diagnostic", "consultation", "réunion", "projet"],
+  },
+  "éducateur": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "jouer", "manger", "dormir"],
+    A2: ["école", "maison", "famille", "ami", "règle", "aider", "apprendre", "comprendre"],
+    B1: ["autonomie", "socialisation", "comportement", "objectif", "activité", "groupe", "progrès", "accompagnement"],
+    B2: ["inclusion", "handicap", "projet", "évaluation", "programme", "partenariat", "diagnostic", "consultation", "réunion", "directeur"],
+  },
+};
 
 export const LearningDecisionTree = () => {
   const [currentStep, setCurrentStep] = useState<Step>("professions");
@@ -74,6 +115,7 @@ export const LearningDecisionTree = () => {
   const [testAnswers, setTestAnswers] = useState<Record<number, number>>({});
   const [testCompleted, setTestCompleted] = useState(false);
   const [recommendedLevel, setRecommendedLevel] = useState<"A1" | "A2" | "B1" | "B2" | null>(null);
+  const [professionWords, setProfessionWords] = useState<any[]>([]);
 
   useEffect(() => {
     loadExerciseData();
@@ -145,10 +187,11 @@ export const LearningDecisionTree = () => {
       }
     });
 
-    // Déterminer le niveau recommandé
-    if (scores.B2 >= 2) return "B2";
-    if (scores.B1 >= 3) return "B1";
-    if (scores.A2 >= 3) return "A2";
+    // Higher score = more likely that level. "Oui" answers boost B1/B2.
+    const maxScore = Math.max(scores.A1, scores.A2, scores.B1, scores.B2);
+    if (scores.B2 === maxScore) return "B2";
+    if (scores.B1 === maxScore) return "B1";
+    if (scores.A2 === maxScore) return "A2";
     return "A1";
   };
 
@@ -157,6 +200,40 @@ export const LearningDecisionTree = () => {
     setRecommendedLevel(level);
     setSelectedLevel(level);
     setTestCompleted(true);
+    // Load profession-specific vocabulary from Supabase
+    if (selectedProfession) {
+      loadProfessionVocabulary(selectedProfession, level);
+    }
+  };
+
+
+  const loadProfessionVocabulary = async (profession: string, level: string) => {
+    const vocab = professionVocabulary[profession]?.[level] || [];
+    if (vocab.length === 0) return;
+
+    const cacheKey = `profession_vocab_${profession}_${level}`;
+    
+    if (!isOnline) {
+      const cached = offlineCache.get<any[]>(cacheKey);
+      if (cached) setProfessionWords(cached);
+      return;
+    }
+
+    try {
+      const { data } = await supabase
+        .from('word_signs')
+        .select('word, video_url, phrase, signed_grammar')
+        .in('word', vocab.map(w => w.toLowerCase()));
+      
+      if (data && data.length > 0) {
+        setProfessionWords(data);
+        offlineCache.set(cacheKey, data);
+      }
+    } catch (err) {
+      console.error('Error loading profession vocabulary:', err);
+      const cached = offlineCache.get<any[]>(cacheKey);
+      if (cached) setProfessionWords(cached);
+    }
   };
 
   const handleStartLearning = () => {
@@ -246,6 +323,40 @@ export const LearningDecisionTree = () => {
     return data.slice(0, 8).map(item => ({
       id: type === "alphabet" ? item.letter : item.word,
       text: type === "alphabet" ? item.letter : (numberMap[item.word] || item.word),
+      video: item.video_url
+    }));
+  };
+
+  const getProfessionFlashCards = () => {
+    return professionWords.map(item => ({
+      front: item.word.charAt(0).toUpperCase() + item.word.slice(1),
+      back: item.video_url,
+      label: item.word.charAt(0).toUpperCase() + item.word.slice(1)
+    }));
+  };
+
+  const getProfessionQuizData = () => {
+    return professionWords.slice(0, 10).map((item) => {
+      const allVideos = professionWords.map(d => d.video_url).filter(Boolean);
+      const correctAnswer = item.video_url;
+      const distractors = allVideos
+        .filter(v => v !== correctAnswer)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      const options = [correctAnswer, ...distractors].sort(() => Math.random() - 0.5);
+      return {
+        question: item.word.charAt(0).toUpperCase() + item.word.slice(1),
+        questionLabel: item.word.charAt(0).toUpperCase() + item.word.slice(1),
+        correctAnswer,
+        options
+      };
+    });
+  };
+
+  const getProfessionMatchingData = () => {
+    return professionWords.slice(0, 8).map(item => ({
+      id: item.word,
+      text: item.word.charAt(0).toUpperCase() + item.word.slice(1),
       video: item.video_url
     }));
   };
@@ -542,16 +653,34 @@ export const LearningDecisionTree = () => {
             </p>
           </div>
 
-          <LevelTabs selected={selectedLevel} onSelect={setSelectedLevel} />
+          <LevelTabs selected={selectedLevel} onSelect={(lvl) => {
+            setSelectedLevel(lvl);
+            if (selectedProfession) loadProfessionVocabulary(selectedProfession, lvl);
+          }} />
+
+          {professionWords.length > 0 && (
+            <Card className="p-4 mt-4">
+              <h4 className="font-semibold mb-2">Vocabulaire adapté — {professions.find(p => p.id === selectedProfession)?.name} ({selectedLevel})</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                {professionWords.length} signe(s) disponible(s) pour votre niveau et profession
+              </p>
+            </Card>
+          )}
 
           {adultExerciseType ? (
             <Card className="p-6 mt-6">
               {adultExerciseType === "flashcards" && (
-                <Tabs defaultValue="alphabet" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                <Tabs defaultValue={professionWords.length > 0 ? "profession" : "alphabet"} className="w-full">
+                  <TabsList className={`grid w-full mb-6 ${professionWords.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {professionWords.length > 0 && <TabsTrigger value="profession">Professionnel</TabsTrigger>}
                     <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
                     <TabsTrigger value="numbers">Chiffres</TabsTrigger>
                   </TabsList>
+                  {professionWords.length > 0 && (
+                    <TabsContent value="profession">
+                      <FlashCards items={getProfessionFlashCards()} title={`Flash Cards - ${professions.find(p => p.id === selectedProfession)?.name}`} />
+                    </TabsContent>
+                  )}
                   <TabsContent value="alphabet">
                     <FlashCards items={getFlashCardsData("alphabet")} title="Flash Cards - Alphabet" />
                   </TabsContent>
@@ -561,11 +690,17 @@ export const LearningDecisionTree = () => {
                 </Tabs>
               )}
               {adultExerciseType === "quiz" && (
-                <Tabs defaultValue="alphabet" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                <Tabs defaultValue={professionWords.length > 0 ? "profession" : "alphabet"} className="w-full">
+                  <TabsList className={`grid w-full mb-6 ${professionWords.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {professionWords.length > 0 && <TabsTrigger value="profession">Professionnel</TabsTrigger>}
                     <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
                     <TabsTrigger value="numbers">Chiffres</TabsTrigger>
                   </TabsList>
+                  {professionWords.length > 0 && (
+                    <TabsContent value="profession">
+                      <QuizExercise items={getProfessionQuizData()} title={`Quiz - ${professions.find(p => p.id === selectedProfession)?.name}`} />
+                    </TabsContent>
+                  )}
                   <TabsContent value="alphabet">
                     <QuizExercise items={getQuizData("alphabet")} title="Quiz - Alphabet" />
                   </TabsContent>
@@ -575,11 +710,17 @@ export const LearningDecisionTree = () => {
                 </Tabs>
               )}
               {adultExerciseType === "matching" && (
-                <Tabs defaultValue="alphabet" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                <Tabs defaultValue={professionWords.length > 0 ? "profession" : "alphabet"} className="w-full">
+                  <TabsList className={`grid w-full mb-6 ${professionWords.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {professionWords.length > 0 && <TabsTrigger value="profession">Professionnel</TabsTrigger>}
                     <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
                     <TabsTrigger value="numbers">Chiffres</TabsTrigger>
                   </TabsList>
+                  {professionWords.length > 0 && (
+                    <TabsContent value="profession">
+                      <MatchingExercise items={getProfessionMatchingData()} title={`Appariement - ${professions.find(p => p.id === selectedProfession)?.name}`} />
+                    </TabsContent>
+                  )}
                   <TabsContent value="alphabet">
                     <MatchingExercise items={getMatchingData("alphabet")} title="Appariement - Alphabet" />
                   </TabsContent>
