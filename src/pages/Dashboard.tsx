@@ -289,10 +289,10 @@ const Dashboard = () => {
   const displayName = user?.email?.split("@")[0] || "Utilisateur";
 
   return (
-    <div className={`min-h-screen flex bg-background theme-${activeSection} transition-colors duration-500`}>
+    <div className={`min-h-screen flex theme-${activeSection} transition-all duration-700`} style={{ background: `linear-gradient(135deg, hsl(var(--section-color) / 0.06) 0%, hsl(var(--section-color) / 0.02) 50%, hsl(var(--background)) 100%)` }}>
       <CursorTrail />
       {/* Menu latéral */}
-      <aside className="w-80 bg-card border-r border-border flex flex-col">
+      <aside className="w-80 border-r border-border flex flex-col transition-all duration-700" style={{ background: `linear-gradient(180deg, hsl(var(--section-color) / 0.08) 0%, hsl(var(--card)) 40%)` }}>
         <div className="p-6 border-b border-border">
           <div className="mb-2">
             <h1 className="text-xl font-bold">
@@ -435,8 +435,8 @@ const Dashboard = () => {
       </aside>
 
       {/* Contenu principal */}
-      <main className="flex-1 overflow-auto">
-        <header className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-0 z-10 section-header-bar">
+      <main className="flex-1 overflow-auto" style={{ background: `radial-gradient(ellipse at top right, hsl(var(--section-color) / 0.08) 0%, transparent 60%)` }}>
+        <header className="backdrop-blur-sm border-b sticky top-0 z-10 section-header-bar transition-all duration-700" style={{ background: `linear-gradient(90deg, hsl(var(--section-color) / 0.12) 0%, hsl(var(--card) / 0.8) 100%)`, borderColor: `hsl(var(--section-color) / 0.2)` }}>
           <div className="px-8 py-4 flex items-center justify-between" style={{ borderLeftColor: `hsl(var(--section-color))`, borderLeftWidth: '4px' }}>
             <h2 className="text-2xl font-bold">
               {activeSection === "apprentissage" && "Section Apprentissage"}
