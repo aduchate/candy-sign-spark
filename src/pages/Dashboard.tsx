@@ -408,6 +408,7 @@ const Dashboard = () => {
             >
               Profil
             </Button>
+            {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
                    Administration
