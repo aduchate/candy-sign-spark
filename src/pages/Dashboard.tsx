@@ -428,6 +428,12 @@ const Dashboard = () => {
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "utilitaires" && "Utilitaires"}
+              {activeSection === "actualites" && "Actualités"}
+              {activeSection === "emploi" && "Aide à l'Emploi"}
+              {activeSection === "administration" && "Administration"}
+              {activeSection === "projets" && "Projets"}
+              {activeSection === "formations" && "Formations"}
+              {activeSection === "evenements" && "Événements"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
               {activeSection === "dons" && "Dons pour votre cause"}
