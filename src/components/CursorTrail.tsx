@@ -115,7 +115,7 @@ export const CursorTrail = () => {
       // Glow halo behind cursor
       ctx.save();
       ctx.translate(mx, my);
-      const glowR = hovering ? 50 : 35;
+      const glowR = hovering ? 25 : 18;
       const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
       gradient.addColorStop(0, color.replace(')', ' / 0.35)').replace('hsl(', 'hsla('));
       gradient.addColorStop(0.5, color.replace(')', ' / 0.1)').replace('hsl(', 'hsla('));
