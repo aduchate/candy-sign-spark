@@ -79,11 +79,7 @@ export const NewsSection = () => {
     }
   };
 
-  const categories = ["Actualités", "Atelier", "Événements", "Formations accessibles", "Projets"];
-  
-  const filteredArticles = activeCategory === "all" 
-    ? articles 
-    : articles.filter(a => a.category === activeCategory);
+  const categories = ["Actualités"];
 
   if (selectedArticle) {
     return (
