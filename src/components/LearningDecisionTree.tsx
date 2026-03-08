@@ -206,7 +206,6 @@ export const LearningDecisionTree = () => {
     }
   };
 
-  const [professionWords, setProfessionWords] = useState<any[]>([]);
 
   const loadProfessionVocabulary = async (profession: string, level: string) => {
     const vocab = professionVocabulary[profession]?.[level] || [];
