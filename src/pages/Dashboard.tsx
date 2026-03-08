@@ -54,28 +54,21 @@ const Dashboard = () => {
   const sectionParam = searchParams.get("section") as
     | "apprentissage"
     | "glossaire"
-    | "quizz"
-    | "traduction"
     | "starterpack"
     | "liens"
+    | "actualites"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements"
+    "apprentissage" | "glossaire" | "starterpack" | "liens" | "dons" | "rendezvous" | "hopitaux" | "actualites"
   >(sectionParam || "apprentissage");
   const [notionOpen, setNotionOpen] = useState(true);
   const [medicalOpen, setMedicalOpen] = useState(false);
-  const [utilitairesOpen, setUtilitairesOpen] = useState(false);
-  const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
-  const [textToTranslate, setTextToTranslate] = useState("");
-  const [translation, setTranslation] = useState("");
-  const [isTranslating, setIsTranslating] = useState(false);
   const [ageGroup, setAgeGroup] = useState<"enfant" | "adulte">("adulte");
   const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [newLessons, setNewLessons] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [quizzes, setQuizzes] = useState<any[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
