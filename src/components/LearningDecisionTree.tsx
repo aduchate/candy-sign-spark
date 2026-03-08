@@ -30,33 +30,74 @@ const levelTestQuestions = [
     id: 1,
     question: "Savez-vous épeler votre nom en dactylologie (alphabet manuel) ?",
     options: ["Oui, couramment", "Quelques lettres seulement", "Non, pas du tout"],
-    weights: { A1: [0, 1, 2], A2: [0, 0, 1], B1: [0, 0, 0], B2: [0, 0, 0] }
+    // "Oui" = skilled → points for higher levels; "Non" = beginner → points for A1
+    weights: { A1: [0, 1, 3], A2: [1, 2, 0], B1: [2, 0, 0], B2: [3, 0, 0] }
   },
   {
     id: 2,
     question: "Pouvez-vous comprendre les salutations de base en LSFB ?",
     options: ["Oui, facilement", "Avec difficulté", "Non"],
-    weights: { A1: [0, 1, 2], A2: [0, 0, 1], B1: [0, 0, 0], B2: [0, 0, 0] }
+    weights: { A1: [0, 1, 3], A2: [1, 2, 0], B1: [2, 0, 0], B2: [3, 0, 0] }
   },
   {
     id: 3,
     question: "Êtes-vous capable de tenir une conversation simple sur des sujets quotidiens ?",
     options: ["Oui, avec aisance", "Oui, mais avec hésitations", "Non, pas encore"],
-    weights: { A1: [0, 0, 0], A2: [0, 1, 2], B1: [0, 0, 1], B2: [0, 0, 0] }
+    weights: { A1: [0, 0, 3], A2: [0, 2, 1], B1: [2, 1, 0], B2: [3, 0, 0] }
   },
   {
     id: 4,
     question: "Comprenez-vous des récits ou explications en LSFB sur des sujets familiers ?",
     options: ["Oui, sans problème", "Partiellement", "Très peu ou pas"],
-    weights: { A1: [0, 0, 0], A2: [0, 0, 1], B1: [0, 1, 2], B2: [0, 0, 0] }
+    weights: { A1: [0, 0, 3], A2: [0, 1, 1], B1: [1, 2, 0], B2: [3, 0, 0] }
   },
   {
     id: 5,
     question: "Pouvez-vous exprimer des opinions nuancées et argumenter en LSFB ?",
     options: ["Oui, couramment", "Avec des efforts", "Non"],
-    weights: { A1: [0, 0, 0], A2: [0, 0, 0], B1: [0, 1, 2], B2: [0, 0, 1] }
+    weights: { A1: [0, 0, 2], A2: [0, 0, 1], B1: [1, 2, 0], B2: [3, 1, 0] }
   },
 ];
+
+// Vocabulaire professionnel par profession et par niveau
+const professionVocabulary: Record<string, Record<string, string[]>> = {
+  "logopédie": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "bouche", "parler", "écouter"],
+    A2: ["langue", "voix", "son", "mot", "phrase", "entendre", "comprendre", "exercice"],
+    B1: ["articulation", "prononciation", "bégaiement", "rééducation", "déglutition", "thérapie", "bilan", "diagnostic"],
+    B2: ["trouble", "dysphasie", "aphasie", "neurologie", "programme", "évaluation", "progrès", "consultation", "réunion", "projet"],
+  },
+  "audiologie": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "oreille", "entendre", "son"],
+    A2: ["bruit", "silence", "fort", "faible", "test", "appareil", "gauche", "droite"],
+    B1: ["audiogramme", "surdité", "prothèse", "fréquence", "décibel", "acouphène", "implant", "calibrage"],
+    B2: ["presbyacousie", "otoscopie", "tympanométrie", "réhabilitation", "programme", "diagnostic", "consultation", "réunion", "projet", "directeur"],
+  },
+  "psychologie": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "content", "triste", "peur"],
+    A2: ["colere", "surpris", "fatigue", "parler", "écouter", "comprendre", "aider", "famille"],
+    B1: ["anxiété", "dépression", "thérapie", "séance", "confiance", "émotion", "stress", "soutien"],
+    B2: ["traumatisme", "résilience", "inconscient", "transfert", "diagnostic", "évaluation", "programme", "consultation", "réunion", "projet"],
+  },
+  "médecine": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bien", "où"],
+    A2: ["douleur", "tête", "ventre", "dos", "médicament", "repos", "eau", "manger"],
+    B1: ["ordonnance", "examen", "résultat", "tension", "fièvre", "allergie", "chirurgie", "urgence"],
+    B2: ["pathologie", "anesthésie", "intervention", "scanner", "diagnostic", "pronostic", "programme", "consultation", "réunion", "projet"],
+  },
+  "kinésithérapeute": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bouger", "marcher"],
+    A2: ["douleur", "dos", "jambe", "bras", "exercice", "repos", "courir", "sauter"],
+    B1: ["articulation", "muscle", "étirement", "renforcement", "rééducation", "posture", "équilibre", "séance"],
+    B2: ["tendinite", "fracture", "prothèse", "réhabilitation", "programme", "bilan", "diagnostic", "consultation", "réunion", "projet"],
+  },
+  "éducateur": {
+    A1: ["Bonjour", "Merci", "comment", "vous", "jouer", "manger", "dormir"],
+    A2: ["école", "maison", "famille", "ami", "règle", "aider", "apprendre", "comprendre"],
+    B1: ["autonomie", "socialisation", "comportement", "objectif", "activité", "groupe", "progrès", "accompagnement"],
+    B2: ["inclusion", "handicap", "projet", "évaluation", "programme", "partenariat", "diagnostic", "consultation", "réunion", "directeur"],
+  },
+};
 
 export const LearningDecisionTree = () => {
   const [currentStep, setCurrentStep] = useState<Step>("professions");
