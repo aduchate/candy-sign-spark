@@ -435,8 +435,8 @@ const Dashboard = () => {
       </aside>
 
       {/* Contenu principal */}
-      <main className="flex-1 overflow-auto">
-        <header className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-0 z-10 section-header-bar">
+      <main className="flex-1 overflow-auto" style={{ background: `radial-gradient(ellipse at top right, hsl(var(--section-color) / 0.08) 0%, transparent 60%)` }}>
+        <header className="backdrop-blur-sm border-b sticky top-0 z-10 section-header-bar transition-all duration-700" style={{ background: `linear-gradient(90deg, hsl(var(--section-color) / 0.12) 0%, hsl(var(--card) / 0.8) 100%)`, borderColor: `hsl(var(--section-color) / 0.2)` }}>
           <div className="px-8 py-4 flex items-center justify-between" style={{ borderLeftColor: `hsl(var(--section-color))`, borderLeftWidth: '4px' }}>
             <h2 className="text-2xl font-bold">
               {activeSection === "apprentissage" && "Section Apprentissage"}
