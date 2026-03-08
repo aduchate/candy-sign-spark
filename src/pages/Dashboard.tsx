@@ -401,7 +401,13 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
-            {isAdmin && (
+            <Button
+              onClick={() => setActiveSection("profil")}
+              variant={activeSection === "profil" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Profil
+            </Button>
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
                    Administration
