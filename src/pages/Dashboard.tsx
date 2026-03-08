@@ -289,7 +289,8 @@ const Dashboard = () => {
   const displayName = user?.email?.split("@")[0] || "Utilisateur";
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className={`min-h-screen flex bg-background theme-${activeSection} transition-colors duration-500`}>
+      <CursorTrail />
       {/* Menu latéral */}
       <aside className="w-80 bg-card border-r border-border flex flex-col">
         <div className="p-6 border-b border-border">
