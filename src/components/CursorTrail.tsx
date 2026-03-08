@@ -75,18 +75,20 @@ export const CursorTrail = () => {
       const time = Date.now() * 0.003;
 
       // Draw trail particles as fading sparkles
-      trailRef.current.forEach((p, i) => {
-        p.age += 0.025;
+      trailRef.current.forEach((p) => {
+        p.age += 0.02;
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.02; // slight gravity
+        p.vy += 0.02;
 
         if (p.age < 1) {
           const alpha = 1 - p.age;
-          const size = (1 - p.age) * 4;
+          const size = (1 - p.age) * 6;
           ctx.save();
-          ctx.globalAlpha = alpha * 0.6;
+          ctx.globalAlpha = alpha * 0.8;
           ctx.fillStyle = color;
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 12;
           
           // Star sparkle shape
           ctx.translate(p.x, p.y);
@@ -95,13 +97,13 @@ export const CursorTrail = () => {
           for (let s = 0; s < 4; s++) {
             const a = (s / 4) * Math.PI * 2;
             ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(a) * size * 2, Math.sin(a) * size * 2);
+            ctx.lineTo(Math.cos(a) * size * 2.5, Math.sin(a) * size * 2.5);
           }
           ctx.strokeStyle = color;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 1.5;
           ctx.stroke();
           ctx.beginPath();
-          ctx.arc(0, 0, size * 0.5, 0, Math.PI * 2);
+          ctx.arc(0, 0, size * 0.7, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
@@ -110,15 +112,31 @@ export const CursorTrail = () => {
       // Remove dead particles
       trailRef.current = trailRef.current.filter((p) => p.age < 1);
 
+      // Glow halo behind cursor
+      ctx.save();
+      ctx.translate(mx, my);
+      const glowR = hovering ? 50 : 35;
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
+      gradient.addColorStop(0, color.replace(')', ' / 0.35)').replace('hsl(', 'hsla('));
+      gradient.addColorStop(0.5, color.replace(')', ' / 0.1)').replace('hsl(', 'hsla('));
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(0, 0, glowR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
       // Main cursor — morphing polygon
       const sides = hovering ? 6 : 3;
-      const baseRadius = hovering ? 22 : 14;
-      const wobble = hovering ? 4 : 6;
+      const baseRadius = hovering ? 26 : 18;
+      const wobble = hovering ? 5 : 7;
 
       ctx.save();
       ctx.translate(mx, my);
       ctx.rotate(time * 0.8);
-      ctx.globalAlpha = 0.8;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 20;
+      ctx.globalAlpha = 1;
       ctx.beginPath();
       for (let i = 0; i <= sides; i++) {
         const a = (i / sides) * Math.PI * 2;
@@ -130,9 +148,9 @@ export const CursorTrail = () => {
       }
       ctx.closePath();
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       ctx.stroke();
-      ctx.globalAlpha = 0.15;
+      ctx.globalAlpha = 0.3;
       ctx.fillStyle = color;
       ctx.fill();
       ctx.restore();
@@ -140,8 +158,10 @@ export const CursorTrail = () => {
       // Inner pulsing dot
       ctx.save();
       ctx.translate(mx, my);
-      const dotR = 3 + Math.sin(time * 5) * 1.5;
-      ctx.globalAlpha = 0.9;
+      const dotR = 4 + Math.sin(time * 5) * 2;
+      ctx.globalAlpha = 1;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 15;
       ctx.beginPath();
       ctx.arc(0, 0, dotR, 0, Math.PI * 2);
       ctx.fillStyle = color;
@@ -151,13 +171,15 @@ export const CursorTrail = () => {
       // Orbiting dots
       for (let i = 0; i < 3; i++) {
         const orbitAngle = time * 2 + (i / 3) * Math.PI * 2;
-        const orbitR = hovering ? 30 : 20;
+        const orbitR = hovering ? 35 : 24;
         const ox = mx + Math.cos(orbitAngle) * orbitR;
         const oy = my + Math.sin(orbitAngle) * orbitR;
         ctx.save();
-        ctx.globalAlpha = 0.5;
+        ctx.globalAlpha = 0.8;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 8;
         ctx.beginPath();
-        ctx.arc(ox, oy, 2, 0, Math.PI * 2);
+        ctx.arc(ox, oy, 3, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
         ctx.restore();
