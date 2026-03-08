@@ -373,25 +373,13 @@ const Dashboard = () => {
                   >
                     Liens utiles
                   </Button>
-                  <div>
-                    <Button
-                      onClick={() => setUtilitairesOpen(!utilitairesOpen)}
-                      variant={["actualites", "emploi", "administration", "projets", "formations", "evenements"].includes(activeSection) ? "secondary" : "ghost"}
-                      className="w-full justify-start text-base h-12"
-                    >
-                      Utilitaires {utilitairesOpen ? "▾" : "▸"}
-                    </Button>
-                    {utilitairesOpen && (
-                      <div className="ml-4 mt-1 space-y-1">
-                        <Button onClick={() => setActiveSection("actualites")} variant={activeSection === "actualites" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Actualités</Button>
-                        <Button onClick={() => setActiveSection("emploi")} variant={activeSection === "emploi" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Aide à l'Emploi</Button>
-                        <Button onClick={() => setActiveSection("administration")} variant={activeSection === "administration" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Administration</Button>
-                        <Button onClick={() => setActiveSection("projets")} variant={activeSection === "projets" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Projets</Button>
-                        <Button onClick={() => setActiveSection("formations")} variant={activeSection === "formations" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Formations</Button>
-                        <Button onClick={() => setActiveSection("evenements")} variant={activeSection === "evenements" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Événements</Button>
-                      </div>
-                    )}
-                  </div>
+                  <Button
+                    onClick={() => setActiveSection("actualites")}
+                    variant={activeSection === "actualites" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Actualités
+                  </Button>
                 </div>
               )}
             </div>
