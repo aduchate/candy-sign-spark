@@ -27,10 +27,10 @@
     --accent: 0 0% 92%;
     --accent-foreground: 0 0% 10%;
 
-    --success: 0 0% 40%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 98%;
 
-    --destructive: 0 0% 35%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 88%;
@@ -40,7 +40,7 @@
     --radius: 0.5rem;
 
     --gradient-candy: linear-gradient(135deg, hsl(0 0% 15%), hsl(0 0% 30%));
-    --gradient-success: linear-gradient(135deg, hsl(0 0% 40%), hsl(0 0% 50%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%));
     --gradient-accent: linear-gradient(135deg, hsl(0 0% 50%), hsl(0 0% 60%));
     --gradient-bg: none;
 
@@ -55,6 +55,10 @@
     --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 0 0% 90%;
     --sidebar-ring: 0 0% 15%;
+
+    /* Section theme colors */
+    --section-color: 220 70% 50%;
+    --cursor-color: hsl(220 70% 50%);
   }
 
   .dark {
@@ -81,10 +85,10 @@
     --accent: 0 0% 15%;
     --accent-foreground: 0 0% 92%;
 
-    --success: 0 0% 60%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 5%;
 
-    --destructive: 0 0% 65%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 5%;
 
     --border: 0 0% 18%;
@@ -92,7 +96,7 @@
     --ring: 0 0% 85%;
 
     --gradient-candy: linear-gradient(135deg, hsl(0 0% 80%), hsl(0 0% 65%));
-    --gradient-success: linear-gradient(135deg, hsl(0 0% 55%), hsl(0 0% 45%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 40%), hsl(142 71% 30%));
     --gradient-accent: linear-gradient(135deg, hsl(0 0% 45%), hsl(0 0% 35%));
     --gradient-bg: none;
 
@@ -152,6 +156,135 @@
 
   .animate-pulse-soft {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Page transition animation */
+.section-transition {
+  animation: sectionEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes sectionEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Section color themes */
+.theme-apprentissage { --section-color: 220 80% 55%; --cursor-color: hsl(220 80% 55%); }
+.theme-glossaire { --section-color: 280 70% 55%; --cursor-color: hsl(280 70% 55%); }
+.theme-starterpack { --section-color: 160 70% 45%; --cursor-color: hsl(160 70% 45%); }
+.theme-rendezvous { --section-color: 35 90% 55%; --cursor-color: hsl(35 90% 55%); }
+.theme-hopitaux { --section-color: 0 75% 55%; --cursor-color: hsl(0 75% 55%); }
+.theme-dons { --section-color: 340 80% 55%; --cursor-color: hsl(340 80% 55%); }
+.theme-liens { --section-color: 200 80% 50%; --cursor-color: hsl(200 80% 50%); }
+.theme-actualites { --section-color: 250 70% 60%; --cursor-color: hsl(250 70% 60%); }
+.theme-emploi { --section-color: 45 90% 50%; --cursor-color: hsl(45 90% 50%); }
+.theme-administration { --section-color: 180 60% 45%; --cursor-color: hsl(180 60% 45%); }
+.theme-projets { --section-color: 15 85% 55%; --cursor-color: hsl(15 85% 55%); }
+.theme-formations { --section-color: 270 65% 55%; --cursor-color: hsl(270 65% 55%); }
+.theme-evenements { --section-color: 320 75% 55%; --cursor-color: hsl(320 75% 55%); }
+.theme-profil { --section-color: 190 80% 45%; --cursor-color: hsl(190 80% 45%); }
+.theme-quizz { --section-color: 120 60% 45%; --cursor-color: hsl(120 60% 45%); }
+.theme-traduction { --section-color: 50 80% 50%; --cursor-color: hsl(50 80% 50%); }
+
+/* Section accent bar on header */
+.section-header-bar {
+  position: relative;
+  overflow: hidden;
+}
+.section-header-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: hsl(var(--section-color));
+  animation: barSlide 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes barSlide {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
+
+/* Sidebar active button glow */
+.sidebar-btn-active {
+  position: relative;
+  box-shadow: 0 0 12px hsl(var(--section-color) / 0.3), 0 0 4px hsl(var(--section-color) / 0.2);
+  border-left: 3px solid hsl(var(--section-color));
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom cursor trail */
+.cursor-dot {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--cursor-color);
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.7;
+  transform: translate(-50%, -50%);
+  transition: width 0.15s, height 0.15s, opacity 0.15s;
+  mix-blend-mode: screen;
+}
+
+.cursor-ring {
+  position: fixed;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--cursor-color);
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.4;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease, border-color 0.3s ease;
+}
+
+.cursor-ring.hovering {
+  width: 50px;
+  height: 50px;
+  opacity: 0.6;
+}
+
+.cursor-dot.hovering {
+  width: 8px;
+  height: 8px;
+  opacity: 1;
+}
+
+/* Cursor particle trail */
+.cursor-particle {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cursor-color);
+  pointer-events: none;
+  z-index: 9997;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: particleFade 0.6s ease-out forwards;
+}
+
+@keyframes particleFade {
+  0% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
   }
 }
 
