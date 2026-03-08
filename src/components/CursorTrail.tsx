@@ -35,9 +35,9 @@ export const CursorTrail = () => {
       if (now - lastSpawn > 16) {
         lastSpawn = now;
         // Spawn trail particles with random velocity
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 1; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 1.5 + 0.5;
+          const speed = Math.random() * 1 + 0.3;
           trailRef.current.push({
             x: e.clientX,
             y: e.clientY,
