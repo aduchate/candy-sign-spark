@@ -135,7 +135,7 @@ export const CursorTrail = () => {
       ctx.translate(mx, my);
       ctx.rotate(time * 0.8);
       ctx.shadowColor = color;
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 10;
       ctx.globalAlpha = 1;
       ctx.beginPath();
       for (let i = 0; i <= sides; i++) {
