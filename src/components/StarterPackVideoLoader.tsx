@@ -16,7 +16,7 @@ const ESSENTIAL_WORDS = {
     'aujourd\'hui', 'demain', 'hier',
     'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
     'janvier', 'fevrier', 'avril', 'mai', 'juin',
-    'juillet', 'aout', 'septembre', 'octobre', 'novembre'
+    'juillet', 'aout', 'septembre', 'octobre', 'novembre',
   ],
   child: [
     // Salutations
@@ -34,11 +34,35 @@ const ESSENTIAL_WORDS = {
     // Nourriture
     'pomme', 'banane', 'pain', 'eau', 'lait', 'chocolat',
     // Jeux
-    'ballon', 'jouer', 'courir', 'sauter'
-  ]
+    'ballon', 'jouer', 'courir', 'sauter',
+  ],
+  profession: [
+    // Logopédie
+    'bouche', 'parler', 'écouter', 'langue', 'voix', 'son', 'mot', 'phrase',
+    'entendre', 'comprendre', 'exercice',
+    // Audiologie
+    'oreille', 'bruit', 'silence', 'fort', 'faible', 'test', 'appareil',
+    'gauche', 'droite',
+    // Psychologie
+    'aider', 'famille', 'confiance', 'émotion', 'stress',
+    // Médecine
+    'mal', 'douleur', 'tête', 'ventre', 'dos', 'médicament', 'repos',
+    'examen', 'fièvre', 'allergie', 'urgence',
+    // Kinésithérapie
+    'bouger', 'marcher', 'jambe', 'bras', 'muscle',
+    // Éducateur
+    'dormir', 'école', 'maison', 'ami', 'règle', 'apprendre', 'groupe',
+    // Communs B1-B2
+    'consultation', 'programme', 'diagnostic', 'thérapie', 'bilan',
+    'évaluation', 'progrès', 'séance', 'résultat', 'ordonnance',
+  ],
 };
 
-const ALL_WORDS = [...new Set([...ESSENTIAL_WORDS.adult, ...ESSENTIAL_WORDS.child])];
+const ALL_WORDS = [...new Set([
+  ...ESSENTIAL_WORDS.adult,
+  ...ESSENTIAL_WORDS.child,
+  ...ESSENTIAL_WORDS.profession,
+])];
 
 const STORAGE_KEY = 'lsfb_starter_pack_loaded';
 
@@ -52,8 +76,10 @@ export const StarterPackVideoLoader = () => {
 
   useEffect(() => {
     const hasLoaded = localStorage.getItem(STORAGE_KEY);
-    if (!hasLoaded) {
-      // Wait 2 seconds after page load before starting
+    const savedCount = localStorage.getItem('lsfb_starter_pack_count');
+    // Re-trigger if new words were added to the list
+    const needsUpdate = !hasLoaded || (savedCount && parseInt(savedCount) < ALL_WORDS.length);
+    if (needsUpdate) {
       const timer = setTimeout(() => {
         startLoading();
       }, 2000);
@@ -66,11 +92,10 @@ export const StarterPackVideoLoader = () => {
     setIsLoading(true);
     
     try {
-      // Check which words are already in the database
+      // Check which words are already in the database (query in batches to avoid 1000 row limit)
       const { data: existingWords } = await supabase
         .from('word_signs')
-        .select('word')
-        .in('word', ALL_WORDS);
+        .select('word');
 
       const existingWordsList = existingWords?.map(w => w.word.toLowerCase()) || [];
       const missingWords = ALL_WORDS.filter(
@@ -151,6 +176,7 @@ export const StarterPackVideoLoader = () => {
     // Don't mark as loaded if there are failures, so it will retry on next page load
     if (failed.length === 0) {
       localStorage.setItem(STORAGE_KEY, 'true');
+      localStorage.setItem('lsfb_starter_pack_count', ALL_WORDS.length.toString());
       toast({
         title: "Vidéos chargées",
         description: `Toutes les vidéos essentielles (${successCount}/${totalWords}) sont prêtes !`,
