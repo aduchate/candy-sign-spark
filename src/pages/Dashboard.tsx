@@ -37,6 +37,9 @@ import { AppointmentBookingSection } from "@/components/AppointmentBookingSectio
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { UtilitairesSection } from "@/components/UtilitairesSection";
 import { DonationSection } from "@/components/DonationSection";
+import { NewsSection } from "@/components/NewsSection";
+import { JobListingsSection } from "@/components/JobListingsSection";
+import { CategoryArticleSection } from "@/components/CategoryArticleSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
