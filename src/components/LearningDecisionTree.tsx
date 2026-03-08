@@ -327,7 +327,40 @@ export const LearningDecisionTree = () => {
     }));
   };
 
-  const renderBreadcrumb = () => {
+  const getProfessionFlashCards = () => {
+    return professionWords.map(item => ({
+      front: item.word.charAt(0).toUpperCase() + item.word.slice(1),
+      back: item.video_url,
+      label: item.word.charAt(0).toUpperCase() + item.word.slice(1)
+    }));
+  };
+
+  const getProfessionQuizData = () => {
+    return professionWords.slice(0, 10).map((item) => {
+      const allVideos = professionWords.map(d => d.video_url).filter(Boolean);
+      const correctAnswer = item.video_url;
+      const distractors = allVideos
+        .filter(v => v !== correctAnswer)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      const options = [correctAnswer, ...distractors].sort(() => Math.random() - 0.5);
+      return {
+        question: item.word.charAt(0).toUpperCase() + item.word.slice(1),
+        questionLabel: item.word.charAt(0).toUpperCase() + item.word.slice(1),
+        correctAnswer,
+        options
+      };
+    });
+  };
+
+  const getProfessionMatchingData = () => {
+    return professionWords.slice(0, 8).map(item => ({
+      id: item.word,
+      text: item.word.charAt(0).toUpperCase() + item.word.slice(1),
+      video: item.video_url
+    }));
+  };
+
     const items = [];
     
     if (selectedProfession) items.push(professions.find(p => p.id === selectedProfession)?.name || "");
