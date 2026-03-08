@@ -171,15 +171,15 @@ export const CursorTrail = () => {
       // Orbiting dots
       for (let i = 0; i < 3; i++) {
         const orbitAngle = time * 2 + (i / 3) * Math.PI * 2;
-        const orbitR = hovering ? 35 : 24;
+        const orbitR = hovering ? 18 : 13;
         const ox = mx + Math.cos(orbitAngle) * orbitR;
         const oy = my + Math.sin(orbitAngle) * orbitR;
         ctx.save();
-        ctx.globalAlpha = 0.8;
+        ctx.globalAlpha = 0.7;
         ctx.shadowColor = color;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 4;
         ctx.beginPath();
-        ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+        ctx.arc(ox, oy, 1.5, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
         ctx.restore();
