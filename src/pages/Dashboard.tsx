@@ -729,6 +729,38 @@ const Dashboard = () => {
 
           {activeSection === "utilitaires" && <UtilitairesSection />}
 
+          {activeSection === "actualites" && (
+            <div className="max-w-6xl"><NewsSection /></div>
+          )}
+
+          {activeSection === "emploi" && (
+            <div className="max-w-6xl"><JobListingsSection /></div>
+          )}
+
+          {activeSection === "administration" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Atelier" icon="📋" description="Informations et démarches administratives" />
+            </div>
+          )}
+
+          {activeSection === "projets" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Projets" icon="🚀" description="Projets en cours et à venir" />
+            </div>
+          )}
+
+          {activeSection === "formations" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Formations accessibles" icon="🎓" description="Formations accessibles aux personnes sourdes et malentendantes" />
+            </div>
+          )}
+
+          {activeSection === "evenements" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Événements" icon="📅" description="Événements et rencontres du SAREW" />
+            </div>
+          )}
+
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
           {activeSection === "hopitaux" && <HospitalPlansSection />}
