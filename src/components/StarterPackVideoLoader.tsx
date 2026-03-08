@@ -76,8 +76,10 @@ export const StarterPackVideoLoader = () => {
 
   useEffect(() => {
     const hasLoaded = localStorage.getItem(STORAGE_KEY);
-    if (!hasLoaded) {
-      // Wait 2 seconds after page load before starting
+    const savedCount = localStorage.getItem('lsfb_starter_pack_count');
+    // Re-trigger if new words were added to the list
+    const needsUpdate = !hasLoaded || (savedCount && parseInt(savedCount) < ALL_WORDS.length);
+    if (needsUpdate) {
       const timer = setTimeout(() => {
         startLoading();
       }, 2000);
