@@ -223,70 +223,7 @@
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/* Custom cursor trail */
-.cursor-dot {
-  position: fixed;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--cursor-color);
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.7;
-  transform: translate(-50%, -50%);
-  transition: width 0.15s, height 0.15s, opacity 0.15s;
-  mix-blend-mode: screen;
-}
-
-.cursor-ring {
-  position: fixed;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid var(--cursor-color);
-  pointer-events: none;
-  z-index: 9998;
-  opacity: 0.4;
-  transform: translate(-50%, -50%);
-  transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease, border-color 0.3s ease;
-}
-
-.cursor-ring.hovering {
-  width: 50px;
-  height: 50px;
-  opacity: 0.6;
-}
-
-.cursor-dot.hovering {
-  width: 8px;
-  height: 8px;
-  opacity: 1;
-}
-
-/* Cursor particle trail */
-.cursor-particle {
-  position: fixed;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--cursor-color);
-  pointer-events: none;
-  z-index: 9997;
-  opacity: 0;
-  transform: translate(-50%, -50%);
-  animation: particleFade 0.6s ease-out forwards;
-}
-
-@keyframes particleFade {
-  0% {
-    opacity: 0.5;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-}
+/* Cursor is now canvas-based — no CSS needed */
 
 @keyframes confetti {
   0% {
