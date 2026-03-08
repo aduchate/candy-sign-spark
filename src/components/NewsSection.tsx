@@ -25,7 +25,6 @@ export const NewsSection = () => {
   const [loading, setLoading] = useState(true);
   const [scraping, setScraping] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
 
   const fetchArticles = async () => {
