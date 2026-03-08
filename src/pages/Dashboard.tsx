@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CursorTrail } from "@/components/CursorTrail";
 
 
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -288,7 +289,8 @@ const Dashboard = () => {
   const displayName = user?.email?.split("@")[0] || "Utilisateur";
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className={`min-h-screen flex bg-background theme-${activeSection} transition-colors duration-500`}>
+      <CursorTrail />
       {/* Menu latéral */}
       <aside className="w-80 bg-card border-r border-border flex flex-col">
         <div className="p-6 border-b border-border">
@@ -434,8 +436,8 @@ const Dashboard = () => {
 
       {/* Contenu principal */}
       <main className="flex-1 overflow-auto">
-        <header className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-0 z-10">
-          <div className="px-8 py-4 flex items-center justify-between">
+        <header className="bg-card/50 backdrop-blur-sm border-b border-border sticky top-0 z-10 section-header-bar">
+          <div className="px-8 py-4 flex items-center justify-between" style={{ borderLeftColor: `hsl(var(--section-color))`, borderLeftWidth: '4px' }}>
             <h2 className="text-2xl font-bold">
               {activeSection === "apprentissage" && "Section Apprentissage"}
               {activeSection === "glossaire" && "Glossaire Paramédical"}
@@ -465,7 +467,7 @@ const Dashboard = () => {
           </div>
         </header>
 
-        <div className="p-8">
+        <div className="p-8 section-transition" key={activeSection}>
           {activeSection === "apprentissage" && <LearningDecisionTree />}
 
           {activeSection === "glossaire" && (
