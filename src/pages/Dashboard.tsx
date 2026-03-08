@@ -331,24 +331,10 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
-            <Button
-              onClick={() => setActiveSection("liens")}
-              variant={activeSection === "liens" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Liens utiles
-            </Button>
-            <Button
-              onClick={() => setActiveSection("utilitaires")}
-              variant={activeSection === "utilitaires" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Utilitaires
-            </Button>
             <div>
               <Button
                 onClick={() => setMedicalOpen(!medicalOpen)}
-                variant={["rendezvous", "hopitaux", "dons"].includes(activeSection) ? "default" : "ghost"}
+                variant={["rendezvous", "hopitaux", "dons", "liens"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Médical {medicalOpen ? "▾" : "▸"}
@@ -375,6 +361,13 @@ const Dashboard = () => {
                     className="w-full justify-start text-base h-12"
                   >
                     Dons pour votre cause
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("liens")}
+                    variant={activeSection === "liens" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Liens utiles
                   </Button>
                 </div>
               )}
