@@ -158,10 +158,10 @@ export const CursorTrail = () => {
       // Inner pulsing dot
       ctx.save();
       ctx.translate(mx, my);
-      const dotR = 4 + Math.sin(time * 5) * 2;
+      const dotR = 2.5 + Math.sin(time * 5) * 1;
       ctx.globalAlpha = 1;
       ctx.shadowColor = color;
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.arc(0, 0, dotR, 0, Math.PI * 2);
       ctx.fillStyle = color;
