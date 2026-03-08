@@ -361,6 +361,7 @@ export const LearningDecisionTree = () => {
     }));
   };
 
+  const renderBreadcrumb = () => {
     const items = [];
     
     if (selectedProfession) items.push(professions.find(p => p.id === selectedProfession)?.name || "");
