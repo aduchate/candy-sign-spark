@@ -467,7 +467,7 @@ const Dashboard = () => {
           </div>
         </header>
 
-        <div className="p-8">
+        <div className="p-8 section-transition" key={activeSection}>
           {activeSection === "apprentissage" && <LearningDecisionTree />}
 
           {activeSection === "glossaire" && (
