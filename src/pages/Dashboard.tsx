@@ -802,6 +802,8 @@ const Dashboard = () => {
               />
             </div>
           )}
+
+          {activeSection === "profil" && <ProfileSection user={user} />}
         </div>
       </main>
     </div>
