@@ -619,16 +619,34 @@ export const LearningDecisionTree = () => {
             </p>
           </div>
 
-          <LevelTabs selected={selectedLevel} onSelect={setSelectedLevel} />
+          <LevelTabs selected={selectedLevel} onSelect={(lvl) => {
+            setSelectedLevel(lvl);
+            if (selectedProfession) loadProfessionVocabulary(selectedProfession, lvl);
+          }} />
+
+          {professionWords.length > 0 && (
+            <Card className="p-4 mt-4">
+              <h4 className="font-semibold mb-2">Vocabulaire adapté — {professions.find(p => p.id === selectedProfession)?.name} ({selectedLevel})</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                {professionWords.length} signe(s) disponible(s) pour votre niveau et profession
+              </p>
+            </Card>
+          )}
 
           {adultExerciseType ? (
             <Card className="p-6 mt-6">
               {adultExerciseType === "flashcards" && (
-                <Tabs defaultValue="alphabet" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                <Tabs defaultValue={professionWords.length > 0 ? "profession" : "alphabet"} className="w-full">
+                  <TabsList className={`grid w-full mb-6 ${professionWords.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {professionWords.length > 0 && <TabsTrigger value="profession">Professionnel</TabsTrigger>}
                     <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
                     <TabsTrigger value="numbers">Chiffres</TabsTrigger>
                   </TabsList>
+                  {professionWords.length > 0 && (
+                    <TabsContent value="profession">
+                      <FlashCards items={getProfessionFlashCards()} title={`Flash Cards - ${professions.find(p => p.id === selectedProfession)?.name}`} />
+                    </TabsContent>
+                  )}
                   <TabsContent value="alphabet">
                     <FlashCards items={getFlashCardsData("alphabet")} title="Flash Cards - Alphabet" />
                   </TabsContent>
@@ -638,11 +656,17 @@ export const LearningDecisionTree = () => {
                 </Tabs>
               )}
               {adultExerciseType === "quiz" && (
-                <Tabs defaultValue="alphabet" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                <Tabs defaultValue={professionWords.length > 0 ? "profession" : "alphabet"} className="w-full">
+                  <TabsList className={`grid w-full mb-6 ${professionWords.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {professionWords.length > 0 && <TabsTrigger value="profession">Professionnel</TabsTrigger>}
                     <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
                     <TabsTrigger value="numbers">Chiffres</TabsTrigger>
                   </TabsList>
+                  {professionWords.length > 0 && (
+                    <TabsContent value="profession">
+                      <QuizExercise items={getProfessionQuizData()} title={`Quiz - ${professions.find(p => p.id === selectedProfession)?.name}`} />
+                    </TabsContent>
+                  )}
                   <TabsContent value="alphabet">
                     <QuizExercise items={getQuizData("alphabet")} title="Quiz - Alphabet" />
                   </TabsContent>
@@ -652,11 +676,17 @@ export const LearningDecisionTree = () => {
                 </Tabs>
               )}
               {adultExerciseType === "matching" && (
-                <Tabs defaultValue="alphabet" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                <Tabs defaultValue={professionWords.length > 0 ? "profession" : "alphabet"} className="w-full">
+                  <TabsList className={`grid w-full mb-6 ${professionWords.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                    {professionWords.length > 0 && <TabsTrigger value="profession">Professionnel</TabsTrigger>}
                     <TabsTrigger value="alphabet">Alphabet</TabsTrigger>
                     <TabsTrigger value="numbers">Chiffres</TabsTrigger>
                   </TabsList>
+                  {professionWords.length > 0 && (
+                    <TabsContent value="profession">
+                      <MatchingExercise items={getProfessionMatchingData()} title={`Appariement - ${professions.find(p => p.id === selectedProfession)?.name}`} />
+                    </TabsContent>
+                  )}
                   <TabsContent value="alphabet">
                     <MatchingExercise items={getMatchingData("alphabet")} title="Appariement - Alphabet" />
                   </TabsContent>
