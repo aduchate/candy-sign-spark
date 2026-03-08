@@ -70,9 +70,14 @@ const Dashboard = () => {
     | "starterpack"
     | "liens"
     | null;
-  const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements"
+  const [activeSection, setActiveSectionRaw] = useState<
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements" | "profil"
   >(sectionParam || "apprentissage");
+
+  const setActiveSection = (section: typeof activeSection) => {
+    addHistoryEntry(section);
+    setActiveSectionRaw(section);
+  };
   const [notionOpen, setNotionOpen] = useState(true);
   const [medicalOpen, setMedicalOpen] = useState(false);
   const [utilitairesOpen, setUtilitairesOpen] = useState(false);
