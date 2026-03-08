@@ -453,6 +453,7 @@ const Dashboard = () => {
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
               {activeSection === "dons" && "Dons pour votre cause"}
+              {activeSection === "profil" && "Mon Profil"}
             </h2>
             {!isOfflineMode && (
               <Link to="/stats">
