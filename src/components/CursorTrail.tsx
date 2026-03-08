@@ -35,9 +35,9 @@ export const CursorTrail = () => {
       if (now - lastSpawn > 16) {
         lastSpawn = now;
         // Spawn trail particles with random velocity
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 1; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 1.5 + 0.5;
+          const speed = Math.random() * 1 + 0.3;
           trailRef.current.push({
             x: e.clientX,
             y: e.clientY,
@@ -83,12 +83,12 @@ export const CursorTrail = () => {
 
         if (p.age < 1) {
           const alpha = 1 - p.age;
-          const size = (1 - p.age) * 6;
+          const size = (1 - p.age) * 3;
           ctx.save();
           ctx.globalAlpha = alpha * 0.8;
           ctx.fillStyle = color;
           ctx.shadowColor = color;
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 6;
           
           // Star sparkle shape
           ctx.translate(p.x, p.y);
@@ -97,7 +97,7 @@ export const CursorTrail = () => {
           for (let s = 0; s < 4; s++) {
             const a = (s / 4) * Math.PI * 2;
             ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(a) * size * 2.5, Math.sin(a) * size * 2.5);
+            ctx.lineTo(Math.cos(a) * size * 1.5, Math.sin(a) * size * 1.5);
           }
           ctx.strokeStyle = color;
           ctx.lineWidth = 1.5;
@@ -115,7 +115,7 @@ export const CursorTrail = () => {
       // Glow halo behind cursor
       ctx.save();
       ctx.translate(mx, my);
-      const glowR = hovering ? 50 : 35;
+      const glowR = hovering ? 25 : 18;
       const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
       gradient.addColorStop(0, color.replace(')', ' / 0.35)').replace('hsl(', 'hsla('));
       gradient.addColorStop(0.5, color.replace(')', ' / 0.1)').replace('hsl(', 'hsla('));
@@ -128,14 +128,14 @@ export const CursorTrail = () => {
 
       // Main cursor — morphing polygon
       const sides = hovering ? 6 : 3;
-      const baseRadius = hovering ? 26 : 18;
-      const wobble = hovering ? 5 : 7;
+      const baseRadius = hovering ? 14 : 9;
+      const wobble = hovering ? 3 : 4;
 
       ctx.save();
       ctx.translate(mx, my);
       ctx.rotate(time * 0.8);
       ctx.shadowColor = color;
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 10;
       ctx.globalAlpha = 1;
       ctx.beginPath();
       for (let i = 0; i <= sides; i++) {
@@ -158,10 +158,10 @@ export const CursorTrail = () => {
       // Inner pulsing dot
       ctx.save();
       ctx.translate(mx, my);
-      const dotR = 4 + Math.sin(time * 5) * 2;
+      const dotR = 2.5 + Math.sin(time * 5) * 1;
       ctx.globalAlpha = 1;
       ctx.shadowColor = color;
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.arc(0, 0, dotR, 0, Math.PI * 2);
       ctx.fillStyle = color;
@@ -171,15 +171,15 @@ export const CursorTrail = () => {
       // Orbiting dots
       for (let i = 0; i < 3; i++) {
         const orbitAngle = time * 2 + (i / 3) * Math.PI * 2;
-        const orbitR = hovering ? 35 : 24;
+        const orbitR = hovering ? 18 : 13;
         const ox = mx + Math.cos(orbitAngle) * orbitR;
         const oy = my + Math.sin(orbitAngle) * orbitR;
         ctx.save();
-        ctx.globalAlpha = 0.8;
+        ctx.globalAlpha = 0.7;
         ctx.shadowColor = color;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 4;
         ctx.beginPath();
-        ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+        ctx.arc(ox, oy, 1.5, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
         ctx.restore();
