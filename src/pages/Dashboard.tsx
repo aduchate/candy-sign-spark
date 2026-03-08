@@ -36,6 +36,7 @@ import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { UtilitairesSection } from "@/components/UtilitairesSection";
+import { DonationSection } from "@/components/DonationSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
