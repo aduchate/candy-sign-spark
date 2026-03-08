@@ -344,28 +344,40 @@ const Dashboard = () => {
             >
               Utilitaires
             </Button>
-            <Button
-              onClick={() => setActiveSection("rendezvous")}
-              variant={activeSection === "rendezvous" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Prise de rendez-vous
-            </Button>
-            <Button
-              onClick={() => setActiveSection("hopitaux")}
-              variant={activeSection === "hopitaux" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Plans hôpitaux
-            </Button>
-            <Link to="/donations" className="w-full">
+            <div>
               <Button
-                variant="ghost"
+                onClick={() => setMedicalOpen(!medicalOpen)}
+                variant={["rendezvous", "hopitaux", "dons"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
-                Dons pour votre cause
+                Médical {medicalOpen ? "▾" : "▸"}
               </Button>
-            </Link>
+              {medicalOpen && (
+                <div className="ml-4 mt-1 space-y-1">
+                  <Button
+                    onClick={() => setActiveSection("rendezvous")}
+                    variant={activeSection === "rendezvous" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Prise de rendez-vous
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("hopitaux")}
+                    variant={activeSection === "hopitaux" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Plans hôpitaux
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("dons")}
+                    variant={activeSection === "dons" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Dons pour votre cause
+                  </Button>
+                </div>
+              )}
+            </div>
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
