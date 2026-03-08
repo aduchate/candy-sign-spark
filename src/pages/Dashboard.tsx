@@ -295,42 +295,40 @@ const Dashboard = () => {
         <nav className="flex-1 p-4">
           <h2 className="text-2xl font-bold mb-6 px-2">MENU</h2>
           <div className="space-y-3">
-            <Button
-              onClick={() => setActiveSection("apprentissage")}
-              variant={activeSection === "apprentissage" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Apprentissage
-            </Button>
-            <Button
-              onClick={() => setActiveSection("glossaire")}
-              variant={activeSection === "glossaire" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Glossaire
-            </Button>
-            <Button
-              onClick={() => setActiveSection("quizz")}
-              variant={activeSection === "quizz" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Quizz
-            </Button>
-            <Button
-              onClick={() => setActiveSection("traduction")}
-              variant={activeSection === "traduction" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-              disabled={isOfflineMode}
-            >
-              Traduction {isOfflineMode && <span className="text-xs ml-2 text-muted-foreground">(hors ligne)</span>}
-            </Button>
-            <Button
-              onClick={() => setActiveSection("starterpack")}
-              variant={activeSection === "starterpack" ? "default" : "ghost"}
-              className="w-full justify-start text-lg h-14"
-            >
-              Starter Pack
-            </Button>
+            <div>
+              <Button
+                onClick={() => setNotionOpen(!notionOpen)}
+                variant={["apprentissage", "glossaire", "starterpack"].includes(activeSection) ? "default" : "ghost"}
+                className="w-full justify-start text-lg h-14"
+              >
+                Notion {notionOpen ? "▾" : "▸"}
+              </Button>
+              {notionOpen && (
+                <div className="ml-4 mt-1 space-y-1">
+                  <Button
+                    onClick={() => setActiveSection("apprentissage")}
+                    variant={activeSection === "apprentissage" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Apprentissage
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("glossaire")}
+                    variant={activeSection === "glossaire" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Glossaire
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("starterpack")}
+                    variant={activeSection === "starterpack" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Starter Pack
+                  </Button>
+                </div>
+              )}
+            </div>
             <Button
               onClick={() => setActiveSection("liens")}
               variant={activeSection === "liens" ? "default" : "ghost"}
