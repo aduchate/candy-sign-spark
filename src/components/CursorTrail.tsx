@@ -83,7 +83,7 @@ export const CursorTrail = () => {
 
         if (p.age < 1) {
           const alpha = 1 - p.age;
-          const size = (1 - p.age) * 6;
+          const size = (1 - p.age) * 3;
           ctx.save();
           ctx.globalAlpha = alpha * 0.8;
           ctx.fillStyle = color;
