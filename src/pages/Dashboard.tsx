@@ -67,10 +67,11 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements"
   >(sectionParam || "apprentissage");
   const [notionOpen, setNotionOpen] = useState(true);
   const [medicalOpen, setMedicalOpen] = useState(false);
+  const [utilitairesOpen, setUtilitairesOpen] = useState(false);
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
