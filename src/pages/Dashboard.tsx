@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
-import { lessons as lessonsData } from "@/data/lessons";
+
 import ReactMarkdown from "react-markdown";
 import lsfbAlphabet from "@/assets/lsfb-alphabet.jpg";
 import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
