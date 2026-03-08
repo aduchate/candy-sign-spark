@@ -37,6 +37,9 @@ import { AppointmentBookingSection } from "@/components/AppointmentBookingSectio
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { UtilitairesSection } from "@/components/UtilitairesSection";
 import { DonationSection } from "@/components/DonationSection";
+import { NewsSection } from "@/components/NewsSection";
+import { JobListingsSection } from "@/components/JobListingsSection";
+import { CategoryArticleSection } from "@/components/CategoryArticleSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
@@ -67,10 +70,11 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements"
   >(sectionParam || "apprentissage");
   const [notionOpen, setNotionOpen] = useState(true);
   const [medicalOpen, setMedicalOpen] = useState(false);
+  const [utilitairesOpen, setUtilitairesOpen] = useState(false);
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
@@ -369,13 +373,25 @@ const Dashboard = () => {
                   >
                     Liens utiles
                   </Button>
-                  <Button
-                    onClick={() => setActiveSection("utilitaires")}
-                    variant={activeSection === "utilitaires" ? "secondary" : "ghost"}
-                    className="w-full justify-start text-base h-12"
-                  >
-                    Utilitaires
-                  </Button>
+                  <div>
+                    <Button
+                      onClick={() => setUtilitairesOpen(!utilitairesOpen)}
+                      variant={["actualites", "emploi", "administration", "projets", "formations", "evenements"].includes(activeSection) ? "secondary" : "ghost"}
+                      className="w-full justify-start text-base h-12"
+                    >
+                      Utilitaires {utilitairesOpen ? "▾" : "▸"}
+                    </Button>
+                    {utilitairesOpen && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        <Button onClick={() => setActiveSection("actualites")} variant={activeSection === "actualites" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Actualités</Button>
+                        <Button onClick={() => setActiveSection("emploi")} variant={activeSection === "emploi" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Aide à l'Emploi</Button>
+                        <Button onClick={() => setActiveSection("administration")} variant={activeSection === "administration" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Administration</Button>
+                        <Button onClick={() => setActiveSection("projets")} variant={activeSection === "projets" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Projets</Button>
+                        <Button onClick={() => setActiveSection("formations")} variant={activeSection === "formations" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Formations</Button>
+                        <Button onClick={() => setActiveSection("evenements")} variant={activeSection === "evenements" ? "secondary" : "ghost"} className="w-full justify-start text-sm h-10">Événements</Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -415,6 +431,12 @@ const Dashboard = () => {
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "utilitaires" && "Utilitaires"}
+              {activeSection === "actualites" && "Actualités"}
+              {activeSection === "emploi" && "Aide à l'Emploi"}
+              {activeSection === "administration" && "Administration"}
+              {activeSection === "projets" && "Projets"}
+              {activeSection === "formations" && "Formations"}
+              {activeSection === "evenements" && "Événements"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
               {activeSection === "dons" && "Dons pour votre cause"}
@@ -709,6 +731,38 @@ const Dashboard = () => {
           {activeSection === "liens" && <UsefulLinks />}
 
           {activeSection === "utilitaires" && <UtilitairesSection />}
+
+          {activeSection === "actualites" && (
+            <div className="max-w-6xl"><NewsSection /></div>
+          )}
+
+          {activeSection === "emploi" && (
+            <div className="max-w-6xl"><JobListingsSection /></div>
+          )}
+
+          {activeSection === "administration" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Atelier" icon="📋" description="Informations et démarches administratives" />
+            </div>
+          )}
+
+          {activeSection === "projets" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Projets" icon="🚀" description="Projets en cours et à venir" />
+            </div>
+          )}
+
+          {activeSection === "formations" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Formations accessibles" icon="🎓" description="Formations accessibles aux personnes sourdes et malentendantes" />
+            </div>
+          )}
+
+          {activeSection === "evenements" && (
+            <div className="max-w-6xl">
+              <CategoryArticleSection category="Événements" icon="📅" description="Événements et rencontres du SAREW" />
+            </div>
+          )}
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
