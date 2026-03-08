@@ -69,6 +69,7 @@ const Dashboard = () => {
     "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux"
   >(sectionParam || "apprentissage");
   const [notionOpen, setNotionOpen] = useState(true);
+  const [medicalOpen, setMedicalOpen] = useState(false);
   const [showStereotypeQuiz, setShowStereotypeQuiz] = useState(false);
   const [starterPackView, setStarterPackView] = useState<"main" | "adulte" | "enfant">("main");
   const [activeStarterSection, setActiveStarterSection] = useState<string | null>(null);
