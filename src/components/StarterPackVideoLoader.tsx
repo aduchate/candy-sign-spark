@@ -176,6 +176,7 @@ export const StarterPackVideoLoader = () => {
     // Don't mark as loaded if there are failures, so it will retry on next page load
     if (failed.length === 0) {
       localStorage.setItem(STORAGE_KEY, 'true');
+      localStorage.setItem('lsfb_starter_pack_count', ALL_WORDS.length.toString());
       toast({
         title: "Vidéos chargées",
         description: `Toutes les vidéos essentielles (${successCount}/${totalWords}) sont prêtes !`,
