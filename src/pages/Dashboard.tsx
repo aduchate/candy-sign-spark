@@ -713,6 +713,27 @@ const Dashboard = () => {
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
           {activeSection === "hopitaux" && <HospitalPlansSection />}
+
+          {activeSection === "dons" && (
+            <div className="max-w-4xl">
+              <Card className="p-8 mb-8">
+                <div className="text-center max-w-3xl mx-auto">
+                  <h2 className="text-3xl font-bold mb-4">
+                    Soutenez les ASBL qui œuvrent pour la communauté sourde
+                  </h2>
+                  <p className="text-lg text-muted-foreground">
+                    Votre générosité permet aux associations de continuer leur mission d'inclusion
+                    et d'accompagnement des personnes sourdes et malentendantes.
+                  </p>
+                </div>
+              </Card>
+              <DonationSection
+                organization="SAREW"
+                icon="❤️"
+                description="Soutenez SAREW dans sa mission d'inclusion et d'accessibilité pour les personnes sourdes"
+              />
+            </div>
+          )}
         </div>
       </main>
     </div>
