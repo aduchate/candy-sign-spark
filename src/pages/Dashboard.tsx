@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+
 
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useTranslation } from "react-i18next";
-import { lessons as lessonsData } from "@/data/lessons";
+
 import ReactMarkdown from "react-markdown";
 import lsfbAlphabet from "@/assets/lsfb-alphabet.jpg";
 import lsfbNumbers from "@/assets/lsfb-numbers.jpg";
@@ -163,10 +163,10 @@ const Dashboard = () => {
     }
 
     const allLessons = [
-      { id: 1, title: lessonsData["1"].title, progress: 0, locked: false, completed: false },
-      { id: 2, title: lessonsData["2"].title, progress: 0, locked: false, completed: false },
-      { id: 3, title: lessonsData["3"].title, progress: 0, locked: false, completed: false },
-      { id: 4, title: lessonsData["4"].title, progress: 0, locked: false, completed: false },
+      { id: 1, title: "Salutations", progress: 0, locked: false, completed: false },
+      { id: 2, title: "Alphabet", progress: 0, locked: false, completed: false },
+      { id: 3, title: "Chiffres", progress: 0, locked: false, completed: false },
+      { id: 4, title: "Vocabulaire de base", progress: 0, locked: false, completed: false },
       { id: 5, title: "Nourriture & Boissons", progress: 0, locked: true, completed: false },
       { id: 6, title: "Émotions", progress: 0, locked: true, completed: false },
     ];
