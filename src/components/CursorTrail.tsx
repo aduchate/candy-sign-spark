@@ -128,8 +128,8 @@ export const CursorTrail = () => {
 
       // Main cursor — morphing polygon
       const sides = hovering ? 6 : 3;
-      const baseRadius = hovering ? 26 : 18;
-      const wobble = hovering ? 5 : 7;
+      const baseRadius = hovering ? 14 : 9;
+      const wobble = hovering ? 3 : 4;
 
       ctx.save();
       ctx.translate(mx, my);
