@@ -115,6 +115,7 @@ export const LearningDecisionTree = () => {
   const [testAnswers, setTestAnswers] = useState<Record<number, number>>({});
   const [testCompleted, setTestCompleted] = useState(false);
   const [recommendedLevel, setRecommendedLevel] = useState<"A1" | "A2" | "B1" | "B2" | null>(null);
+  const [professionWords, setProfessionWords] = useState<any[]>([]);
 
   useEffect(() => {
     loadExerciseData();
