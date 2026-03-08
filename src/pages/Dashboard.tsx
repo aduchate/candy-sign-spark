@@ -37,6 +37,7 @@ import { AppointmentBookingSection } from "@/components/AppointmentBookingSectio
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { UtilitairesSection } from "@/components/UtilitairesSection";
 import { DonationSection } from "@/components/DonationSection";
+import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
 import { NewsSection } from "@/components/NewsSection";
 import { JobListingsSection } from "@/components/JobListingsSection";
 import { CategoryArticleSection } from "@/components/CategoryArticleSection";
@@ -69,9 +70,14 @@ const Dashboard = () => {
     | "starterpack"
     | "liens"
     | null;
-  const [activeSection, setActiveSection] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements"
+  const [activeSection, setActiveSectionRaw] = useState<
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "utilitaires" | "dons" | "rendezvous" | "hopitaux" | "actualites" | "emploi" | "administration" | "projets" | "formations" | "evenements" | "profil"
   >(sectionParam || "apprentissage");
+
+  const setActiveSection = (section: typeof activeSection) => {
+    addHistoryEntry(section);
+    setActiveSectionRaw(section);
+  };
   const [notionOpen, setNotionOpen] = useState(true);
   const [medicalOpen, setMedicalOpen] = useState(false);
   const [utilitairesOpen, setUtilitairesOpen] = useState(false);
@@ -395,6 +401,13 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
+            <Button
+              onClick={() => setActiveSection("profil")}
+              variant={activeSection === "profil" ? "default" : "ghost"}
+              className="w-full justify-start text-lg h-14"
+            >
+              Profil
+            </Button>
             {isAdmin && (
               <Link to="/admin" className="w-full">
                 <Button variant="ghost" className="w-full justify-start text-lg h-14">
@@ -440,6 +453,7 @@ const Dashboard = () => {
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
               {activeSection === "dons" && "Dons pour votre cause"}
+              {activeSection === "profil" && "Mon Profil"}
             </h2>
             {!isOfflineMode && (
               <Link to="/stats">
@@ -788,6 +802,8 @@ const Dashboard = () => {
               />
             </div>
           )}
+
+          {activeSection === "profil" && <ProfileSection user={user} />}
         </div>
       </main>
     </div>
