@@ -97,7 +97,7 @@ export const CursorTrail = () => {
           for (let s = 0; s < 4; s++) {
             const a = (s / 4) * Math.PI * 2;
             ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(a) * size * 2.5, Math.sin(a) * size * 2.5);
+            ctx.lineTo(Math.cos(a) * size * 1.5, Math.sin(a) * size * 1.5);
           }
           ctx.strokeStyle = color;
           ctx.lineWidth = 1.5;
