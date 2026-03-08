@@ -289,10 +289,10 @@ const Dashboard = () => {
   const displayName = user?.email?.split("@")[0] || "Utilisateur";
 
   return (
-    <div className={`min-h-screen flex bg-background theme-${activeSection} transition-colors duration-500`}>
+    <div className={`min-h-screen flex theme-${activeSection} transition-all duration-700`} style={{ background: `linear-gradient(135deg, hsl(var(--section-color) / 0.06) 0%, hsl(var(--section-color) / 0.02) 50%, hsl(var(--background)) 100%)` }}>
       <CursorTrail />
       {/* Menu latéral */}
-      <aside className="w-80 bg-card border-r border-border flex flex-col">
+      <aside className="w-80 border-r border-border flex flex-col transition-all duration-700" style={{ background: `linear-gradient(180deg, hsl(var(--section-color) / 0.08) 0%, hsl(var(--card)) 40%)` }}>
         <div className="p-6 border-b border-border">
           <div className="mb-2">
             <h1 className="text-xl font-bold">
