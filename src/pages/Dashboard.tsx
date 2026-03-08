@@ -37,6 +37,7 @@ import { AppointmentBookingSection } from "@/components/AppointmentBookingSectio
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { UtilitairesSection } from "@/components/UtilitairesSection";
 import { DonationSection } from "@/components/DonationSection";
+import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
 import { NewsSection } from "@/components/NewsSection";
 import { JobListingsSection } from "@/components/JobListingsSection";
 import { CategoryArticleSection } from "@/components/CategoryArticleSection";
