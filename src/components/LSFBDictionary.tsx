@@ -223,17 +223,52 @@ export const LSFBDictionary = () => {
               </div>
             )}
           </div>
+
+          {/* Main video from dico.lsfb.be */}
           {selectedSign.videoUrl && (
-            <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-4">
-              <video
-                src={selectedSign.videoUrl}
-                controls
-                autoPlay
-                loop
-                className="w-full h-full object-cover"
-              />
+            <div className="space-y-2 mb-4">
+              <Badge variant="outline" className="text-xs">dico.lsfb.be</Badge>
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                <video
+                  src={selectedSign.videoUrl}
+                  controls
+                  autoPlay
+                  loop
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           )}
+
+          {/* Variant videos from mot-signe.be */}
+          {selectedSign.variants && selectedSign.variants.length > 0 && (
+            <div className="space-y-3 mb-4">
+              <h4 className="font-semibold text-sm text-muted-foreground">Variantes</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {selectedSign.variants.map((variant, i) => (
+                  <div key={i} className="space-y-1">
+                    <Badge variant="secondary" className="text-xs">{variant.source}</Badge>
+                    <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                      <video
+                        src={variant.video_url}
+                        controls
+                        loop
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {variant.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {variant.tags.map((tag, j) => (
+                          <Badge key={j} variant="outline" className="text-[10px]">{tag}</Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {selectedSign.description && (
             <p className="text-muted-foreground mb-4">{selectedSign.description}</p>
           )}
