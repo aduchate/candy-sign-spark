@@ -581,6 +581,7 @@ const Dashboard = () => {
                   {activeStarterSection === "work" && <WorkVocabGrid />}
                   {activeStarterSection === "dates" && <DatesGrid />}
                   {activeStarterSection === "emergency" && <EmergencyGrid />}
+                  {activeStarterSection === "negation" && <NegationGrid />}
 
                   {!activeStarterSection && (
                     <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
