@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Loader2, Search } from "lucide-react";
 import { WordCategoryEditor } from "./WordCategoryEditor";
 import { WordLevelEditor } from "./WordLevelEditor";
+import { Badge } from "@/components/ui/badge";
 
 interface LSFBSign {
   id?: string;
