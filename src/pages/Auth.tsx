@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import signAccessLogo from "@/assets/signaccess-logo.jpeg";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255),
