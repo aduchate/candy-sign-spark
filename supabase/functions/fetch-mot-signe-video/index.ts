@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 Deno.serve(async (req) => {
@@ -17,9 +17,9 @@ Deno.serve(async (req) => {
     );
 
     const { word } = await req.json();
-    console.log(`Fetching mot-signe.be video for: ${word}`);
+    console.log(`Fetching corpus-lsfb.be variant for: ${word}`);
 
-    // First check if we already have a variant for this word
+    // Find the word in word_signs
     const { data: existingWord } = await supabase
       .from('word_signs')
       .select('id')
@@ -38,174 +38,143 @@ Deno.serve(async (req) => {
       .from('word_sign_variants')
       .select('id, video_url')
       .eq('word_sign_id', existingWord.id)
-      .eq('source', 'mot-signe')
+      .eq('source', 'corpus-lsfb')
       .maybeSingle();
 
     if (existingVariant) {
-      console.log(`Variant already exists for ${word}`);
       return new Response(
         JSON.stringify({ success: true, video_url: existingVariant.video_url, already_exists: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Fetch search page from mot-signe.be
-    const searchUrl = `https://www.mot-signe.be/lexicons?search=${encodeURIComponent(word)}&sign-status=all`;
-    console.log(`Fetching: ${searchUrl}`);
+    // Step 1: Search for the sign on corpus-lsfb.be using search.php
+    const searchWord = word.toUpperCase().replace(/[éèê]/gi, 'E').replace(/[àâ]/gi, 'A').replace(/[ùû]/gi, 'U').replace(/[ôö]/gi, 'O').replace(/[îï]/gi, 'I').replace(/[ç]/gi, 'C');
     
-    const response = await fetch(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml',
-      },
+    console.log(`Searching corpus-lsfb.be for: ${searchWord}`);
+    const searchResponse = await fetch('https://www.corpus-lsfb.be/search.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `searching=${encodeURIComponent(searchWord)}`,
     });
 
-    if (!response.ok) {
-      console.log(`mot-signe.be returned ${response.status}`);
+    if (!searchResponse.ok) {
+      console.log(`search.php returned ${searchResponse.status}`);
       return new Response(
-        JSON.stringify({ success: false, error: `mot-signe.be returned ${response.status}` }),
+        JSON.stringify({ success: false, error: 'corpus-lsfb.be search failed' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
       );
     }
 
-    const html = await response.text();
-    console.log(`Got HTML (${html.length} chars)`);
+    const searchHtml = await searchResponse.text();
+    console.log(`Search returned ${searchHtml.length} chars`);
 
-    // Extract video URLs from the HTML
-    // mot-signe.be uses video.js with <source> tags
-    const videoPatterns = [
-      // Standard source tags with mp4/webm
-      /<source[^>]*src="([^"]*\.(?:mp4|webm))"[^>]*>/gi,
-      // Video tags with src attribute
-      /<video[^>]*src="([^"]*\.(?:mp4|webm))"[^>]*>/gi,
-      // Data attributes
-      /data-src="([^"]*\.(?:mp4|webm))"/gi,
-      // JSON embedded data with video URLs
-      /"(?:video_?[Uu]rl|url|src)"\s*:\s*"([^"]*\.(?:mp4|webm))"/gi,
-      // Any URL ending in mp4 or webm
-      /https?:\/\/[^\s"'<>]*\.(?:mp4|webm)/gi,
-    ];
+    // Extract sign IDs from the search results HTML
+    // Format: <tr class="vocabulaire" id="123"><td>SIGN_NAME</td>...
+    const signIdPattern = /id="(\d+)"[^>]*><td>([^<]+)<\/td>/gi;
+    let match;
+    let signId = '';
+    let signName = '';
 
-    const foundUrls: string[] = [];
-    for (const pattern of videoPatterns) {
-      let match;
-      while ((match = pattern.exec(html)) !== null) {
-        const url = match[1] || match[0];
-        if (url && url.startsWith('http') && !foundUrls.includes(url)) {
-          foundUrls.push(url);
-        }
+    while ((match = signIdPattern.exec(searchHtml)) !== null) {
+      const candidateName = match[2].trim().toUpperCase();
+      const candidateId = match[1];
+      // Exact match or close match
+      if (candidateName === searchWord || candidateName.startsWith(searchWord + '.') || candidateName.startsWith(searchWord + '-')) {
+        signId = candidateId;
+        signName = candidateName;
+        if (candidateName === searchWord) break; // Prefer exact match
       }
     }
 
-    console.log(`Found ${foundUrls.length} video URLs`);
-
-    if (foundUrls.length === 0) {
-      // Try to find GIF/WEBP animated images as fallback
-      const gifPatterns = [
-        /https?:\/\/[^\s"'<>]*\.(?:gif|webp)/gi,
-        /<img[^>]*src="([^"]*\.(?:gif|webp))"[^>]*>/gi,
-      ];
-      
-      for (const pattern of gifPatterns) {
-        let match;
-        while ((match = pattern.exec(html)) !== null) {
-          const url = match[1] || match[0];
-          if (url && url.startsWith('http') && !foundUrls.includes(url)) {
-            foundUrls.push(url);
-          }
-        }
-      }
-      
-      console.log(`Found ${foundUrls.length} image URLs as fallback`);
-    }
-
-    if (foundUrls.length === 0) {
+    if (!signId) {
+      console.log(`No matching sign found for ${searchWord}`);
       return new Response(
-        JSON.stringify({ success: false, error: 'No video found on mot-signe.be', html_length: html.length }),
+        JSON.stringify({ success: false, error: `No sign found on corpus-lsfb.be for "${word}"` }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
       );
     }
 
-    // Take the first video URL found
-    const videoUrl = foundUrls[0];
-    console.log(`Using video URL: ${videoUrl}`);
+    console.log(`Found sign: ${signName} (id: ${signId})`);
 
-    // Try to download and re-upload to our storage
-    try {
-      const videoResponse = await fetch(videoUrl);
-      if (videoResponse.ok) {
-        const videoBlob = await videoResponse.blob();
-        const videoArrayBuffer = await videoBlob.arrayBuffer();
-        
-        const contentType = videoResponse.headers.get('content-type') || 'video/mp4';
-        const ext = videoUrl.includes('.webm') ? 'webm' : videoUrl.includes('.gif') ? 'gif' : videoUrl.includes('.webp') ? 'webp' : 'mp4';
-        
-        const fileName = `mot-signe/${word.toLowerCase().replace(/\s+/g, '-')}.${ext}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('lsfb-videos')
-          .upload(fileName, videoArrayBuffer, {
-            contentType,
-            upsert: true,
-          });
-
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage
-            .from('lsfb-videos')
-            .getPublicUrl(fileName);
-
-          const storedUrl = urlData.publicUrl;
-
-          // Extract tags from HTML context around the video
-          const tags: string[] = [];
-          const tagPattern = new RegExp(`(?:${word}[^<]*?)(?:<[^>]+class="[^"]*badge[^"]*"[^>]*>([^<]+)<)`, 'gi');
-          let tagMatch;
-          while ((tagMatch = tagPattern.exec(html)) !== null) {
-            if (tagMatch[1]) tags.push(tagMatch[1].trim());
-          }
-
-          // Save variant to database
-          const { error: dbError } = await supabase
-            .from('word_sign_variants')
-            .insert({
-              word_sign_id: existingWord.id,
-              video_url: storedUrl,
-              source: 'mot-signe',
-              source_url: searchUrl,
-              tags: tags.length > 0 ? tags : [word],
-            });
-
-          if (dbError) {
-            console.error('DB error:', dbError);
-          }
-
-          return new Response(
-            JSON.stringify({ success: true, video_url: storedUrl, source_url: searchUrl, tags }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-      }
-    } catch (downloadError) {
-      console.error('Download/upload error:', downloadError);
+    // Step 2: Get the vocabulary data (includes GIF URL)
+    const vocabResponse = await fetch(`https://www.corpus-lsfb.be/getVocabulaire.php?mot=${signId}`);
+    if (!vocabResponse.ok) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'getVocabulaire.php failed' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      );
     }
 
-    // Fallback: store the direct URL without re-uploading
+    const vocabData = await vocabResponse.json();
+    console.log(`Vocab data:`, JSON.stringify(vocabData));
+
+    const gifPath = vocabData.url;
+    if (!gifPath) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'No GIF URL in vocabulary data' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      );
+    }
+
+    // Step 3: Download the GIF
+    const gifUrl = `https://www.corpus-lsfb.be/img/pictures/${gifPath}`;
+    console.log(`Downloading GIF: ${gifUrl}`);
+
+    const gifResponse = await fetch(gifUrl);
+    if (!gifResponse.ok) {
+      console.log(`GIF download failed: ${gifResponse.status}`);
+      // Store direct URL as fallback
+      const { error: dbError } = await supabase
+        .from('word_sign_variants')
+        .insert({
+          word_sign_id: existingWord.id,
+          video_url: gifUrl,
+          source: 'corpus-lsfb',
+          source_url: `https://www.corpus-lsfb.be/lexique.php`,
+          tags: [word, signName],
+        });
+      
+      return new Response(
+        JSON.stringify({ success: true, video_url: gifUrl, source: 'corpus-lsfb' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Upload to our storage
+    const gifBlob = await gifResponse.blob();
+    const gifArrayBuffer = await gifBlob.arrayBuffer();
+    const contentType = gifResponse.headers.get('content-type') || 'image/gif';
+    const ext = gifPath.split('.').pop() || 'gif';
+    const fileName = `corpus-lsfb/${word.toLowerCase().replace(/\s+/g, '-')}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('lsfb-videos')
+      .upload(fileName, gifArrayBuffer, { contentType, upsert: true });
+
+    let storedUrl = gifUrl;
+    if (!uploadError) {
+      const { data: urlData } = supabase.storage.from('lsfb-videos').getPublicUrl(fileName);
+      storedUrl = urlData.publicUrl;
+    } else {
+      console.error('Upload error:', uploadError);
+    }
+
+    // Save variant
     const { error: dbError } = await supabase
       .from('word_sign_variants')
       .insert({
         word_sign_id: existingWord.id,
-        video_url: videoUrl,
-        source: 'mot-signe',
-        source_url: searchUrl,
-        tags: [word],
+        video_url: storedUrl,
+        source: 'corpus-lsfb',
+        source_url: `https://www.corpus-lsfb.be/lexique.php`,
+        tags: [word, signName],
       });
 
-    if (dbError) {
-      console.error('DB error:', dbError);
-    }
+    if (dbError) console.error('DB error:', dbError);
 
     return new Response(
-      JSON.stringify({ success: true, video_url: videoUrl, source_url: searchUrl }),
+      JSON.stringify({ success: true, video_url: storedUrl, sign_name: signName, source: 'corpus-lsfb' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
