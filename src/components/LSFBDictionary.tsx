@@ -59,6 +59,20 @@ export const LSFBDictionary = () => {
         .single();
 
       if (existingData) {
+        // Load variants
+        let variants: { video_url: string; source: string; tags: string[] }[] = [];
+        const { data: variantData } = await supabase
+          .from('word_sign_variants')
+          .select('video_url, source, tags')
+          .eq('word_sign_id', existingData.id);
+        if (variantData) {
+          variants = variantData.map(v => ({
+            video_url: v.video_url,
+            source: v.source,
+            tags: v.tags || [],
+          }));
+        }
+
         const foundSigns: LSFBSign[] = [{
           id: existingData.id,
           title: existingData.word.charAt(0).toUpperCase() + existingData.word.slice(1),
@@ -66,9 +80,10 @@ export const LSFBDictionary = () => {
           description: existingData.signed_grammar || `Signe pour "${existingData.word}" en LSFB`,
           sourceUrl: existingData.source_url || "https://dico.lsfb.be/",
           level: existingData.category,
+          variants,
         }];
         setSigns(foundSigns);
-        toast.success("Signe trouvé dans la base de données");
+        toast.success(`Signe trouvé${variants.length > 0 ? ` + ${variants.length} variante(s)` : ''}`);
         setIsLoading(false);
         return;
       }
