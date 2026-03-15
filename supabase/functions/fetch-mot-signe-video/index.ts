@@ -68,23 +68,32 @@ Deno.serve(async (req) => {
 
     const searchHtml = await searchResponse.text();
     console.log(`Search returned ${searchHtml.length} chars`);
+    console.log(`Search HTML preview: ${searchHtml.substring(0, 500)}`);
 
     // Extract sign IDs from the search results HTML
-    // Format: <tr class="vocabulaire" id="123"><td>SIGN_NAME</td>...
-    const signIdPattern = /id="(\d+)"[^>]*><td>([^<]+)<\/td>/gi;
-    let match;
+    // Try multiple patterns
+    const patterns = [
+      /id="(\d+)"[^>]*>[\s]*<td>([^<]+)<\/td>/gi,
+      /id="(\d+)".*?<td>([^<]+)<\/td>/gi,
+      /id=["'](\d+)["'][^>]*>.*?<td>\s*([^<]+?)\s*<\/td>/gis,
+    ];
+    
     let signId = '';
     let signName = '';
 
-    while ((match = signIdPattern.exec(searchHtml)) !== null) {
-      const candidateName = match[2].trim().toUpperCase();
-      const candidateId = match[1];
-      // Exact match or close match
-      if (candidateName === searchWord || candidateName.startsWith(searchWord + '.') || candidateName.startsWith(searchWord + '-')) {
-        signId = candidateId;
-        signName = candidateName;
-        if (candidateName === searchWord) break; // Prefer exact match
+    for (const pattern of patterns) {
+      let match;
+      while ((match = pattern.exec(searchHtml)) !== null) {
+        const candidateName = match[2].trim().toUpperCase();
+        const candidateId = match[1];
+        console.log(`Found candidate: ${candidateName} (id: ${candidateId})`);
+        if (candidateName === searchWord || candidateName.startsWith(searchWord + '.') || candidateName.startsWith(searchWord + '-') || searchWord.includes(candidateName)) {
+          signId = candidateId;
+          signName = candidateName;
+          if (candidateName === searchWord) break;
+        }
       }
+      if (signId) break;
     }
 
     if (!signId) {
