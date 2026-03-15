@@ -430,47 +430,6 @@ export type Database = {
           },
         ]
       }
-      word_sign_variants: {
-        Row: {
-          created_at: string | null
-          id: string
-          source: string
-          source_url: string | null
-          tags: string[] | null
-          updated_at: string | null
-          video_url: string
-          word_sign_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          source?: string
-          source_url?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-          video_url: string
-          word_sign_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          source?: string
-          source_url?: string | null
-          tags?: string[] | null
-          updated_at?: string | null
-          video_url?: string
-          word_sign_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "word_sign_variants_word_sign_id_fkey"
-            columns: ["word_sign_id"]
-            isOneToOne: false
-            referencedRelation: "word_signs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       word_signs: {
         Row: {
           category: string
