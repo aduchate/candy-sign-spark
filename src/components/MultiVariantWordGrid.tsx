@@ -117,7 +117,18 @@ export const MultiVariantWordGrid = ({ title, description, words }: MultiVariant
     <div className="space-y-6">
       <div>
         <h3 className="text-2xl font-bold mb-4">{title}</h3>
-        <p className="text-muted-foreground mb-6">{description}</p>
+        <p className="text-muted-foreground mb-2">{description}</p>
+        <p className="text-xs text-muted-foreground">
+          Certains mots peuvent avoir plusieurs variantes de signe.{" "}
+          <a
+            href="https://www.mot-signe.be/lexicons"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 underline hover:text-foreground transition-colors"
+          >
+            Voir plus sur mot-signe.be <ExternalLink className="h-3 w-3" />
+          </a>
+        </p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -170,6 +181,23 @@ export const MultiVariantWordGrid = ({ title, description, words }: MultiVariant
             </Card>
           );
         })}
+      </div>
+
+      <div className="flex justify-center pt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
+        >
+          <a
+            href={`https://www.mot-signe.be/lexicons?search=${encodeURIComponent(words[0] || '')}&sign-status=all`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2"
+          >
+            Explorer les variantes sur mot-signe.be <ExternalLink className="h-4 w-4" />
+          </a>
+        </Button>
       </div>
     </div>
   );
