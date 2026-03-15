@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ExternalLink } from "lucide-react";
+import { Loader2, ExternalLink, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface WordVariant {
@@ -27,8 +27,8 @@ export const MultiVariantWordGrid = ({ title, description, words, wordGroups }: 
   const [variants, setVariants] = useState<WordVariant[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
 
-  // Flatten all words from either words or wordGroups
   const allWords = wordGroups
     ? wordGroups.flatMap(g => g.words)
     : words || [];
@@ -36,6 +36,13 @@ export const MultiVariantWordGrid = ({ title, description, words, wordGroups }: 
   useEffect(() => {
     loadAllVariants();
   }, []);
+
+  // Open first group by default once loaded
+  useEffect(() => {
+    if (!loading && wordGroups && wordGroups.length > 0 && openGroups.size === 0) {
+      setOpenGroups(new Set([wordGroups[0].label]));
+    }
+  }, [loading]);
 
   const loadAllVariants = async () => {
     setLoading(true);
@@ -58,10 +65,13 @@ export const MultiVariantWordGrid = ({ title, description, words, wordGroups }: 
             });
           });
         } else {
+          // Try both sources in parallel
           try {
-            await supabase.functions.invoke('fetch-corpus-lsfb-variants', {
-              body: { word }
-            });
+            await Promise.allSettled([
+              supabase.functions.invoke('fetch-corpus-lsfb-variants', { body: { word } }),
+              supabase.functions.invoke('fetch-mot-signe-variants', { body: { word } }),
+            ]);
+            // Re-fetch from DB
             const { data: newData } = await supabase
               .from("word_signs")
               .select("id, word, video_url")
@@ -95,6 +105,18 @@ export const MultiVariantWordGrid = ({ title, description, words, wordGroups }: 
 
   const getVariantCount = (word: string) =>
     variants.filter(v => v.word.toLowerCase() === word.toLowerCase()).length;
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(label)) {
+        next.delete(label);
+      } else {
+        next.add(label);
+      }
+      return next;
+    });
+  };
 
   const renderCard = (item: WordVariant) => {
     const variantCount = getVariantCount(item.word);
@@ -160,7 +182,7 @@ export const MultiVariantWordGrid = ({ title, description, words, wordGroups }: 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h3 className="text-2xl font-bold mb-2">{title}</h3>
         <p className="text-muted-foreground mb-2">{description}</p>
@@ -178,14 +200,32 @@ export const MultiVariantWordGrid = ({ title, description, words, wordGroups }: 
       </div>
 
       {wordGroups ? (
-        wordGroups.map((group) => (
-          <div key={group.label}>
-            <h4 className="text-lg font-semibold mb-3 text-foreground">{group.label}</h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
-              {renderWordCards(group.words)}
-            </div>
-          </div>
-        ))
+        <div className="space-y-2">
+          {wordGroups.map((group) => {
+            const isOpen = openGroups.has(group.label);
+            return (
+              <div key={group.label} className="border border-border rounded-lg overflow-hidden">
+                <button
+                  onClick={() => toggleGroup(group.label)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+                >
+                  <span className="text-lg font-semibold text-foreground">{group.label}</span>
+                  <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                    {group.words.length} mots
+                    {isOpen ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                  </span>
+                </button>
+                {isOpen && (
+                  <div className="p-4 pt-0">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {renderWordCards(group.words)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {renderWordCards(allWords)}
