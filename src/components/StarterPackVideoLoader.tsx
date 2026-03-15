@@ -17,6 +17,8 @@ const ESSENTIAL_WORDS = {
     'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
     'janvier', 'fevrier', 'avril', 'mai', 'juin',
     'juillet', 'aout', 'septembre', 'octobre', 'novembre',
+    // Négation
+    'rien', 'aucun', 'non', 'non merci',
   ],
   child: [
     // Salutations
