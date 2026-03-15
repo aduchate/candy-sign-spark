@@ -598,13 +598,6 @@ const Dashboard = () => {
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("greetings")}>
-                          <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
-                          <h4 className="text-xl font-bold mb-2">Salutations professionnelles</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Les formules de politesse pour le travail</p>
-                          <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
-                        </Card>
-
                         <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("numbers")}>
                           <img src={lsfbNumbers} alt="Chiffres LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
                           <h4 className="text-xl font-bold mb-2">Chiffres et nombres</h4>
@@ -612,24 +605,31 @@ const Dashboard = () => {
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("work")}>
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("dates")}>
                           <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
-                          <h4 className="text-xl font-bold mb-2">Vocabulaire professionnel</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Métiers, entreprise, réunions</p>
+                          <h4 className="text-xl font-bold mb-2">Dates et temps</h4>
+                          <p className="text-sm text-muted-foreground mb-4">Jours, mois, aujourd'hui, demain</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("dates")}>
-                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
-                          <h4 className="text-xl font-bold mb-2">Temps et dates</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Heures, jours, mois, années</p>
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("greetings")}>
+                          <img src={lsfbGreetings} alt="Salutations LSFB" className="w-full h-48 object-cover rounded-lg mb-4" />
+                          <h4 className="text-xl font-bold mb-2">Salutations</h4>
+                          <p className="text-sm text-muted-foreground mb-4">Bonjour, merci, au revoir</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
 
                         <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("emergency")}>
                           <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
-                          <h4 className="text-xl font-bold mb-2">Situations d&apos;urgence</h4>
-                          <p className="text-sm text-muted-foreground mb-4">Santé, sécurité, aide</p>
+                          <h4 className="text-xl font-bold mb-2">Urgences</h4>
+                          <p className="text-sm text-muted-foreground mb-4">Aide, douleur, hôpital, danger</p>
+                          <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
+                        </Card>
+
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("work")}>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4"></div>
+                          <h4 className="text-xl font-bold mb-2">Vocabulaire professionnel</h4>
+                          <p className="text-sm text-muted-foreground mb-4">Travail, bureau, réunion, projet</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
                       </div>
