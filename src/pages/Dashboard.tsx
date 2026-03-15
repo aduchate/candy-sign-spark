@@ -634,6 +634,13 @@ const Dashboard = () => {
                           <p className="text-sm text-muted-foreground mb-4">Santé, sécurité, aide</p>
                           <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
                         </Card>
+
+                        <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10 backdrop-blur-sm border-2 hover:shadow-candy transition-all cursor-pointer" onClick={() => setActiveStarterSection("negation")}>
+                          <div className="w-full h-48 bg-muted rounded-lg mb-4 flex items-center justify-center text-4xl">🚫</div>
+                          <h4 className="text-xl font-bold mb-2">Négation</h4>
+                          <p className="text-sm text-muted-foreground mb-4">Non, rien, aucun, non merci</p>
+                          <div className="text-sm text-green-600 font-medium">✓ Disponible</div>
+                        </Card>
                       </div>
                     </Card>
                   )}
