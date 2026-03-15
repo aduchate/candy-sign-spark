@@ -37,6 +37,8 @@ const ESSENTIAL_WORDS = {
     'pomme', 'banane', 'pain', 'eau', 'lait', 'chocolat',
     // Jeux
     'ballon', 'jouer', 'courir', 'sauter',
+    // Négation
+    'rien', 'aucun', 'non', 'non merci',
   ],
   profession: [
     // Logopédie
