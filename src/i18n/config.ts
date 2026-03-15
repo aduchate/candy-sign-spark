@@ -5,7 +5,7 @@ const resources = {
   fr: {
     translation: {
       "app": {
-        "name": "SignLearn"
+        "name": "SignaccesS"
       },
       "common": {
         "back": "Retour au tableau de bord",
