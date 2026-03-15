@@ -17,6 +17,8 @@ const ESSENTIAL_WORDS = {
     'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
     'janvier', 'fevrier', 'avril', 'mai', 'juin',
     'juillet', 'aout', 'septembre', 'octobre', 'novembre',
+    // Négation
+    'rien', 'aucun', 'non', 'non merci',
   ],
   child: [
     // Salutations
@@ -35,6 +37,8 @@ const ESSENTIAL_WORDS = {
     'pomme', 'banane', 'pain', 'eau', 'lait', 'chocolat',
     // Jeux
     'ballon', 'jouer', 'courir', 'sauter',
+    // Négation
+    'rien', 'aucun', 'non', 'non merci',
   ],
   profession: [
     // Logopédie
