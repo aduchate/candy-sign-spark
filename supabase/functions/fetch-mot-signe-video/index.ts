@@ -70,30 +70,21 @@ Deno.serve(async (req) => {
     console.log(`Search returned ${searchHtml.length} chars`);
     console.log(`Search HTML preview: ${searchHtml.substring(0, 500)}`);
 
-    // Extract sign IDs from the search results HTML
-    // Try multiple patterns
-    const patterns = [
-      /id="(\d+)"[^>]*>[\s]*<td>([^<]+)<\/td>/gi,
-      /id="(\d+)".*?<td>([^<]+)<\/td>/gi,
-      /id=["'](\d+)["'][^>]*>.*?<td>\s*([^<]+?)\s*<\/td>/gis,
-    ];
-    
+    // Extract sign IDs - format: id='82'><td><a href='...'>BONJOUR</a>,</td>
+    const signPattern = /id=['"](\d+)['"][^>]*>[\s]*<td>[\s]*<a[^>]*>([^<]+)<\/a>/gi;
+    let match;
     let signId = '';
     let signName = '';
 
-    for (const pattern of patterns) {
-      let match;
-      while ((match = pattern.exec(searchHtml)) !== null) {
-        const candidateName = match[2].trim().toUpperCase();
-        const candidateId = match[1];
-        console.log(`Found candidate: ${candidateName} (id: ${candidateId})`);
-        if (candidateName === searchWord || candidateName.startsWith(searchWord + '.') || candidateName.startsWith(searchWord + '-') || searchWord.includes(candidateName)) {
-          signId = candidateId;
-          signName = candidateName;
-          if (candidateName === searchWord) break;
-        }
+    while ((match = signPattern.exec(searchHtml)) !== null) {
+      const candidateName = match[2].trim().toUpperCase().replace(/,$/,'');
+      const candidateId = match[1];
+      console.log(`Found candidate: ${candidateName} (id: ${candidateId})`);
+      if (candidateName === searchWord || candidateName.startsWith(searchWord + '.') || candidateName.startsWith(searchWord + '-')) {
+        signId = candidateId;
+        signName = candidateName;
+        if (candidateName === searchWord) break;
       }
-      if (signId) break;
     }
 
     if (!signId) {
