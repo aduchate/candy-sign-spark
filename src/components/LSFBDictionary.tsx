@@ -15,6 +15,7 @@ interface LSFBSign {
   description: string;
   sourceUrl: string;
   level?: string;
+  variants?: { video_url: string; source: string; tags: string[] }[];
 }
 
 export const LSFBDictionary = () => {
