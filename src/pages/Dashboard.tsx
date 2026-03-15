@@ -575,11 +575,11 @@ const Dashboard = () => {
                   </Button>
 
                   {activeStarterSection === "alphabet" && <AlphabetGrid />}
-                  {activeStarterSection === "greetings" && <GreetingsGrid />}
                   {activeStarterSection === "numbers" && <NumbersGrid />}
-                  {activeStarterSection === "work" && <WorkVocabGrid />}
                   {activeStarterSection === "dates" && <DatesGrid />}
+                  {activeStarterSection === "greetings" && <GreetingsGrid />}
                   {activeStarterSection === "emergency" && <EmergencyGrid />}
+                  {activeStarterSection === "work" && <WorkVocabGrid />}
 
                   {!activeStarterSection && (
                     <Card className="p-8 bg-card/40 backdrop-blur-md border-2 shadow-glow mb-8">
