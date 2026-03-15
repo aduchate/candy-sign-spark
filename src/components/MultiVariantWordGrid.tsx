@@ -68,19 +68,38 @@ export const MultiVariantWordGrid = ({ title, description, words }: MultiVariant
             });
           });
         } else {
-          // Mot sans vidéo encore
-          allVariants.push({
-            word,
-            videoUrl: "",
-            variantIndex: 0,
-            id: `missing-${word}`,
-          });
+          // Try fetching from corpus LSFB API
+          try {
+            await supabase.functions.invoke('fetch-corpus-lsfb-variants', {
+              body: { word }
+            });
+            // Re-fetch from DB after storing
+            const { data: newData } = await supabase
+              .from("word_signs")
+              .select("id, word, video_url")
+              .ilike("word", word);
+            if (newData && newData.length > 0) {
+              newData.forEach((row, index) => {
+                allVariants.push({
+                  word: row.word,
+                  videoUrl: row.video_url,
+                  variantIndex: index,
+                  id: row.id,
+                });
+              });
+            } else {
+              allVariants.push({ word, videoUrl: "", variantIndex: 0, id: `missing-${word}` });
+            }
+          } catch {
+            allVariants.push({ word, videoUrl: "", variantIndex: 0, id: `missing-${word}` });
+          }
         }
       })
     );
 
-    // Trier: grouper par mot (ordre original), puis par variant
-    const wordOrder = new Map(words.map((w, i) => [w.toLowerCase(), i]));
+    // Trier: grouper par mot (ordre alphabétique), puis par variant
+    const sortedWords = [...new Set(words.map(w => w.toLowerCase()))].sort();
+    const wordOrder = new Map(sortedWords.map((w, i) => [w, i]));
     allVariants.sort((a, b) => {
       const orderA = wordOrder.get(a.word.toLowerCase()) ?? 999;
       const orderB = wordOrder.get(b.word.toLowerCase()) ?? 999;
