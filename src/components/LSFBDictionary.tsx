@@ -200,9 +200,12 @@ export const LSFBDictionary = () => {
                   {sign.description}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground mt-2">
-                📹 Vidéo de démonstration
-              </p>
+              <div className="flex items-center gap-1 mt-2">
+                <Badge variant="outline" className="text-[10px]">dico.lsfb.be</Badge>
+                {sign.variants && sign.variants.map((v, i) => (
+                  <Badge key={i} variant="secondary" className="text-[10px]">{v.source}</Badge>
+                ))}
+              </div>
             </Card>
           ))}
         </div>
