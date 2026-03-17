@@ -119,7 +119,7 @@ const Auth = () => {
       <Card className="w-full max-w-md p-8 shadow-candy border-2">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 gradient-text">{t('app.name')}</h1>
-          <img src={signAccessLogo} alt="SignaccesS Logo" className="w-28 h-28 mx-auto rounded-full object-cover mb-4" />
+          <img src={signAccessLogo} alt="SignaccesS Logo" className="w-48 h-auto mx-auto rounded-lg object-contain mb-4" />
           <p className="text-muted-foreground">
             {isLogin ? t('auth.welcomeBack') : t('auth.startJourney')}
           </p>
