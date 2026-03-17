@@ -7,11 +7,12 @@ import { toast } from "sonner";
 import { Loader2, Search } from "lucide-react";
 import { WordCategoryEditor } from "./WordCategoryEditor";
 import { WordLevelEditor } from "./WordLevelEditor";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 
 interface LSFBSign {
   id?: string;
   title: string;
-  videoUrl: string | null;
+  videoUrls: string[];
   description: string;
   sourceUrl: string;
   level?: string;
@@ -54,17 +55,18 @@ export const LSFBDictionary = () => {
       const { data: existingData } = await supabase
         .from('word_signs')
         .select('id, word, video_url, source_url, signed_grammar, category')
-        .ilike('word', searchTerm.trim())
-        .single();
+        .ilike('word', searchTerm.trim());
 
-      if (existingData) {
+      if (existingData && existingData.length > 0) {
+        const first = existingData[0];
+        const videoUrls = existingData.map(d => d.video_url).filter(Boolean);
         const foundSigns: LSFBSign[] = [{
-          id: existingData.id,
-          title: existingData.word.charAt(0).toUpperCase() + existingData.word.slice(1),
-          videoUrl: existingData.video_url,
-          description: existingData.signed_grammar || `Signe pour "${existingData.word}" en LSFB`,
-          sourceUrl: existingData.source_url || "https://dico.lsfb.be/",
-          level: existingData.category,
+          id: first.id,
+          title: first.word.charAt(0).toUpperCase() + first.word.slice(1),
+          videoUrls,
+          description: first.signed_grammar || `Signe pour "${first.word}" en LSFB`,
+          sourceUrl: first.source_url || "https://dico.lsfb.be/",
+          level: first.category,
         }];
         setSigns(foundSigns);
         toast.success("Signe trouvé dans la base de données");
@@ -82,7 +84,7 @@ export const LSFBDictionary = () => {
       if (data?.success && data?.video_url) {
         const foundSigns: LSFBSign[] = [{
           title: searchTerm.trim().charAt(0).toUpperCase() + searchTerm.trim().slice(1),
-          videoUrl: data.video_url,
+          videoUrls: data.video_url ? [data.video_url] : [],
           description: data.description || `Signe pour "${searchTerm}" en LSFB`,
           sourceUrl: data.source_url || "https://dico.lsfb.be/",
         }];
@@ -168,14 +170,9 @@ export const LSFBDictionary = () => {
                   </div>
                 )}
               </div>
-              {sign.videoUrl && (
+              {sign.videoUrls.length > 0 && (
                 <div className="aspect-video bg-muted rounded-md overflow-hidden mb-2">
-                  <video
-                    src={sign.videoUrl}
-                    controls
-                    crossOrigin="anonymous"
-                    className="w-full h-full object-cover"
-                  />
+                  <MultiVideoPlayer videoUrls={sign.videoUrls} controls className="w-full h-full object-cover" />
                 </div>
               )}
               {sign.description && (
@@ -203,15 +200,9 @@ export const LSFBDictionary = () => {
               </div>
             )}
           </div>
-          {selectedSign.videoUrl && (
+          {selectedSign.videoUrls.length > 0 && (
             <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-4">
-              <video
-                src={selectedSign.videoUrl}
-                controls
-                autoPlay
-                loop
-                className="w-full h-full object-cover"
-              />
+              <MultiVideoPlayer videoUrls={selectedSign.videoUrls} controls className="w-full h-full object-cover" />
             </div>
           )}
           {selectedSign.description && (

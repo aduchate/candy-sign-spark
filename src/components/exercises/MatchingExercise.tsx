@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { ConfettiCelebration } from "./ConfettiCelebration";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 
 interface MatchingItem {
   id: string;
   text: string;
-  video: string;
+  video: string | string[];
 }
 
 interface MatchingExerciseProps {
@@ -189,9 +190,9 @@ export const MatchingExercise = ({ items, title, isChildMode = false }: Matching
               }`}
               onClick={() => handleVideoClick(item.id)}
             >
-              {item.video && (
-                <video
-                  src={item.video}
+              {item.video && (Array.isArray(item.video) ? item.video.length > 0 : true) && (
+                <MultiVideoPlayer
+                  videoUrls={Array.isArray(item.video) ? item.video : [item.video]}
                   autoPlay
                   loop
                   muted

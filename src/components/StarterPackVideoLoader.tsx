@@ -196,12 +196,6 @@ export const StarterPackVideoLoader = ({ profile }: StarterPackVideoLoaderProps)
       });
       // Auto-hide after 5 seconds if successful
       setTimeout(() => setIsVisible(false), 5000);
-    } else {
-      toast({
-        title: "Chargement terminé",
-        description: `${successCount}/${totalWords} vidéos chargées. ${failed.length} échec(s). Réessayez plus tard.`,
-        variant: "destructive",
-      });
     }
   };
 

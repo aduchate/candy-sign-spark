@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchVideoUrlsForWord } from "@/lib/wordSignsQuery";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { Loader2 } from "lucide-react";
 
 interface Family {
   word: string;
-  videoUrl: string;
+  videoUrls: string[];
 }
 
 export const FamilyGrid = () => {
@@ -24,16 +25,8 @@ export const FamilyGrid = () => {
     
     const familyWithVideos: Family[] = await Promise.all(
       familyWords.map(async (word) => {
-        const { data } = await supabase
-          .from("word_signs")
-          .select("video_url")
-          .ilike("word", word)
-          .maybeSingle();
-
-        return {
-          word,
-          videoUrl: data?.video_url || "",
-        };
+        const videoUrls = await fetchVideoUrlsForWord(word);
+        return { word, videoUrls };
       })
     );
 
@@ -68,19 +61,12 @@ export const FamilyGrid = () => {
             onMouseLeave={() => setHoveredWord(null)}
           >
             <div className="h-full flex flex-col items-center justify-center">
-              {hoveredWord === item.word && item.videoUrl ? (
-                <video
-                  src={item.videoUrl}
-                  className="w-full h-full object-contain rounded"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                />
+              {hoveredWord === item.word && item.videoUrls.length > 0 ? (
+                <MultiVideoPlayer videoUrls={item.videoUrls} className="w-full h-full object-contain rounded" />
               ) : (
                 <>
                   <div className="text-xl font-bold text-center capitalize">{item.word}</div>
-                  {!item.videoUrl && (
+                  {item.videoUrls.length === 0 && (
                     <Loader2 className="h-6 w-6 animate-spin text-primary mt-2" />
                   )}
                 </>

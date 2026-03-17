@@ -1,15 +1,16 @@
 import { GripVertical } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 
 interface WordCardProps {
   word: string;
-  videoUrl?: string;
+  videoUrls?: string[];
   isDragging?: boolean;
   isCorrect?: boolean;
   showFeedback?: boolean;
 }
 
-export const WordCard = ({ word, videoUrl, isDragging, isCorrect, showFeedback }: WordCardProps) => {
+export const WordCard = ({ word, videoUrls, isDragging, isCorrect, showFeedback }: WordCardProps) => {
   return (
     <Card
       className={`
@@ -20,15 +21,8 @@ export const WordCard = ({ word, videoUrl, isDragging, isCorrect, showFeedback }
     >
       <div className="flex items-center gap-3">
         <GripVertical className="h-5 w-5 text-muted-foreground" />
-        {videoUrl && (
-          <video
-            src={videoUrl}
-            className="w-16 h-16 object-cover rounded"
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
+        {videoUrls && videoUrls.length > 0 && (
+          <MultiVideoPlayer videoUrls={videoUrls} className="w-16 h-16 object-cover rounded" />
         )}
         <span className="text-lg font-medium">{word}</span>
       </div>

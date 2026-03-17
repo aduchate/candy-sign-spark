@@ -8,6 +8,7 @@ import { ExerciseSelector } from "./exercises/ExerciseSelector";
 import { FlashCards } from "./exercises/FlashCards";
 import { QuizExercise } from "./exercises/QuizExercise";
 import { MatchingExercise } from "./exercises/MatchingExercise";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -150,8 +151,20 @@ export const LearningDecisionTree = () => {
         .in('word', numbersWords);
 
       if (numberSigns) {
-        setNumbersData(numberSigns);
-        offlineCache.set('numbers_signs', numberSigns);
+        const groupedNumbers = (numberSigns ?? []).reduce<Record<string, { video_urls: string[] }>>((acc, row) => {
+          const key = row.word.toLowerCase();
+          if (!acc[key]) {
+            acc[key] = { video_urls: [] };
+          }
+          if (row.video_url) acc[key].video_urls.push(row.video_url);
+          return acc;
+        }, {});
+        const groupedNumbersData = Object.entries(groupedNumbers).map(([word, info]) => ({
+          word,
+          video_urls: info.video_urls,
+        }));
+        setNumbersData(groupedNumbersData);
+        offlineCache.set('numbers_signs', groupedNumbersData);
       }
     } catch (error) {
       console.error('Error loading exercise data:', error);
@@ -226,8 +239,22 @@ export const LearningDecisionTree = () => {
         .in('word', vocab.map(w => w.toLowerCase()));
 
       if (data && data.length > 0) {
-        setProfessionWords(data);
-        offlineCache.set(cacheKey, data);
+        const grouped = (data ?? []).reduce<Record<string, { video_urls: string[]; phrase?: string; signed_grammar?: string }>>((acc, row) => {
+          const key = row.word.toLowerCase();
+          if (!acc[key]) {
+            acc[key] = { video_urls: [], phrase: row.phrase, signed_grammar: row.signed_grammar };
+          }
+          if (row.video_url) acc[key].video_urls.push(row.video_url);
+          return acc;
+        }, {});
+        const groupedData = Object.entries(grouped).map(([word, info]) => ({
+          word,
+          video_urls: info.video_urls,
+          phrase: info.phrase,
+          signed_grammar: info.signed_grammar,
+        }));
+        setProfessionWords(groupedData);
+        offlineCache.set(cacheKey, groupedData);
       }
     } catch (err) {
       console.error('Error loading profession vocabulary:', err);
@@ -270,7 +297,7 @@ export const LearningDecisionTree = () => {
     if (type === "alphabet") {
       return alphabetData.map(item => ({
         front: item.letter,
-        back: item.video_url,
+        back: [item.video_url].filter(Boolean),
         label: `Lettre ${item.letter}`
       }));
     } else {
@@ -280,7 +307,7 @@ export const LearningDecisionTree = () => {
       };
       return numbersData.map(item => ({
         front: numberMap[item.word] || item.word,
-        back: item.video_url,
+        back: item.video_urls ?? [item.video_url].filter(Boolean),
         label: item.word.charAt(0).toUpperCase() + item.word.slice(1)
       }));
     }
@@ -294,8 +321,8 @@ export const LearningDecisionTree = () => {
     };
 
     return data.slice(0, 10).map((item) => {
-      const allVideos = data.map(d => d.video_url).filter(Boolean);
-      const correctAnswer = item.video_url;
+      const allVideos = data.map(d => type === "alphabet" ? d.video_url : (d.video_urls?.[0] ?? d.video_url)).filter(Boolean);
+      const correctAnswer = type === "alphabet" ? item.video_url : (item.video_urls?.[0] ?? item.video_url);
 
       const distractors = allVideos
         .filter(v => v !== correctAnswer)
@@ -323,22 +350,22 @@ export const LearningDecisionTree = () => {
     return data.slice(0, 8).map(item => ({
       id: type === "alphabet" ? item.letter : item.word,
       text: type === "alphabet" ? item.letter : (numberMap[item.word] || item.word),
-      video: item.video_url
+      video: type === "alphabet" ? [item.video_url].filter(Boolean) : (item.video_urls ?? [item.video_url].filter(Boolean))
     }));
   };
 
   const getProfessionFlashCards = () => {
     return professionWords.map(item => ({
       front: item.word.charAt(0).toUpperCase() + item.word.slice(1),
-      back: item.video_url,
+      back: item.video_urls ?? [item.video_url].filter(Boolean),
       label: item.word.charAt(0).toUpperCase() + item.word.slice(1)
     }));
   };
 
   const getProfessionQuizData = () => {
     return professionWords.slice(0, 10).map((item) => {
-      const allVideos = professionWords.map(d => d.video_url).filter(Boolean);
-      const correctAnswer = item.video_url;
+      const allVideos = professionWords.map(d => d.video_urls?.[0] ?? d.video_url).filter(Boolean);
+      const correctAnswer = item.video_urls?.[0] ?? item.video_url;
       const distractors = allVideos
         .filter(v => v !== correctAnswer)
         .sort(() => Math.random() - 0.5)
@@ -357,7 +384,7 @@ export const LearningDecisionTree = () => {
     return professionWords.slice(0, 8).map(item => ({
       id: item.word,
       text: item.word.charAt(0).toUpperCase() + item.word.slice(1),
-      video: item.video_url
+      video: item.video_urls ?? [item.video_url].filter(Boolean)
     }));
   };
 
@@ -625,14 +652,13 @@ export const LearningDecisionTree = () => {
                 {glossaryWords.map((word, index) => (
                   <Card key={index} className="p-4 text-center">
                     <p className="font-semibold">{word.word}</p>
-                    {word.video_url && (
-                      <video
-                        src={word.video_url}
+                    {word.video_urls?.length > 0 && (
+                      <MultiVideoPlayer
+                        videoUrls={word.video_urls}
                         className="w-full h-20 object-cover mt-2 rounded"
-                        muted
-                        loop
-                        onMouseEnter={(e) => e.currentTarget.play()}
-                        onMouseLeave={(e) => e.currentTarget.pause()}
+                        autoPlay={false}
+                        loop={true}
+                        muted={true}
                       />
                     )}
                   </Card>

@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { WordCard } from "@/components/WordCard";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchVideoUrlsForWord } from "@/lib/wordSignsQuery";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { Loader2 } from "lucide-react";
 
 interface WordCardData {
   word: string;
   order: number;
-  videoUrl?: string;
+  videoUrls?: string[];
 }
 
 interface SentenceOrderingExerciseProps {
@@ -38,17 +40,12 @@ export const SentenceOrderingExercise = ({
       setLoading(true);
       const wordsWithVideos = await Promise.all(
         words.map(async (word) => {
-          if (word.videoUrl) return word;
+          if (word.videoUrls) return word;
 
           // Try to get video from word_signs
-          const { data } = await supabase
-            .from("word_signs")
-            .select("video_url")
-            .eq("word", word.word.toLowerCase())
-            .maybeSingle();
-
-          if (data?.video_url) {
-            return { ...word, videoUrl: data.video_url };
+          const videoUrls = await fetchVideoUrlsForWord(word.word.toLowerCase(), 'eq');
+          if (videoUrls.length > 0) {
+            return { ...word, videoUrls };
           }
 
           // Fetch and store if not found
@@ -61,7 +58,7 @@ export const SentenceOrderingExercise = ({
             );
 
             if (fetchData?.videoUrl) {
-              return { ...word, videoUrl: fetchData.videoUrl };
+              return { ...word, videoUrls: fetchData?.videoUrl ? [fetchData.videoUrl] : [] };
             }
           } catch (error) {
             console.error(`Error fetching video for ${word.word}:`, error);
@@ -158,7 +155,7 @@ export const SentenceOrderingExercise = ({
           >
             <WordCard
               word={shuffledWords[wordIndex].word}
-              videoUrl={shuffledWords[wordIndex].videoUrl}
+              videoUrls={shuffledWords[wordIndex].videoUrls}
               isDragging={draggedIndex === displayIndex}
               isCorrect={
                 showFeedback

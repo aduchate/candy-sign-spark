@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { fetchVideoUrlsForWord } from "@/lib/wordSignsQuery";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 
 interface WorkWord {
   word: string;
-  videoUrl: string;
+  videoUrls: string[];
 }
 
 export const WorkVocabGrid = () => {
@@ -24,16 +25,8 @@ export const WorkVocabGrid = () => {
     
     const wordsWithVideos: WorkWord[] = await Promise.all(
       vocabulary.map(async (word) => {
-        const { data } = await supabase
-          .from("word_signs")
-          .select("video_url")
-          .ilike("word", word)
-          .maybeSingle();
-
-        return {
-          word,
-          videoUrl: data?.video_url || "",
-        };
+        const videoUrls = await fetchVideoUrlsForWord(word);
+        return { word, videoUrls };
       })
     );
 
@@ -68,9 +61,9 @@ export const WorkVocabGrid = () => {
             onMouseLeave={() => setHoveredWord(null)}
           >
             <div className="h-full flex flex-col items-center justify-center">
-              {hoveredWord === item.word && item.videoUrl ? (
-                <video
-                  src={item.videoUrl}
+              {hoveredWord === item.word && item.videoUrls.length > 0 ? (
+                <MultiVideoPlayer
+                  videoUrls={item.videoUrls}
                   className="w-full h-full object-contain rounded"
                   autoPlay
                   loop
@@ -80,7 +73,7 @@ export const WorkVocabGrid = () => {
               ) : (
                 <>
                   <div className="text-xl font-bold text-center capitalize">{item.word}</div>
-                  {!item.videoUrl && (
+                  {item.videoUrls.length === 0 && (
                     <Loader2 className="h-6 w-6 animate-spin text-primary mt-2" />
                   )}
                 </>

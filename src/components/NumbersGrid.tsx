@@ -3,11 +3,13 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { fetchVideoUrlsForWord } from "@/lib/wordSignsQuery";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 
 interface NumberSign {
   number: string;
   numberWord: string;
-  videoUrl: string;
+  videoUrls: string[];
 }
 
 export const NumbersGrid = () => {
@@ -38,18 +40,14 @@ export const NumbersGrid = () => {
     
     const numbersWithVideos: NumberSign[] = await Promise.all(
       numbersData.map(async (item) => {
-        // Check if video exists in database
-        const { data: existingVideo } = await supabase
-          .from("word_signs")
-          .select("video_url")
-          .eq("word", item.numberWord)
-          .maybeSingle();
+        // Check if videos exist in database
+        const videoUrls = await fetchVideoUrlsForWord(item.numberWord, 'eq');
 
-        if (existingVideo?.video_url) {
+        if (videoUrls.length > 0) {
           return {
             number: item.number,
             numberWord: item.numberWord,
-            videoUrl: existingVideo.video_url,
+            videoUrls,
           };
         }
 
@@ -65,14 +63,14 @@ export const NumbersGrid = () => {
           return {
             number: item.number,
             numberWord: item.numberWord,
-            videoUrl: fetchData?.videoUrl || "",
+            videoUrls: fetchData?.videoUrl ? [fetchData.videoUrl] : [],
           };
         } catch (error) {
           console.error(`Error fetching video for ${item.numberWord}:`, error);
           return {
             number: item.number,
             numberWord: item.numberWord,
-            videoUrl: "",
+            videoUrls: [],
           };
         }
       })
@@ -106,7 +104,7 @@ export const NumbersGrid = () => {
             key={item.number}
             number={item.number}
             numberWord={item.numberWord}
-            videoUrl={item.videoUrl}
+            videoUrls={item.videoUrls}
             isHovered={hoveredNumber === item.number}
             onHover={setHoveredNumber}
           />
@@ -119,12 +117,12 @@ export const NumbersGrid = () => {
 interface NumberCardProps {
   number: string;
   numberWord: string;
-  videoUrl: string;
+  videoUrls: string[];
   isHovered: boolean;
   onHover: (number: string | null) => void;
 }
 
-const NumberCard = ({ number, numberWord, videoUrl, isHovered, onHover }: NumberCardProps) => {
+const NumberCard = ({ number, numberWord, videoUrls, isHovered, onHover }: NumberCardProps) => {
   return (
     <Card
       className="p-4 hover:shadow-candy transition-all cursor-pointer relative"
@@ -134,8 +132,8 @@ const NumberCard = ({ number, numberWord, videoUrl, isHovered, onHover }: Number
       <div className="aspect-square flex flex-col items-center justify-center">
         <div className="text-4xl font-bold mb-2">{number}</div>
         <p className="text-xs text-muted-foreground text-center">{numberWord}</p>
-        
-        {!videoUrl && (
+
+        {videoUrls.length === 0 && (
           <div className="mt-2">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
@@ -143,10 +141,10 @@ const NumberCard = ({ number, numberWord, videoUrl, isHovered, onHover }: Number
       </div>
 
       {/* Video overlay on hover */}
-      {isHovered && videoUrl && (
+      {isHovered && videoUrls.length > 0 && (
         <div className="absolute inset-0 bg-black/90 rounded-lg flex items-center justify-center p-2">
-          <video
-            src={videoUrl}
+          <MultiVideoPlayer
+            videoUrls={videoUrls}
             className="w-full h-full object-contain rounded"
             autoPlay
             loop

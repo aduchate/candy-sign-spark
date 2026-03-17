@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, RotateCcw, Sparkles } from "lucide-react";
+import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 
 interface FlashCardItem {
   front: string;
-  back: string;
+  back: string | string[];
   label: string;
 }
 
@@ -90,9 +91,9 @@ export const FlashCards = ({ items, title, isChildMode = false }: FlashCardsProp
               transform: "rotateY(180deg)",
             }}
           >
-            {currentItem.back && (
-              <video
-                src={currentItem.back}
+            {currentItem.back && (Array.isArray(currentItem.back) ? currentItem.back.length > 0 : true) && (
+              <MultiVideoPlayer
+                videoUrls={Array.isArray(currentItem.back) ? currentItem.back : [currentItem.back]}
                 autoPlay
                 loop
                 muted
