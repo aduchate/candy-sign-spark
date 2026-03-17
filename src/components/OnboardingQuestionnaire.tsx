@@ -34,6 +34,7 @@ export const OnboardingQuestionnaire = () => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
@@ -59,7 +60,7 @@ export const OnboardingQuestionnaire = () => {
           age: data.age,
           status: data.status,
           hearing_status: data.hearing_status,
-          profession: data.status === "travail" ? data.profession : null,
+          profession: (data.status === "travail" || data.status === "retraite" || data.status === "autre") ? data.profession : null,
           installation_reason: data.installation_reason,
           onboarding_completed: true,
         })
@@ -105,25 +106,25 @@ export const OnboardingQuestionnaire = () => {
             {/* Statut */}
             <div className="space-y-2">
               <Label>Statut</Label>
-              <RadioGroup onValueChange={(value) => register("status").onChange({ target: { value } })}>
+              <RadioGroup onValueChange={(value) => setValue("status", value as OnboardingFormData["status"], { shouldValidate: true })}>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="travail" id="travail" {...register("status")} />
+                  <RadioGroupItem value="travail" id="travail" />
                   <Label htmlFor="travail" className="font-normal cursor-pointer">Travail</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="etudiant" id="etudiant" {...register("status")} />
+                  <RadioGroupItem value="etudiant" id="etudiant" />
                   <Label htmlFor="etudiant" className="font-normal cursor-pointer">Étudiant</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="ecolier" id="ecolier" {...register("status")} />
+                  <RadioGroupItem value="ecolier" id="ecolier" />
                   <Label htmlFor="ecolier" className="font-normal cursor-pointer">Écolier</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="retraite" id="retraite" {...register("status")} />
+                  <RadioGroupItem value="retraite" id="retraite" />
                   <Label htmlFor="retraite" className="font-normal cursor-pointer">Retraité</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="autre" id="autre" {...register("status")} />
+                  <RadioGroupItem value="autre" id="autre" />
                   <Label htmlFor="autre" className="font-normal cursor-pointer">Autre</Label>
                 </div>
               </RadioGroup>
@@ -133,7 +134,7 @@ export const OnboardingQuestionnaire = () => {
             </div>
 
             {/* Profession (si travail) */}
-            {selectedStatus === "travail" && (
+            {(selectedStatus === "travail" || selectedStatus === "retraite" || selectedStatus === "autre") && (
               <div className="space-y-2">
                 <Label htmlFor="profession">Profession</Label>
                 <Input
@@ -150,17 +151,17 @@ export const OnboardingQuestionnaire = () => {
             {/* Statut auditif */}
             <div className="space-y-2">
               <Label>Statut auditif</Label>
-              <RadioGroup onValueChange={(value) => register("hearing_status").onChange({ target: { value } })}>
+              <RadioGroup onValueChange={(value) => setValue("hearing_status", value as OnboardingFormData["hearing_status"], { shouldValidate: true })}>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="entendant" id="entendant" {...register("hearing_status")} />
+                  <RadioGroupItem value="entendant" id="entendant" />
                   <Label htmlFor="entendant" className="font-normal cursor-pointer">Entendant</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="malentendant" id="malentendant" {...register("hearing_status")} />
+                  <RadioGroupItem value="malentendant" id="malentendant" />
                   <Label htmlFor="malentendant" className="font-normal cursor-pointer">Malentendant</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="sourd" id="sourd" {...register("hearing_status")} />
+                  <RadioGroupItem value="sourd" id="sourd" />
                   <Label htmlFor="sourd" className="font-normal cursor-pointer">Sourd</Label>
                 </div>
               </RadioGroup>

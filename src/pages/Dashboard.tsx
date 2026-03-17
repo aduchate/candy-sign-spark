@@ -46,6 +46,7 @@ import { CategoryArticleSection } from "@/components/CategoryArticleSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
+import { StarterPackVideoLoader } from "@/components/StarterPackVideoLoader";
 
 interface LessonProgress {
   id: number;
@@ -94,6 +95,7 @@ const Dashboard = () => {
   const [newLessons, setNewLessons] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [starterProfile, setStarterProfile] = useState<"adult" | "child" | "profession" | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -109,13 +111,22 @@ const Dashboard = () => {
       } else {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("onboarding_completed")
+          .select("onboarding_completed, age, status")
           .eq("id", session.user.id)
           .single();
 
         if (!profile?.onboarding_completed) {
           navigate("/onboarding");
           return;
+        }
+
+        // Derive starter pack profile from user profile
+        if (profile.status === "ecolier" || (profile.age && profile.age < 16)) {
+          setStarterProfile("child");
+        } else if (profile.status === "travail") {
+          setStarterProfile("profession");
+        } else {
+          setStarterProfile("adult");
         }
 
         setUser(session.user);
@@ -292,6 +303,7 @@ const Dashboard = () => {
   return (
     <div className={`min-h-screen flex theme-${activeSection} transition-all duration-700`} style={{ background: `linear-gradient(135deg, hsl(var(--section-color) / 0.06) 0%, hsl(var(--section-color) / 0.02) 50%, hsl(var(--background)) 100%)` }}>
       <CursorTrail />
+      <StarterPackVideoLoader profile={starterProfile} />
       {/* Menu latéral */}
       <aside className="w-80 border-r border-border flex flex-col transition-all duration-700" style={{ background: `linear-gradient(180deg, hsl(var(--section-color) / 0.08) 0%, hsl(var(--card)) 40%)` }}>
         <div className="p-6 border-b border-border">

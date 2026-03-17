@@ -62,39 +62,46 @@ const ESSENTIAL_WORDS = {
   ],
 };
 
-const ALL_WORDS = [...new Set([
-  ...ESSENTIAL_WORDS.adult,
-  ...ESSENTIAL_WORDS.child,
-  ...ESSENTIAL_WORDS.profession,
-])];
+type StarterProfile = "adult" | "child" | "profession";
 
-const STORAGE_KEY = 'lsfb_starter_pack_loaded';
+interface StarterPackVideoLoaderProps {
+  profile?: StarterProfile | null;
+}
 
-export const StarterPackVideoLoader = () => {
+export const StarterPackVideoLoader = ({ profile }: StarterPackVideoLoaderProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadedCount, setLoadedCount] = useState(0);
-  const [totalWords, setTotalWords] = useState(ALL_WORDS.length);
+  const [totalWords, setTotalWords] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [failedWords, setFailedWords] = useState<string[]>([]);
 
   useEffect(() => {
-    const hasLoaded = localStorage.getItem(STORAGE_KEY);
-    const savedCount = localStorage.getItem('lsfb_starter_pack_count');
+    if (!profile) return;
+
+    const storageKey = `lsfb_starter_pack_loaded_${profile}`;
+    const countKey = `lsfb_starter_pack_count_${profile}`;
+    const words = ESSENTIAL_WORDS[profile];
+
+    const hasLoaded = localStorage.getItem(storageKey);
+    const savedCount = localStorage.getItem(countKey);
     // Re-trigger if new words were added to the list
-    const needsUpdate = !hasLoaded || (savedCount && parseInt(savedCount) < ALL_WORDS.length);
+    const needsUpdate = !hasLoaded || (savedCount && parseInt(savedCount) < words.length);
     if (needsUpdate) {
       const timer = setTimeout(() => {
         startLoading();
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [profile]);
 
   const startLoading = async () => {
+    if (!profile) return;
+
+    const words = ESSENTIAL_WORDS[profile];
     setIsVisible(true);
     setIsLoading(true);
-    
+
     try {
       // Check which words are already in the database (query in batches to avoid 1000 row limit)
       const { data: existingWords } = await supabase
@@ -102,17 +109,18 @@ export const StarterPackVideoLoader = () => {
         .select('word');
 
       const existingWordsList = existingWords?.map(w => w.word.toLowerCase()) || [];
-      const missingWords = ALL_WORDS.filter(
+      const missingWords = words.filter(
         word => !existingWordsList.includes(word.toLowerCase())
       );
 
-      console.log(`Found ${existingWords?.length || 0} existing videos, fetching ${missingWords.length} missing videos...`);
-      
-      setLoadedCount(existingWords?.length || 0);
-      setTotalWords(ALL_WORDS.length);
+      const alreadyLoaded = words.length - missingWords.length;
+      console.log(`Found ${alreadyLoaded} existing videos for profile "${profile}", fetching ${missingWords.length} missing videos...`);
+
+      setLoadedCount(alreadyLoaded);
+      setTotalWords(words.length);
 
       if (missingWords.length === 0) {
-        completeLoading([], existingWords?.length || 0);
+        completeLoading([], alreadyLoaded);
         return;
       }
 
@@ -141,7 +149,7 @@ export const StarterPackVideoLoader = () => {
         }
       }
 
-      completeLoading(failed, ALL_WORDS.length - failed.length);
+      completeLoading(failed, words.length - failed.length);
 
     } catch (error) {
       console.error('Error loading starter pack videos:', error);
@@ -176,11 +184,16 @@ export const StarterPackVideoLoader = () => {
     setFailedWords(failed);
     setIsComplete(true);
     setIsLoading(false);
-    
+
+    if (!profile) return;
+    const storageKey = `lsfb_starter_pack_loaded_${profile}`;
+    const countKey = `lsfb_starter_pack_count_${profile}`;
+    const words = ESSENTIAL_WORDS[profile];
+
     // Don't mark as loaded if there are failures, so it will retry on next page load
     if (failed.length === 0) {
-      localStorage.setItem(STORAGE_KEY, 'true');
-      localStorage.setItem('lsfb_starter_pack_count', ALL_WORDS.length.toString());
+      localStorage.setItem(storageKey, 'true');
+      localStorage.setItem(countKey, words.length.toString());
       toast({
         title: "Vidéos chargées",
         description: `Toutes les vidéos essentielles (${successCount}/${totalWords}) sont prêtes !`,
@@ -197,12 +210,13 @@ export const StarterPackVideoLoader = () => {
   };
 
   const retryLoading = () => {
+    if (!profile) return;
     setIsVisible(false);
     setFailedWords([]);
     setIsComplete(false);
     setLoadedCount(0);
     // Remove the storage key to force reload
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(`lsfb_starter_pack_loaded_${profile}`);
     // Restart after a short delay
     setTimeout(() => {
       startLoading();
