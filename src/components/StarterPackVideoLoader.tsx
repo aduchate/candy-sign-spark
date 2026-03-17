@@ -10,15 +10,13 @@ const ESSENTIAL_WORDS = {
   adult: [
     // Salutations
     'Bonjour', 'Merci', 'comment', 'vous',
-    // Vocabulaire professionnel  
+    // Vocabulaire professionnel
     'travail', 'bureau', 'reunion', 'collegue', 'directeur', 'projet',
     // Temps et dates
     'aujourd\'hui', 'demain', 'hier',
     'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche',
     'janvier', 'fevrier', 'avril', 'mai', 'juin',
     'juillet', 'aout', 'septembre', 'octobre', 'novembre',
-    // Négation
-    'rien', 'aucun', 'non', 'non merci',
   ],
   child: [
     // Salutations
@@ -37,27 +35,25 @@ const ESSENTIAL_WORDS = {
     'pomme', 'banane', 'pain', 'eau', 'lait', 'chocolat',
     // Jeux
     'ballon', 'jouer', 'courir', 'sauter',
-    // Négation
-    'rien', 'aucun', 'non', 'non merci',
   ],
   profession: [
     // Logopédie
-    'bouche', 'parler', 'écouter', 'langue', 'voix', 'son', 'mot', 'phrase',
+    'bouche', 'parler', 'langue', 'voix', 'son', 'mot', 'phrase',
     'entendre', 'comprendre', 'exercice',
     // Audiologie
-    'oreille', 'bruit', 'silence', 'fort', 'faible', 'test', 'appareil',
+    'oreille', 'bruit', 'silence', 'fort', 'faible', 'appareil',
     'gauche', 'droite',
     // Psychologie
-    'aider', 'famille', 'confiance', 'émotion', 'stress',
+    'aider', 'famille', 'confiance', 'stress',
     // Médecine
-    'mal', 'douleur', 'tête', 'ventre', 'dos', 'médicament', 'repos',
-    'examen', 'fièvre', 'allergie', 'urgence',
+    'mal', 'douleur', 'ventre', 'dos', 'repos',
+    'examen', 'allergie', 'urgence',
     // Kinésithérapie
     'bouger', 'marcher', 'jambe', 'bras', 'muscle',
     // Éducateur
-    'dormir', 'école', 'maison', 'ami', 'règle', 'apprendre', 'groupe',
+    'dormir', 'maison', 'ami', 'apprendre',
     // Communs B1-B2
-    'consultation', 'programme', 'diagnostic', 'thérapie', 'bilan',
+    'programme', 'diagnostic', 'thérapie', 'bilan',
     'évaluation', 'progrès', 'séance', 'résultat', 'ordonnance',
   ],
 };
@@ -127,10 +123,10 @@ export const StarterPackVideoLoader = ({ profile }: StarterPackVideoLoaderProps)
       // Download missing videos in batches of 5
       const failed: string[] = [];
       const batchSize = 5;
-      
+
       for (let i = 0; i < missingWords.length; i += batchSize) {
         const batch = missingWords.slice(i, i + batchSize);
-        
+
         const results = await Promise.allSettled(
           batch.map(word => fetchVideoForWord(word))
         );
@@ -263,9 +259,9 @@ export const StarterPackVideoLoader = ({ profile }: StarterPackVideoLoaderProps)
             <p className="font-medium">Mots non trouvés :</p>
             <p className="text-xs">{failedWords.slice(0, 10).join(', ')}{failedWords.length > 10 ? '...' : ''}</p>
           </div>
-          <Button 
-            size="sm" 
-            variant="outline" 
+          <Button
+            size="sm"
+            variant="outline"
             className="w-full"
             onClick={retryLoading}
           >

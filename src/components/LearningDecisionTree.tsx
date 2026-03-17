@@ -62,40 +62,40 @@ const levelTestQuestions = [
 // Vocabulaire professionnel par profession et par niveau
 const professionVocabulary: Record<string, Record<string, string[]>> = {
   "logopédie": {
-    A1: ["Bonjour", "Merci", "comment", "vous", "bouche", "parler", "écouter"],
+    A1: ["Bonjour", "Merci", "comment", "vous", "bouche", "parler"],
     A2: ["langue", "voix", "son", "mot", "phrase", "entendre", "comprendre", "exercice"],
     B1: ["articulation", "prononciation", "bégaiement", "rééducation", "déglutition", "thérapie", "bilan", "diagnostic"],
-    B2: ["trouble", "dysphasie", "aphasie", "neurologie", "programme", "évaluation", "progrès", "consultation", "réunion", "projet"],
+    B2: ["trouble", "dysphasie", "aphasie", "neurologie", "programme", "évaluation", "progrès", "réunion", "projet"],
   },
   "audiologie": {
     A1: ["Bonjour", "Merci", "comment", "vous", "oreille", "entendre", "son"],
-    A2: ["bruit", "silence", "fort", "faible", "test", "appareil", "gauche", "droite"],
+    A2: ["bruit", "silence", "fort", "faible", "appareil", "gauche", "droite"],
     B1: ["audiogramme", "surdité", "prothèse", "fréquence", "décibel", "acouphène", "implant", "calibrage"],
-    B2: ["presbyacousie", "otoscopie", "tympanométrie", "réhabilitation", "programme", "diagnostic", "consultation", "réunion", "projet", "directeur"],
+    B2: ["presbyacousie", "otoscopie", "tympanométrie", "réhabilitation", "programme", "diagnostic", "réunion", "projet", "directeur"],
   },
   "psychologie": {
     A1: ["Bonjour", "Merci", "comment", "vous", "content", "triste", "peur"],
-    A2: ["colere", "surpris", "fatigue", "parler", "écouter", "comprendre", "aider", "famille"],
-    B1: ["anxiété", "dépression", "thérapie", "séance", "confiance", "émotion", "stress", "soutien"],
-    B2: ["traumatisme", "résilience", "inconscient", "transfert", "diagnostic", "évaluation", "programme", "consultation", "réunion", "projet"],
+    A2: ["colere", "surpris", "fatigue", "parler", "comprendre", "aider", "famille"],
+    B1: ["anxiété", "dépression", "thérapie", "séance", "confiance", "stress", "soutien"],
+    B2: ["traumatisme", "résilience", "inconscient", "transfert", "diagnostic", "évaluation", "programme", "réunion", "projet"],
   },
   "médecine": {
     A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bien", "où"],
-    A2: ["douleur", "tête", "ventre", "dos", "médicament", "repos", "eau", "manger"],
-    B1: ["ordonnance", "examen", "résultat", "tension", "fièvre", "allergie", "chirurgie", "urgence"],
-    B2: ["pathologie", "anesthésie", "intervention", "scanner", "diagnostic", "pronostic", "programme", "consultation", "réunion", "projet"],
+    A2: ["douleur", "ventre", "dos", "repos", "eau", "manger"],
+    B1: ["ordonnance", "examen", "résultat", "tension", "allergie", "chirurgie", "urgence"],
+    B2: ["pathologie", "anesthésie", "intervention", "scanner", "diagnostic", "pronostic", "programme", "réunion", "projet"],
   },
   "kinésithérapeute": {
     A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bouger", "marcher"],
     A2: ["douleur", "dos", "jambe", "bras", "exercice", "repos", "courir", "sauter"],
     B1: ["articulation", "muscle", "étirement", "renforcement", "rééducation", "posture", "équilibre", "séance"],
-    B2: ["tendinite", "fracture", "prothèse", "réhabilitation", "programme", "bilan", "diagnostic", "consultation", "réunion", "projet"],
+    B2: ["tendinite", "fracture", "prothèse", "réhabilitation", "programme", "bilan", "diagnostic", "réunion", "projet"],
   },
   "éducateur": {
     A1: ["Bonjour", "Merci", "comment", "vous", "jouer", "manger", "dormir"],
-    A2: ["école", "maison", "famille", "ami", "règle", "aider", "apprendre", "comprendre"],
-    B1: ["autonomie", "socialisation", "comportement", "objectif", "activité", "groupe", "progrès", "accompagnement"],
-    B2: ["inclusion", "handicap", "projet", "évaluation", "programme", "partenariat", "diagnostic", "consultation", "réunion", "directeur"],
+    A2: ["maison", "famille", "ami", "aider", "apprendre", "comprendre"],
+    B1: ["autonomie", "socialisation", "comportement", "objectif", "activité", "progrès", "accompagnement"],
+    B2: ["inclusion", "handicap", "projet", "évaluation", "programme", "partenariat", "diagnostic", "réunion", "directeur"],
   },
 };
 
@@ -110,7 +110,7 @@ export const LearningDecisionTree = () => {
   const [glossaryWords, setGlossaryWords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const isOnline = useOnlineStatus();
-  
+
   // État du test de niveau
   const [testAnswers, setTestAnswers] = useState<Record<number, number>>({});
   const [testCompleted, setTestCompleted] = useState(false);
@@ -176,7 +176,7 @@ export const LearningDecisionTree = () => {
 
   const calculateLevel = () => {
     const scores = { A1: 0, A2: 0, B1: 0, B2: 0 };
-    
+
     levelTestQuestions.forEach(q => {
       const answer = testAnswers[q.id];
       if (answer !== undefined) {
@@ -212,7 +212,7 @@ export const LearningDecisionTree = () => {
     if (vocab.length === 0) return;
 
     const cacheKey = `profession_vocab_${profession}_${level}`;
-    
+
     if (!isOnline) {
       const cached = offlineCache.get<any[]>(cacheKey);
       if (cached) setProfessionWords(cached);
@@ -224,7 +224,7 @@ export const LearningDecisionTree = () => {
         .from('word_signs')
         .select('word, video_url, phrase, signed_grammar')
         .in('word', vocab.map(w => w.toLowerCase()));
-      
+
       if (data && data.length > 0) {
         setProfessionWords(data);
         offlineCache.set(cacheKey, data);
@@ -296,12 +296,12 @@ export const LearningDecisionTree = () => {
     return data.slice(0, 10).map((item) => {
       const allVideos = data.map(d => d.video_url).filter(Boolean);
       const correctAnswer = item.video_url;
-      
+
       const distractors = allVideos
         .filter(v => v !== correctAnswer)
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
-      
+
       const options = [correctAnswer, ...distractors].sort(() => Math.random() - 0.5);
 
       return {
@@ -363,7 +363,7 @@ export const LearningDecisionTree = () => {
 
   const renderBreadcrumb = () => {
     const items = [];
-    
+
     if (selectedProfession) items.push(professions.find(p => p.id === selectedProfession)?.name || "");
     if (recommendedLevel && currentStep === "categories") items.push(`Niveau ${recommendedLevel}`);
     if (selectedCategory) {
@@ -409,8 +409,8 @@ export const LearningDecisionTree = () => {
               {testCompleted ? "Résultat de votre test" : "Test de niveau LSFB"}
             </h2>
             <p className="text-muted-foreground">
-              {testCompleted 
-                ? "Voici le niveau recommandé pour votre apprentissage" 
+              {testCompleted
+                ? "Voici le niveau recommandé pour votre apprentissage"
                 : "Répondez à ces questions pour évaluer votre niveau actuel"}
             </p>
           </div>
@@ -452,7 +452,7 @@ export const LearningDecisionTree = () => {
               ))}
 
               <div className="flex justify-center">
-                <Button 
+                <Button
                   onClick={handleTestComplete}
                   disabled={!allQuestionsAnswered}
                   className="gradient-candy px-8 py-6 text-lg"
@@ -478,7 +478,7 @@ export const LearningDecisionTree = () => {
               </Card>
 
               <div className="flex justify-center gap-4">
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => {
                     setTestAnswers({});
@@ -488,7 +488,7 @@ export const LearningDecisionTree = () => {
                 >
                   Refaire le test
                 </Button>
-                <Button 
+                <Button
                   onClick={handleStartLearning}
                   className="gradient-candy"
                 >
@@ -512,7 +512,7 @@ export const LearningDecisionTree = () => {
             {professions.map((profession) => {
               const Icon = profession.icon;
               return (
-                <Card 
+                <Card
                   key={profession.id}
                   className="p-6 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
                   onClick={() => handleProfessionSelect(profession.id)}
@@ -541,7 +541,7 @@ export const LearningDecisionTree = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card 
+            <Card
               className="p-6 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
               onClick={() => handleCategorySelect("glossaire")}
             >
@@ -559,7 +559,7 @@ export const LearningDecisionTree = () => {
               </div>
             </Card>
 
-            <Card 
+            <Card
               className="p-6 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
               onClick={() => handleCategorySelect("vocabulaire")}
             >
@@ -577,7 +577,7 @@ export const LearningDecisionTree = () => {
               </div>
             </Card>
 
-            <Card 
+            <Card
               className="p-6 cursor-pointer hover:shadow-candy transition-all hover:scale-105 border-2"
               onClick={() => handleCategorySelect("culture")}
             >
@@ -626,8 +626,8 @@ export const LearningDecisionTree = () => {
                   <Card key={index} className="p-4 text-center">
                     <p className="font-semibold">{word.word}</p>
                     {word.video_url && (
-                      <video 
-                        src={word.video_url} 
+                      <video
+                        src={word.video_url}
                         className="w-full h-20 object-cover mt-2 rounded"
                         muted
                         loop
