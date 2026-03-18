@@ -189,10 +189,6 @@ export const StarterPackVideoLoader = ({ profile }: StarterPackVideoLoaderProps)
     if (failed.length === 0) {
       localStorage.setItem(storageKey, 'true');
       localStorage.setItem(countKey, words.length.toString());
-      toast({
-        title: "Vidéos chargées",
-        description: `Toutes les vidéos essentielles (${successCount}/${totalWords}) sont prêtes !`,
-      });
       // Auto-hide after 5 seconds if successful
       setTimeout(() => setIsVisible(false), 5000);
     }
