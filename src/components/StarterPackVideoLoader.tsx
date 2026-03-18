@@ -53,8 +53,7 @@ const ESSENTIAL_WORDS = {
     // Éducateur
     'dormir', 'maison', 'ami', 'apprendre',
     // Communs B1-B2
-    'programme', 'diagnostic', 'thérapie', 'bilan',
-    'évaluation', 'progrès', 'séance', 'résultat', 'ordonnance',
+    'programme', 'progrès', 'résultat',
   ],
 };
 
