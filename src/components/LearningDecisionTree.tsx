@@ -65,38 +65,38 @@ const professionVocabulary: Record<string, Record<string, string[]>> = {
   "logopédie": {
     A1: ["Bonjour", "Merci", "comment", "vous", "bouche", "parler"],
     A2: ["langue", "voix", "son", "mot", "phrase", "entendre", "comprendre", "exercice"],
-    B1: ["articulation", "prononciation", "bégaiement", "rééducation", "déglutition", "thérapie", "bilan", "diagnostic"],
-    B2: ["trouble", "dysphasie", "aphasie", "neurologie", "programme", "évaluation", "progrès", "réunion", "projet"],
+    B1: ["articulation", "prononciation", "bégaiement", "rééducation", "déglutition"],
+    B2: ["trouble", "dysphasie", "aphasie", "neurologie", "programme", "progrès", "réunion", "projet"],
   },
   "audiologie": {
     A1: ["Bonjour", "Merci", "comment", "vous", "oreille", "entendre", "son"],
     A2: ["bruit", "silence", "fort", "faible", "appareil", "gauche", "droite"],
     B1: ["audiogramme", "surdité", "prothèse", "fréquence", "décibel", "acouphène", "implant", "calibrage"],
-    B2: ["presbyacousie", "otoscopie", "tympanométrie", "réhabilitation", "programme", "diagnostic", "réunion", "projet", "directeur"],
+    B2: ["presbyacousie", "otoscopie", "tympanométrie", "réhabilitation", "programme", "réunion", "projet", "directeur"],
   },
   "psychologie": {
     A1: ["Bonjour", "Merci", "comment", "vous", "content", "triste", "peur"],
     A2: ["colere", "surpris", "fatigue", "parler", "comprendre", "aider", "famille"],
-    B1: ["anxiété", "dépression", "thérapie", "séance", "confiance", "stress", "soutien"],
-    B2: ["traumatisme", "résilience", "inconscient", "transfert", "diagnostic", "évaluation", "programme", "réunion", "projet"],
+    B1: ["anxiété", "dépression", "confiance", "stress", "soutien"],
+    B2: ["traumatisme", "résilience", "inconscient", "transfert", "programme", "réunion", "projet"],
   },
   "médecine": {
     A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bien", "où"],
     A2: ["douleur", "ventre", "dos", "repos", "eau", "manger"],
-    B1: ["ordonnance", "examen", "résultat", "tension", "allergie", "chirurgie", "urgence"],
-    B2: ["pathologie", "anesthésie", "intervention", "scanner", "diagnostic", "pronostic", "programme", "réunion", "projet"],
+    B1: ["examen", "résultat", "tension", "allergie", "chirurgie", "urgence"],
+    B2: ["pathologie", "anesthésie", "intervention", "scanner", "pronostic", "programme", "réunion", "projet"],
   },
   "kinésithérapeute": {
     A1: ["Bonjour", "Merci", "comment", "vous", "mal", "bouger", "marcher"],
     A2: ["douleur", "dos", "jambe", "bras", "exercice", "repos", "courir", "sauter"],
-    B1: ["articulation", "muscle", "étirement", "renforcement", "rééducation", "posture", "équilibre", "séance"],
-    B2: ["tendinite", "fracture", "prothèse", "réhabilitation", "programme", "bilan", "diagnostic", "réunion", "projet"],
+    B1: ["articulation", "muscle", "étirement", "renforcement", "rééducation", "posture", "équilibre"],
+    B2: ["tendinite", "fracture", "prothèse", "réhabilitation", "programme", "réunion", "projet"],
   },
   "éducateur": {
     A1: ["Bonjour", "Merci", "comment", "vous", "jouer", "manger", "dormir"],
     A2: ["maison", "famille", "ami", "aider", "apprendre", "comprendre"],
     B1: ["autonomie", "socialisation", "comportement", "objectif", "activité", "progrès", "accompagnement"],
-    B2: ["inclusion", "handicap", "projet", "évaluation", "programme", "partenariat", "diagnostic", "réunion", "directeur"],
+    B2: ["inclusion", "handicap", "projet", "programme", "partenariat", "réunion", "directeur"],
   },
 };
 
