@@ -734,26 +734,6 @@ const Dashboard = () => {
 
           {activeSection === "liens" && <UsefulLinks />}
 
-            </div>
-          )}
-
-          {activeSection === "projets" && (
-            <div className="max-w-6xl">
-              <CategoryArticleSection category="Projets" icon="🚀" description="Projets en cours et à venir" />
-            </div>
-          )}
-
-          {activeSection === "formations" && (
-            <div className="max-w-6xl">
-              <CategoryArticleSection category="Formations accessibles" icon="🎓" description="Formations accessibles aux personnes sourdes et malentendantes" />
-            </div>
-          )}
-
-          {activeSection === "evenements" && (
-            <div className="max-w-6xl">
-              <CategoryArticleSection category="Événements" icon="📅" description="Événements et rencontres du SAREW" />
-            </div>
-          )}
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
