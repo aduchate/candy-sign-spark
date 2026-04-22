@@ -20,6 +20,11 @@ const interpreterServices: InterpreterService[] = [
     description: "Service d'interprétation professionnelle en langue des signes pour accompagner les personnes sourdes dans leurs démarches médicales, administratives et professionnelles en Wallonie.",
     url: "https://www.sisw.be/",
   },
+  {
+    name: "SISB (Service d'Interprétation des Sourds de Bruxelles)",
+    description: "Service d'interprétation en langue des signes à Bruxelles, accompagnant les personnes sourdes dans leurs démarches médicales, administratives, professionnelles et de la vie quotidienne.",
+    url: "https://www.infosourds.be/service-d-interpretation-des-sourds-de-bruxelles",
+  },
 ];
 
 export const AppointmentBookingSection = () => {
