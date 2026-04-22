@@ -69,7 +69,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSectionRaw] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "dons" | "rendezvous" | "hopitaux" | "profil"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "hopitaux" | "profil"
   >(sectionParam || "apprentissage");
 
   const setActiveSection = (section: typeof activeSection) => {
@@ -354,7 +354,7 @@ const Dashboard = () => {
             <div>
               <Button
                 onClick={() => setMedicalOpen(!medicalOpen)}
-                variant={["rendezvous", "hopitaux", "dons", "liens"].includes(activeSection) ? "default" : "ghost"}
+                variant={["rendezvous", "hopitaux", "liens"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Patient signant {medicalOpen ? "▾" : "▸"}
