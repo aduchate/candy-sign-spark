@@ -376,13 +376,6 @@ const Dashboard = () => {
                     Plans hôpitaux
                   </Button>
                   <Button
-                    onClick={() => setActiveSection("dons")}
-                    variant={activeSection === "dons" ? "secondary" : "ghost"}
-                    className="w-full justify-start text-base h-12"
-                  >
-                    Dons pour votre cause
-                  </Button>
-                  <Button
                     onClick={() => setActiveSection("liens")}
                     variant={activeSection === "liens" ? "secondary" : "ghost"}
                     className="w-full justify-start text-base h-12"
