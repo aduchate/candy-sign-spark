@@ -12,6 +12,7 @@ import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { UF_LABELS } from "@/lib/levelLabels";
 
 type Step = "professions" | "level-test" | "categories";
 type CategoryType = "glossaire" | "vocabulaire" | "culture";
