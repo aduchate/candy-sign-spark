@@ -736,6 +736,8 @@ const Dashboard = () => {
 
           {activeSection === "hopitaux" && <HospitalPlansSection />}
 
+          {activeSection === "suivipostconsultation" && <PostConsultationFollowUp />}
+
           {activeSection === "profil" && <ProfileSection user={user} />}
         </div>
       </main>
