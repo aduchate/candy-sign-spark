@@ -52,24 +52,26 @@ export const WordLevelEditor = ({ wordId, wordText, currentLevel }: WordLevelEdi
     }
   };
 
+  const currentLabel = UF_LEVELS.find(l => l.value === (currentLevel || 'A1'))?.label || (currentLevel || 'A1');
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <GraduationCap className="w-4 h-4" />
-          Niveau: {currentLevel || 'A1'}
+          Niveau: {currentLabel}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Niveau CECRL pour "{wordText}"</DialogTitle>
+          <DialogTitle>Niveau UF pour "{wordText}"</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
           <Card className="p-4">
             <RadioGroup value={selectedLevel} onValueChange={setSelectedLevel}>
               <div className="space-y-3">
-                {CECRL_LEVELS.map((level) => (
+                {UF_LEVELS.map((level) => (
                   <div key={level.value} className="flex items-start space-x-3">
                     <RadioGroupItem value={level.value} id={level.value} />
                     <Label
