@@ -428,7 +428,6 @@ const Dashboard = () => {
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
-              {activeSection === "hopitaux" && "Plans hôpitaux"}
               {activeSection === "suivipostconsultation" && "Suivi post consultation"}
               {activeSection === "profil" && "Mon Profil"}
             </h2>
@@ -725,8 +724,6 @@ const Dashboard = () => {
 
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
-
-          {activeSection === "hopitaux" && <HospitalPlansSection />}
 
           {activeSection === "suivipostconsultation" && <PostConsultationFollowUp />}
 
