@@ -37,6 +37,7 @@ import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { DonationSection } from "@/components/DonationSection";
+import { PostConsultationFollowUp } from "@/components/PostConsultationFollowUp";
 import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
@@ -69,7 +70,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSectionRaw] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "hopitaux" | "profil"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "hopitaux" | "suivipostconsultation" | "profil"
   >(sectionParam || "apprentissage");
 
   const setActiveSection = (section: typeof activeSection) => {
@@ -354,7 +355,7 @@ const Dashboard = () => {
             <div>
               <Button
                 onClick={() => setMedicalOpen(!medicalOpen)}
-                variant={["rendezvous", "hopitaux", "liens"].includes(activeSection) ? "default" : "ghost"}
+                variant={["rendezvous", "hopitaux", "liens", "suivipostconsultation"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Patient signant {medicalOpen ? "▾" : "▸"}
@@ -374,6 +375,13 @@ const Dashboard = () => {
                     className="w-full justify-start text-base h-12"
                   >
                     Plans hôpitaux
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("suivipostconsultation")}
+                    variant={activeSection === "suivipostconsultation" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Suivi post consultation
                   </Button>
                   <Button
                     onClick={() => setActiveSection("liens")}
@@ -429,6 +437,7 @@ const Dashboard = () => {
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
+              {activeSection === "suivipostconsultation" && "Suivi post consultation"}
               {activeSection === "profil" && "Mon Profil"}
             </h2>
             {!isOfflineMode && (
@@ -726,6 +735,8 @@ const Dashboard = () => {
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
           {activeSection === "hopitaux" && <HospitalPlansSection />}
+
+          {activeSection === "suivipostconsultation" && <PostConsultationFollowUp />}
 
           {activeSection === "profil" && <ProfileSection user={user} />}
         </div>
