@@ -35,7 +35,6 @@ import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
-import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { DonationSection } from "@/components/DonationSection";
 import { PostConsultationFollowUp } from "@/components/PostConsultationFollowUp";
 import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
