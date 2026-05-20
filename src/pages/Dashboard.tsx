@@ -437,6 +437,7 @@ const Dashboard = () => {
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "hopitaux" && "Plans hôpitaux"}
+              {activeSection === "suivipostconsultation" && "Suivi post consultation"}
               {activeSection === "profil" && "Mon Profil"}
             </h2>
             {!isOfflineMode && (
