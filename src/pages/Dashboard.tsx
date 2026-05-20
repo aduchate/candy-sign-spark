@@ -70,7 +70,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSectionRaw] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "hopitaux" | "profil"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "hopitaux" | "suivipostconsultation" | "profil"
   >(sectionParam || "apprentissage");
 
   const setActiveSection = (section: typeof activeSection) => {
