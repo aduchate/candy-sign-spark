@@ -35,7 +35,6 @@ import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
-import { HospitalPlansSection } from "@/components/HospitalPlansSection";
 import { DonationSection } from "@/components/DonationSection";
 import { PostConsultationFollowUp } from "@/components/PostConsultationFollowUp";
 import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
@@ -70,7 +69,7 @@ const Dashboard = () => {
     | "liens"
     | null;
   const [activeSection, setActiveSectionRaw] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "hopitaux" | "suivipostconsultation" | "profil"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "suivipostconsultation" | "profil"
   >(sectionParam || "apprentissage");
 
   const setActiveSection = (section: typeof activeSection) => {
@@ -355,7 +354,7 @@ const Dashboard = () => {
             <div>
               <Button
                 onClick={() => setMedicalOpen(!medicalOpen)}
-                variant={["rendezvous", "hopitaux", "liens", "suivipostconsultation"].includes(activeSection) ? "default" : "ghost"}
+                variant={["rendezvous", "liens", "suivipostconsultation"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Patient signant {medicalOpen ? "▾" : "▸"}
@@ -368,13 +367,6 @@ const Dashboard = () => {
                     className="w-full justify-start text-base h-12"
                   >
                     Prise de rendez-vous
-                  </Button>
-                  <Button
-                    onClick={() => setActiveSection("hopitaux")}
-                    variant={activeSection === "hopitaux" ? "secondary" : "ghost"}
-                    className="w-full justify-start text-base h-12"
-                  >
-                    Plans hôpitaux
                   </Button>
                   <Button
                     onClick={() => setActiveSection("suivipostconsultation")}
@@ -436,7 +428,6 @@ const Dashboard = () => {
               {activeSection === "starterpack" && "Section Starter Pack"}
               {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
-              {activeSection === "hopitaux" && "Plans hôpitaux"}
               {activeSection === "suivipostconsultation" && "Suivi post consultation"}
               {activeSection === "profil" && "Mon Profil"}
             </h2>
@@ -733,8 +724,6 @@ const Dashboard = () => {
 
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
-
-          {activeSection === "hopitaux" && <HospitalPlansSection />}
 
           {activeSection === "suivipostconsultation" && <PostConsultationFollowUp />}
 
