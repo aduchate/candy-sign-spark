@@ -25,6 +25,11 @@ const interpreterServices: InterpreterService[] = [
     description: "Service d'interprétation en langue des signes à Bruxelles, accompagnant les personnes sourdes dans leurs démarches médicales, administratives, professionnelles et de la vie quotidienne.",
     url: "https://www.infosourds.be/service-d-interpretation-des-sourds-de-bruxelles",
   },
+  {
+    name: "SAREW (Service d'Aide à la Recherche d'Emploi pour personnes sourdes ou malentendantes)",
+    description: "SAREW accompagne les personnes sourdes et malentendantes dans leur recherche d'emploi et leur insertion professionnelle, avec des services d'interprétation et de médiation adaptés.",
+    url: "http://www.sarew.be/",
+  },
 ];
 
 export const AppointmentBookingSection = () => {
