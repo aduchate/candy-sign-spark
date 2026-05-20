@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { UF_LABELS } from "@/lib/levelLabels";
 
 interface LessonCardProps {
   id: string;
@@ -19,13 +20,6 @@ const levelColors = {
   A2: "bg-blue-500",
   B1: "bg-orange-500",
   B2: "bg-purple-500",
-};
-
-const levelLabels = {
-  A1: "Débutant",
-  A2: "Élémentaire",
-  B1: "Intermédiaire",
-  B2: "Avancé",
 };
 
 export const LessonCard = ({
@@ -63,7 +57,7 @@ export const LessonCard = ({
             <CardDescription>{category}</CardDescription>
           </div>
           <Badge className={levelColors[level]}>
-            {level} - {levelLabels[level]}
+            {UF_LABELS[level]}
           </Badge>
         </div>
       </CardHeader>

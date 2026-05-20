@@ -14,13 +14,11 @@ interface WordLevelEditorProps {
   currentLevel?: string;
 }
 
-const CECRL_LEVELS = [
-  { value: 'A1', label: 'A1 - Débutant', description: 'Découverte' },
-  { value: 'A2', label: 'A2 - Élémentaire', description: 'Survie' },
-  { value: 'B1', label: 'B1 - Intermédiaire', description: 'Seuil' },
-  { value: 'B2', label: 'B2 - Intermédiaire avancé', description: 'Indépendant' },
-  { value: 'C1', label: 'C1 - Avancé', description: 'Autonome' },
-  { value: 'C2', label: 'C2 - Maîtrise', description: 'Maîtrise' },
+const UF_LEVELS = [
+  { value: 'A1', label: 'UF 1-2 (élémentaire)', description: 'Élémentaire' },
+  { value: 'A2', label: 'UF 3-6 (moyen)', description: 'Moyen' },
+  { value: 'B1', label: 'UF 7-12 (approfondi)', description: 'Approfondi' },
+  { value: 'B2', label: 'Maîtrise', description: 'Maîtrise' },
 ];
 
 export const WordLevelEditor = ({ wordId, wordText, currentLevel }: WordLevelEditorProps) => {
