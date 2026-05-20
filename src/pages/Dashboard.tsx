@@ -355,7 +355,7 @@ const Dashboard = () => {
             <div>
               <Button
                 onClick={() => setMedicalOpen(!medicalOpen)}
-                variant={["rendezvous", "hopitaux", "liens"].includes(activeSection) ? "default" : "ghost"}
+                variant={["rendezvous", "hopitaux", "liens", "suivipostconsultation"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Patient signant {medicalOpen ? "▾" : "▸"}
@@ -375,6 +375,13 @@ const Dashboard = () => {
                     className="w-full justify-start text-base h-12"
                   >
                     Plans hôpitaux
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("suivipostconsultation")}
+                    variant={activeSection === "suivipostconsultation" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Suivi post consultation
                   </Button>
                   <Button
                     onClick={() => setActiveSection("liens")}
