@@ -12,6 +12,7 @@ import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { UF_LABELS } from "@/lib/levelLabels";
 
 type Step = "professions" | "level-test" | "categories";
 type CategoryType = "glossaire" | "vocabulaire" | "culture";
@@ -392,7 +393,7 @@ export const LearningDecisionTree = () => {
     const items = [];
 
     if (selectedProfession) items.push(professions.find(p => p.id === selectedProfession)?.name || "");
-    if (recommendedLevel && currentStep === "categories") items.push(`Niveau ${recommendedLevel}`);
+    if (recommendedLevel && currentStep === "categories") items.push(`Niveau ${UF_LABELS[recommendedLevel] || recommendedLevel}`);
     if (selectedCategory) {
       const categoryNames: Record<CategoryType, string> = {
         glossaire: "Glossaire",
@@ -495,7 +496,7 @@ export const LearningDecisionTree = () => {
                 <div className="w-24 h-24 rounded-full gradient-candy flex items-center justify-center mx-auto mb-6">
                   <span className="text-4xl font-bold text-primary-foreground">{recommendedLevel}</span>
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Niveau recommandé : {recommendedLevel}</h3>
+                <h3 className="text-2xl font-bold mb-2">Niveau recommandé : {UF_LABELS[recommendedLevel] || recommendedLevel}</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
                   {recommendedLevel === "A1" && "Vous débutez en LSFB. Commencez par les bases : alphabet, chiffres et salutations."}
                   {recommendedLevel === "A2" && "Vous avez des notions de base. Continuez à développer votre vocabulaire et vos premières phrases."}

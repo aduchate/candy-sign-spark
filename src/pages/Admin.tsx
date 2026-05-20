@@ -942,7 +942,7 @@ const Admin = () => {
                       {wordSigns.map((word) => (
                         <TableRow key={word.id}>
                           <TableCell className="font-medium">{word.word}</TableCell>
-                          <TableCell>{word.category || 'A1'}</TableCell>
+                          <TableCell>{word.category ? (word.category === 'B2' ? 'Maîtrise' : `UF ${word.category === 'A1' ? '1-2' : word.category === 'A2' ? '3-6' : word.category === 'B1' ? '7-12' : word.category}`) : 'UF 1-2'}</TableCell>
                           <TableCell>
                             <div className="flex flex-wrap gap-1">
                               {word.categories && word.categories.length > 0 ? (

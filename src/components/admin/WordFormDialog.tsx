@@ -32,13 +32,11 @@ interface WordFormDialogProps {
   onSave: () => void;
 }
 
-const CECRL_LEVELS = [
-  { value: 'A1', label: 'A1 - Débutant' },
-  { value: 'A2', label: 'A2 - Élémentaire' },
-  { value: 'B1', label: 'B1 - Intermédiaire' },
-  { value: 'B2', label: 'B2 - Intermédiaire avancé' },
-  { value: 'C1', label: 'C1 - Avancé' },
-  { value: 'C2', label: 'C2 - Maîtrise' },
+const UF_LEVELS = [
+  { value: 'A1', label: 'UF 1-2 (élémentaire)' },
+  { value: 'A2', label: 'UF 3-6 (moyen)' },
+  { value: 'B1', label: 'UF 7-12 (approfondi)' },
+  { value: 'B2', label: 'Maîtrise' },
 ];
 
 export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDialogProps) => {
@@ -280,7 +278,7 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
             </div>
 
             <div>
-              <Label htmlFor="level">Niveau CECRL *</Label>
+              <Label htmlFor="level">Niveau UF *</Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -289,7 +287,7 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CECRL_LEVELS.map((level) => (
+                  {UF_LEVELS.map((level) => (
                     <SelectItem key={level.value} value={level.value}>
                       {level.label}
                     </SelectItem>
