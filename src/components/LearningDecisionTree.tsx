@@ -103,7 +103,7 @@ const professionVocabulary: Record<string, Record<string, string[]>> = {
 
 export const LearningDecisionTree = () => {
   const [currentStep, setCurrentStep] = useState<Step>("professions");
-  const [selectedLevel, setSelectedLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
+  const [selectedLevel, setSelectedLevel] = useState<"A1" | "A2" | "B1" | "B2" | "C1">("A1");
   const [selectedProfession, setSelectedProfession] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | null>(null);
   const [adultExerciseType, setAdultExerciseType] = useState<"flashcards" | "quiz" | "matching" | null>(null);
@@ -116,7 +116,7 @@ export const LearningDecisionTree = () => {
   // État du test de niveau
   const [testAnswers, setTestAnswers] = useState<Record<number, number>>({});
   const [testCompleted, setTestCompleted] = useState(false);
-  const [recommendedLevel, setRecommendedLevel] = useState<"A1" | "A2" | "B1" | "B2" | null>(null);
+  const [recommendedLevel, setRecommendedLevel] = useState<"A1" | "A2" | "B1" | "B2" | "C1" | null>(null);
   const [professionWords, setProfessionWords] = useState<any[]>([]);
 
   useEffect(() => {
@@ -502,6 +502,7 @@ export const LearningDecisionTree = () => {
                   {recommendedLevel === "A2" && "Vous avez des notions de base. Continuez à développer votre vocabulaire et vos premières phrases."}
                   {recommendedLevel === "B1" && "Vous avez un niveau intermédiaire. Travaillez sur les conversations et la compréhension."}
                   {recommendedLevel === "B2" && "Vous avez un bon niveau. Perfectionnez votre expression et abordez des sujets complexes."}
+                  {recommendedLevel === "C1" && "Vous avez un niveau avancé. Approfondissez votre maîtrise et abordez des sujets spécialisés."}
                 </p>
               </Card>
 
