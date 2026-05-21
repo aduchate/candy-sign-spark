@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, Stethoscope, Brain, Dumbbell, UserCheck, Heart, TestTube2, CheckCircle, BookOpen, GraduationCap, Users } from "lucide-react";
+import { ChevronLeft, Stethoscope, Brain, Dumbbell, UserCheck, Heart, TestTube2, CheckCircle, BookOpen, GraduationCap, Users, RotateCcw } from "lucide-react";
 import { LevelTabs } from "./LevelTabs";
 import { ExerciseSelector } from "./exercises/ExerciseSelector";
 import { FlashCards } from "./exercises/FlashCards";
@@ -118,9 +118,37 @@ export const LearningDecisionTree = () => {
   const [testCompleted, setTestCompleted] = useState(false);
   const [recommendedLevel, setRecommendedLevel] = useState<"A1" | "A2" | "B1" | "B2" | "C1" | null>(null);
   const [professionWords, setProfessionWords] = useState<any[]>([]);
+  const [storageKey, setStorageKey] = useState<string | null>(null);
 
   useEffect(() => {
     loadExerciseData();
+  }, []);
+
+  // Charge la profession et le niveau mémorisés pour l'utilisateur connecté
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const key = user ? `learning_progress_${user.id}` : "learning_progress_anon";
+      if (cancelled) return;
+      setStorageKey(key);
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        const saved = JSON.parse(raw) as { profession?: string; level?: "A1" | "A2" | "B1" | "B2" | "C1" };
+        if (saved.profession && saved.level) {
+          setSelectedProfession(saved.profession);
+          setRecommendedLevel(saved.level);
+          setSelectedLevel(saved.level);
+          setTestCompleted(true);
+          setCurrentStep("categories");
+          loadProfessionVocabulary(saved.profession, saved.level);
+        }
+      } catch (e) {
+        console.error("Failed to restore learning progress", e);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const loadExerciseData = async () => {
@@ -218,6 +246,28 @@ export const LearningDecisionTree = () => {
     if (selectedProfession) {
       loadProfessionVocabulary(selectedProfession, level);
     }
+    // Mémorise le choix de profession et le niveau
+    if (storageKey && selectedProfession) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({ profession: selectedProfession, level }));
+      } catch (e) {
+        console.error("Failed to save learning progress", e);
+      }
+    }
+  };
+
+  const handleRetakeTest = () => {
+    if (storageKey) {
+      try { localStorage.removeItem(storageKey); } catch {}
+    }
+    setTestAnswers({});
+    setTestCompleted(false);
+    setRecommendedLevel(null);
+    setSelectedCategory(null);
+    setAdultExerciseType(null);
+    setProfessionWords([]);
+    setCurrentStep("professions");
+    setSelectedProfession(null);
   };
 
 
@@ -567,6 +617,12 @@ export const LearningDecisionTree = () => {
             <p className="text-muted-foreground">
               {professions.find(p => p.id === selectedProfession)?.name} - Niveau : {recommendedLevel}
             </p>
+            <div className="mt-4">
+              <Button variant="outline" size="sm" onClick={handleRetakeTest}>
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Refaire le test de niveau
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
