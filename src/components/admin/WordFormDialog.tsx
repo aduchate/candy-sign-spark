@@ -34,9 +34,10 @@ interface WordFormDialogProps {
 
 const UF_LEVELS = [
   { value: 'A1', label: 'UF 1-2 (élémentaire)' },
-  { value: 'A2', label: 'UF 3-6 (moyen)' },
-  { value: 'B1', label: 'UF 7-12 (approfondi)' },
-  { value: 'B2', label: 'Maîtrise' },
+  { value: 'A2', label: 'UF 3-4 (moyen)' },
+  { value: 'B1', label: 'UF 5-6 (moyen)' },
+  { value: 'B2', label: 'UF 7-9 (approfondi)' },
+  { value: 'C1', label: 'UF 10-12 (approfondi)' },
 ];
 
 export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDialogProps) => {
