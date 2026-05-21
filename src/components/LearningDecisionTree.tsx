@@ -12,7 +12,7 @@ import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { UF_LABELS } from "@/lib/levelLabels";
+import { UF_LABELS, UF_SHORT_LABELS } from "@/lib/levelLabels";
 
 type Step = "professions" | "level-test" | "categories";
 type CategoryType = "glossaire" | "vocabulaire" | "culture";
@@ -544,7 +544,7 @@ export const LearningDecisionTree = () => {
             <div className="space-y-6">
               <Card className="p-8 text-center bg-gradient-to-br from-primary/10 to-accent/10">
                 <div className="w-24 h-24 rounded-full gradient-candy flex items-center justify-center mx-auto mb-6">
-                  <span className="text-4xl font-bold text-primary-foreground">{recommendedLevel}</span>
+                  <span className="text-xl font-bold text-primary-foreground">{recommendedLevel ? UF_SHORT_LABELS[recommendedLevel] : ""}</span>
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Niveau recommandé : {UF_LABELS[recommendedLevel] || recommendedLevel}</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
@@ -615,7 +615,7 @@ export const LearningDecisionTree = () => {
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2">Votre parcours d'apprentissage</h2>
             <p className="text-muted-foreground">
-              {professions.find(p => p.id === selectedProfession)?.name} - Niveau : {recommendedLevel}
+              {professions.find(p => p.id === selectedProfession)?.name} - Niveau : {recommendedLevel ? UF_LABELS[recommendedLevel] : ""}
             </p>
             <div className="mt-4">
               <Button variant="outline" size="sm" onClick={handleRetakeTest}>
@@ -733,7 +733,7 @@ export const LearningDecisionTree = () => {
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2">Vocabulaire Professionnel</h2>
             <p className="text-muted-foreground">
-              {professions.find(p => p.id === selectedProfession)?.name} - Niveau {selectedLevel}
+              {professions.find(p => p.id === selectedProfession)?.name} - Niveau {UF_LABELS[selectedLevel]}
             </p>
           </div>
 
@@ -744,7 +744,7 @@ export const LearningDecisionTree = () => {
 
           {professionWords.length > 0 && (
             <Card className="p-4 mt-4">
-              <h4 className="font-semibold mb-2">Vocabulaire adapté — {professions.find(p => p.id === selectedProfession)?.name} ({selectedLevel})</h4>
+              <h4 className="font-semibold mb-2">Vocabulaire adapté — {professions.find(p => p.id === selectedProfession)?.name} ({UF_SHORT_LABELS[selectedLevel]})</h4>
               <p className="text-sm text-muted-foreground mb-3">
                 {professionWords.length} signe(s) disponible(s) pour votre niveau et profession
               </p>
