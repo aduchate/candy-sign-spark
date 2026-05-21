@@ -320,7 +320,7 @@ const Dashboard = () => {
             <div>
               <Button
                 onClick={() => setNotionOpen(!notionOpen)}
-                variant={["apprentissage", "glossaire", "starterpack"].includes(activeSection) ? "default" : "ghost"}
+                variant={["apprentissage", "starterpack"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Pro de santé {notionOpen ? "▾" : "▸"}
@@ -333,13 +333,6 @@ const Dashboard = () => {
                     className="w-full justify-start text-base h-12"
                   >
                     Apprentissage
-                  </Button>
-                  <Button
-                    onClick={() => setActiveSection("glossaire")}
-                    variant={activeSection === "glossaire" ? "secondary" : "ghost"}
-                    className="w-full justify-start text-base h-12"
-                  >
-                    Glossaire
                   </Button>
                   <Button
                     onClick={() => setActiveSection("starterpack")}

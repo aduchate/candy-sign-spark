@@ -9,6 +9,7 @@ import { FlashCards } from "./exercises/FlashCards";
 import { QuizExercise } from "./exercises/QuizExercise";
 import { MatchingExercise } from "./exercises/MatchingExercise";
 import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
+import { MedicalGlossary } from "@/components/MedicalGlossary";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -693,7 +694,14 @@ export const LearningDecisionTree = () => {
             </p>
           </div>
 
-          <Card className="p-6">
+          <Tabs defaultValue="personnel" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="personnel">Mon glossaire personnel</TabsTrigger>
+              <TabsTrigger value="paramedical">Glossaire paramédical</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="personnel">
+              <Card className="p-6">
             {glossaryWords.length === 0 ? (
               <div className="text-center py-12">
                 <BookOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
@@ -723,7 +731,13 @@ export const LearningDecisionTree = () => {
                 ))}
               </div>
             )}
-          </Card>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="paramedical">
+              <MedicalGlossary />
+            </TabsContent>
+          </Tabs>
         </div>
       )}
 
