@@ -25,46 +25,13 @@ const Auth = () => {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Si déjà connecté, on va directement au dashboard
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        checkOnboardingStatus(session.user.id);
+        navigate("/dashboard");
       }
     });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        checkOnboardingStatus(session.user.id);
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const checkOnboardingStatus = async (userId: string) => {
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-
-    if (roles?.some((r) => r.role === "admin")) {
-      navigate("/dashboard");
-      return;
-    }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("onboarding_completed")
-      .eq("id", userId)
-      .single();
-
-    if (profile?.onboarding_completed) {
-      navigate("/dashboard");
-    } else {
-      navigate("/onboarding");
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +57,7 @@ const Auth = () => {
         }
 
         toast.success(t('auth.welcomeBackMessage'));
+        navigate("/dashboard");
       } else {
         const redirectUrl = `${window.location.origin}/`;
         
