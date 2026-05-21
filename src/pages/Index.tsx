@@ -16,17 +16,7 @@ const Index = () => {
         return;
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", session.user.id)
-        .single();
-
-      if (!profile?.onboarding_completed) {
-        navigate("/onboarding", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
+      navigate("/dashboard", { replace: true });
     };
 
     checkAuth();
