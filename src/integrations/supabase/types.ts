@@ -252,6 +252,7 @@ export type Database = {
           hearing_status: string | null
           id: string
           installation_reason: string | null
+          learning_level: string | null
           onboarding_completed: boolean | null
           preferred_age_group: string | null
           profession: string | null
@@ -266,6 +267,7 @@ export type Database = {
           hearing_status?: string | null
           id: string
           installation_reason?: string | null
+          learning_level?: string | null
           onboarding_completed?: boolean | null
           preferred_age_group?: string | null
           profession?: string | null
@@ -280,6 +282,7 @@ export type Database = {
           hearing_status?: string | null
           id?: string
           installation_reason?: string | null
+          learning_level?: string | null
           onboarding_completed?: boolean | null
           preferred_age_group?: string | null
           profession?: string | null

@@ -120,6 +120,7 @@ export const LearningDecisionTree = () => {
   const [recommendedLevel, setRecommendedLevel] = useState<"A1" | "A2" | "B1" | "B2" | "C1" | null>(null);
   const [professionWords, setProfessionWords] = useState<any[]>([]);
   const [storageKey, setStorageKey] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     loadExerciseData();
@@ -133,6 +134,37 @@ export const LearningDecisionTree = () => {
       const key = user ? `learning_progress_${user.id}` : "learning_progress_anon";
       if (cancelled) return;
       setStorageKey(key);
+      setUserId(user?.id ?? null);
+
+      // 1) Restaure depuis Supabase (profil) pour suivre l'utilisateur entre appareils
+      if (user) {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("profession, learning_level")
+            .eq("id", user.id)
+            .maybeSingle();
+          if (cancelled) return;
+          const lvl = profile?.learning_level as "A1" | "A2" | "B1" | "B2" | "C1" | null | undefined;
+          if (profile?.profession && lvl) {
+            setSelectedProfession(profile.profession);
+            setRecommendedLevel(lvl);
+            setSelectedLevel(lvl);
+            setTestCompleted(true);
+            setCurrentStep("categories");
+            loadProfessionVocabulary(profile.profession, lvl);
+            // Met à jour le cache local pour usage hors-ligne
+            try {
+              localStorage.setItem(key, JSON.stringify({ profession: profile.profession, level: lvl }));
+            } catch {}
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to restore learning progress from profile", e);
+        }
+      }
+
+      // 2) Fallback localStorage (hors-ligne ou anonyme)
       try {
         const raw = localStorage.getItem(key);
         if (!raw) return;
@@ -255,11 +287,30 @@ export const LearningDecisionTree = () => {
         console.error("Failed to save learning progress", e);
       }
     }
+    // Persiste dans le profil Supabase pour suivre l'utilisateur entre appareils
+    if (userId && selectedProfession) {
+      supabase
+        .from("profiles")
+        .update({ profession: selectedProfession, learning_level: level })
+        .eq("id", userId)
+        .then(({ error }) => {
+          if (error) console.error("Failed to persist learning level to profile", error);
+        });
+    }
   };
 
   const handleRetakeTest = () => {
     if (storageKey) {
       try { localStorage.removeItem(storageKey); } catch {}
+    }
+    if (userId) {
+      supabase
+        .from("profiles")
+        .update({ learning_level: null })
+        .eq("id", userId)
+        .then(({ error }) => {
+          if (error) console.error("Failed to reset learning level", error);
+        });
     }
     setTestAnswers({});
     setTestCompleted(false);
