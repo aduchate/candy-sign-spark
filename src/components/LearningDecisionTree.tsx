@@ -287,6 +287,16 @@ export const LearningDecisionTree = () => {
         console.error("Failed to save learning progress", e);
       }
     }
+    // Persiste dans le profil Supabase pour suivre l'utilisateur entre appareils
+    if (userId && selectedProfession) {
+      supabase
+        .from("profiles")
+        .update({ profession: selectedProfession, learning_level: level })
+        .eq("id", userId)
+        .then(({ error }) => {
+          if (error) console.error("Failed to persist learning level to profile", error);
+        });
+    }
   };
 
   const handleRetakeTest = () => {
