@@ -303,6 +303,15 @@ export const LearningDecisionTree = () => {
     if (storageKey) {
       try { localStorage.removeItem(storageKey); } catch {}
     }
+    if (userId) {
+      supabase
+        .from("profiles")
+        .update({ learning_level: null })
+        .eq("id", userId)
+        .then(({ error }) => {
+          if (error) console.error("Failed to reset learning level", error);
+        });
+    }
     setTestAnswers({});
     setTestCompleted(false);
     setRecommendedLevel(null);
