@@ -43,6 +43,16 @@ const Auth = () => {
   }, [navigate]);
 
   const checkOnboardingStatus = async (userId: string) => {
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    if (roles?.some((r) => r.role === "admin")) {
+      navigate("/dashboard");
+      return;
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("onboarding_completed")
@@ -50,7 +60,7 @@ const Auth = () => {
       .single();
 
     if (profile?.onboarding_completed) {
-      navigate("/");
+      navigate("/dashboard");
     } else {
       navigate("/onboarding");
     }
