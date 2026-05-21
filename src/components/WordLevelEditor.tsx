@@ -16,9 +16,10 @@ interface WordLevelEditorProps {
 
 const UF_LEVELS = [
   { value: 'A1', label: 'UF 1-2 (élémentaire)', description: 'Élémentaire' },
-  { value: 'A2', label: 'UF 3-6 (moyen)', description: 'Moyen' },
-  { value: 'B1', label: 'UF 7-12 (approfondi)', description: 'Approfondi' },
-  { value: 'B2', label: 'Maîtrise', description: 'Maîtrise' },
+  { value: 'A2', label: 'UF 3-4 (moyen)', description: 'Moyen' },
+  { value: 'B1', label: 'UF 5-6 (moyen)', description: 'Moyen' },
+  { value: 'B2', label: 'UF 7-9 (approfondi)', description: 'Approfondi' },
+  { value: 'C1', label: 'UF 10-12 (approfondi)', description: 'Approfondi' },
 ];
 
 export const WordLevelEditor = ({ wordId, wordText, currentLevel }: WordLevelEditorProps) => {

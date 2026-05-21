@@ -8,18 +8,19 @@ import { UF_LABELS } from "@/lib/levelLabels";
 interface LessonCardProps {
   id: string;
   title: string;
-  level: "A1" | "A2" | "B1" | "B2";
+  level: "A1" | "A2" | "B1" | "B2" | "C1";
   category: string;
   progress?: number;
   isLocked?: boolean;
   isCompleted?: boolean;
 }
 
-const levelColors = {
+const levelColors: Record<string, string> = {
   A1: "bg-green-500",
   A2: "bg-blue-500",
-  B1: "bg-orange-500",
-  B2: "bg-purple-500",
+  B1: "bg-cyan-500",
+  B2: "bg-orange-500",
+  C1: "bg-purple-500",
 };
 
 export const LessonCard = ({
