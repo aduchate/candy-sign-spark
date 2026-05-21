@@ -9,6 +9,7 @@ import { FlashCards } from "./exercises/FlashCards";
 import { QuizExercise } from "./exercises/QuizExercise";
 import { MatchingExercise } from "./exercises/MatchingExercise";
 import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
+import { MedicalGlossary } from "@/components/MedicalGlossary";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
