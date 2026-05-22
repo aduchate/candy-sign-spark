@@ -10,7 +10,6 @@ import Stats from "./pages/Stats";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Admin from "./pages/Admin";
-import Donations from "./pages/Donations";
 import NotFound from "./pages/NotFound";
 import { OfflineBanner } from "./components/OfflineBanner";
 
@@ -31,7 +30,6 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/donations" element={<Donations />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
