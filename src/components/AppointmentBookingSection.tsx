@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Phone, Users, Plus } from "lucide-react";
+import { ExternalLink, Phone, Users, Plus, Stethoscope } from "lucide-react";
 
 interface InterpreterService {
   name: string;
@@ -72,6 +72,37 @@ export const AppointmentBookingSection = () => {
               </Card>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Professionnels de santé signants */}
+      <Card className="p-8 bg-card/40 backdrop-blur-md border-2">
+        <CardHeader className="px-0 pt-0">
+          <CardTitle className="text-2xl gradient-text flex items-center gap-2">
+            <Stethoscope className="w-6 h-6" />
+            Professionnels de santé signants
+          </CardTitle>
+          <CardDescription className="text-base">
+            Médecins et soignants qui pratiquent la langue des signes, pour une consultation directe sans interprète.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-0 pb-0">
+          <Card className="overflow-hidden hover:shadow-candy transition-all duration-300">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-2">Babel Dr — Hôpitaux Universitaires de Genève (HUG)</h3>
+              <p className="text-muted-foreground mb-4">
+                Service de médecine de premier recours des HUG proposant des consultations accessibles, avec des praticiens formés à la communication en langue des signes.
+              </p>
+              <Button
+                onClick={() => window.open("https://www.hug.ch/medecine-premier-recours/babel-dr", "_blank")}
+                className="gap-2"
+              >
+                <Stethoscope className="w-4 h-4" />
+                Découvrir Babel Dr
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            </div>
+          </Card>
         </CardContent>
       </Card>
 
