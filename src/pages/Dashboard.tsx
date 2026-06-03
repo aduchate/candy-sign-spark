@@ -105,19 +105,14 @@ const Dashboard = () => {
       } else {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("onboarding_completed, age, status")
+          .select("age, status")
           .eq("id", session.user.id)
           .single();
 
-        if (!profile?.onboarding_completed) {
-          navigate("/onboarding");
-          return;
-        }
-
         // Derive starter pack profile from user profile
-        if (profile.status === "ecolier" || (profile.age && profile.age < 16)) {
+        if (profile?.status === "ecolier" || (profile?.age && profile.age < 16)) {
           setStarterProfile("child");
-        } else if (profile.status === "travail") {
+        } else if (profile?.status === "travail") {
           setStarterProfile("profession");
         } else {
           setStarterProfile("adult");
