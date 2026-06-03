@@ -31,7 +31,6 @@ import { ToysGrid } from "@/components/ToysGrid";
 import { WorkVocabGrid } from "@/components/WorkVocabGrid";
 import { DatesGrid } from "@/components/DatesGrid";
 import { EmergencyGrid } from "@/components/EmergencyGrid";
-import { UsefulLinks } from "@/components/UsefulLinks";
 import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
@@ -65,10 +64,9 @@ const Dashboard = () => {
     | "quizz"
     | "traduction"
     | "starterpack"
-    | "liens"
     | null;
   const [activeSection, setActiveSectionRaw] = useState<
-    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "liens" | "rendezvous" | "suivipostconsultation" | "profil"
+    "apprentissage" | "glossaire" | "quizz" | "traduction" | "starterpack" | "rendezvous" | "suivipostconsultation" | "profil"
   >(sectionParam || "apprentissage");
 
   const setActiveSection = (section: typeof activeSection) => {
@@ -341,7 +339,7 @@ const Dashboard = () => {
             <div>
               <Button
                 onClick={() => setMedicalOpen(!medicalOpen)}
-                variant={["rendezvous", "liens", "suivipostconsultation"].includes(activeSection) ? "default" : "ghost"}
+                variant={["rendezvous", "suivipostconsultation"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Patient signant {medicalOpen ? "▾" : "▸"}
@@ -361,13 +359,6 @@ const Dashboard = () => {
                     className="w-full justify-start text-base h-12"
                   >
                     Suivi post consultation
-                  </Button>
-                  <Button
-                    onClick={() => setActiveSection("liens")}
-                    variant={activeSection === "liens" ? "secondary" : "ghost"}
-                    className="w-full justify-start text-base h-12"
-                  >
-                    Liens utiles
                   </Button>
                 </div>
               )}
@@ -413,7 +404,6 @@ const Dashboard = () => {
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "starterpack" && "Section Starter Pack"}
-              {activeSection === "liens" && "Liens Utiles"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "suivipostconsultation" && "Suivi post consultation"}
               {activeSection === "profil" && "Mon Profil"}
@@ -706,9 +696,6 @@ const Dashboard = () => {
               )}
             </div>
           )}
-
-          {activeSection === "liens" && <UsefulLinks />}
-
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 
