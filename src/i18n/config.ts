@@ -26,7 +26,22 @@ const resources = {
         "invalidCredentials": "Email ou mot de passe invalide",
         "emailRegistered": "Cet email est déjà enregistré. Veuillez vous connecter.",
         "accountCreated": "Compte créé ! Bienvenue sur SignLearn ! 🎉",
-        "welcomeBackMessage": "Bon retour ! 🎉"
+        "welcomeBackMessage": "Bon retour ! 🎉",
+        "forgotPassword": "Mot de passe oublié ?",
+        "forgotPasswordTitle": "Réinitialiser le mot de passe",
+        "sendResetLink": "Envoyer le lien de réinitialisation",
+        "resetEmailSent": "Un email de réinitialisation a été envoyé. Vérifiez votre boîte de réception.",
+        "backToLogin": "Retour à la connexion",
+        "invalidEmail": "Veuillez entrer une adresse email valide.",
+        "resetPasswordTitle": "Nouveau mot de passe",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "updatePassword": "Mettre à jour le mot de passe",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+        "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+        "passwordUpdated": "Mot de passe mis à jour ! Vous pouvez maintenant vous connecter.",
+        "invalidLink": "Lien invalide",
+        "invalidLinkMessage": "Ce lien de réinitialisation est invalide ou a expiré. Veuillez demander un nouveau lien."
       },
       "dashboard": {
         "welcome": "Bon retour, {{name}} ! 👋",

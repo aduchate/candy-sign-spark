@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Lesson from "./pages/Lesson";
 import Stats from "./pages/Stats";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Onboarding from "./pages/Onboarding";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -29,6 +31,8 @@ const App = () => (
           <Route path="/lesson/:id" element={<Lesson />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route
             path="/admin"
