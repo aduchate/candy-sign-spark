@@ -37,6 +37,7 @@ import { AppointmentBookingSection } from "@/components/AppointmentBookingSectio
 import { PostConsultationFollowUp } from "@/components/PostConsultationFollowUp";
 import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useUserRoles } from "@/hooks/useUserRoles";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
 import { StarterPackVideoLoader } from "@/components/StarterPackVideoLoader";
@@ -85,7 +86,7 @@ const Dashboard = () => {
   const [ageGroup, setAgeGroup] = useState<"enfant" | "adulte">("adulte");
   const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [newLessons, setNewLessons] = useState<any[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin, isPro, isPatient, hasAccountType, isLoadingRoles } = useUserRoles();
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [starterProfile, setStarterProfile] = useState<"adult" | "child" | "profession" | null>(null);
 
@@ -118,7 +119,6 @@ const Dashboard = () => {
 
         setUser(session.user);
         fetchUserProgress(session.user.id);
-        checkAdminStatus(session.user.id);
       }
       setLoading(false);
     });
@@ -136,12 +136,19 @@ const Dashboard = () => {
         setUser(session.user);
         setIsOfflineMode(false);
         fetchUserProgress(session.user.id);
-        checkAdminStatus(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate, isOnline]);
+
+  // Send logged-in users who have not picked an account type to onboarding.
+  useEffect(() => {
+    if (loading || isLoadingRoles || isOfflineMode) return;
+    if (user && !hasAccountType) {
+      navigate("/onboarding");
+    }
+  }, [loading, isLoadingRoles, isOfflineMode, user, hasAccountType, navigate]);
 
   const loadCachedData = () => {
     const cachedLessons = offlineCache.get<LessonProgress[]>(CACHE_KEYS.LESSONS);
@@ -152,12 +159,6 @@ const Dashboard = () => {
 
     const cachedNewLessons = offlineCache.get<any[]>('new_lessons');
     if (cachedNewLessons) setNewLessons(cachedNewLessons);
-  };
-
-  const checkAdminStatus = async (userId: string) => {
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-    const hasAdminRole = roles?.some((r) => r.role === "admin");
-    setIsAdmin(hasAdminRole || false);
   };
 
   const fetchUserProgress = async (userId: string) => {
@@ -309,6 +310,7 @@ const Dashboard = () => {
         <nav className="flex-1 p-4">
           <h2 className="text-2xl font-bold mb-6 px-2">MENU</h2>
           <div className="space-y-3">
+            {isPro && (
             <div>
               <Button
                 onClick={() => setNotionOpen(!notionOpen)}
@@ -336,6 +338,8 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
+            )}
+            {isPatient && (
             <div>
               <Button
                 onClick={() => setMedicalOpen(!medicalOpen)}
@@ -363,6 +367,7 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
+            )}
             <Button
               onClick={() => setActiveSection("profil")}
               variant={activeSection === "profil" ? "default" : "ghost"}
