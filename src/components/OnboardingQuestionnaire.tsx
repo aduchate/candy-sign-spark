@@ -20,6 +20,9 @@ const onboardingSchema = z.object({
   hearing_status: z.enum(["entendant", "malentendant", "sourd"], {
     required_error: "Veuillez sélectionner votre statut auditif",
   }),
+  account_type: z.enum(["pro", "patient"], {
+    required_error: "Veuillez sélectionner un type de compte",
+  }),
   profession: z.string().optional(),
   installation_reason: z.string().min(10, "Veuillez expliquer votre raison (minimum 10 caractères)"),
 });
@@ -67,6 +70,11 @@ export const OnboardingQuestionnaire = () => {
         .eq("id", user.id);
 
       if (error) throw error;
+
+      const { error: roleError } = await supabase.rpc("set_account_type", {
+        _role: data.account_type,
+      });
+      if (roleError) throw roleError;
 
       toast.success("Profil complété avec succès !");
       navigate("/dashboard");
@@ -167,6 +175,34 @@ export const OnboardingQuestionnaire = () => {
               </RadioGroup>
               {errors.hearing_status && (
                 <p className="text-sm text-destructive">{errors.hearing_status.message}</p>
+              )}
+            </div>
+
+            {/* Type de compte */}
+            <div className="space-y-2">
+              <Label>Type de compte</Label>
+              <RadioGroup
+                onValueChange={(value) =>
+                  setValue("account_type", value as OnboardingFormData["account_type"], {
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="pro" id="account_pro" />
+                  <Label htmlFor="account_pro" className="font-normal cursor-pointer">
+                    Pro de santé
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="patient" id="account_patient" />
+                  <Label htmlFor="account_patient" className="font-normal cursor-pointer">
+                    Patient signant
+                  </Label>
+                </div>
+              </RadioGroup>
+              {errors.account_type && (
+                <p className="text-sm text-destructive">{errors.account_type.message}</p>
               )}
             </div>
 
