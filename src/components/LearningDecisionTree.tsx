@@ -27,38 +27,39 @@ const professions = [
   { id: "éducateur", name: "Éducateur spécialisé", icon: UserCheck },
 ];
 
-// Questions du test de niveau
+// Questions du test de niveau. Chaque question est étiquetée avec le niveau CEFR
+// qu'elle teste réellement ; les options vont du plus compétent (index 0) au moins
+// compétent (dernier index).
 const levelTestQuestions = [
   {
     id: 1,
+    level: "A1",
     question: "Savez-vous épeler votre nom en dactylologie (alphabet manuel) ?",
     options: ["Oui, couramment", "Quelques lettres seulement", "Non, pas du tout"],
-    // "Oui" = skilled → points for higher levels; "Non" = beginner → points for A1
-    weights: { A1: [0, 1, 3], A2: [1, 2, 0], B1: [2, 0, 0], B2: [3, 0, 0] }
   },
   {
     id: 2,
+    level: "A1",
     question: "Pouvez-vous comprendre les salutations de base en LSFB ?",
     options: ["Oui, facilement", "Avec difficulté", "Non"],
-    weights: { A1: [0, 1, 3], A2: [1, 2, 0], B1: [2, 0, 0], B2: [3, 0, 0] }
   },
   {
     id: 3,
+    level: "A2",
     question: "Êtes-vous capable de tenir une conversation simple sur des sujets quotidiens ?",
     options: ["Oui, avec aisance", "Oui, mais avec hésitations", "Non, pas encore"],
-    weights: { A1: [0, 0, 3], A2: [0, 2, 1], B1: [2, 1, 0], B2: [3, 0, 0] }
   },
   {
     id: 4,
+    level: "B1",
     question: "Comprenez-vous des récits ou explications en LSFB sur des sujets familiers ?",
     options: ["Oui, sans problème", "Partiellement", "Très peu ou pas"],
-    weights: { A1: [0, 0, 3], A2: [0, 1, 1], B1: [1, 2, 0], B2: [3, 0, 0] }
   },
   {
     id: 5,
+    level: "B2",
     question: "Pouvez-vous exprimer des opinions nuancées et argumenter en LSFB ?",
     options: ["Oui, couramment", "Avec des efforts", "Non"],
-    weights: { A1: [0, 0, 2], A2: [0, 0, 1], B1: [1, 2, 0], B2: [3, 1, 0] }
   },
 ];
 
@@ -249,25 +250,40 @@ export const LearningDecisionTree = () => {
     setTestAnswers(prev => ({ ...prev, [questionId]: optionIndex }));
   };
 
-  const calculateLevel = () => {
-    const scores = { A1: 0, A2: 0, B1: 0, B2: 0 };
+  // Escalier CEFR avec gating de maîtrise : on n'atteint un niveau que si on a démontré
+  // la maîtrise de ce niveau ET de tous les niveaux inférieurs. Cela évite qu'une bonne
+  // maîtrise des bases (A1) ne gonfle artificiellement le résultat vers B1/B2.
+  const calculateLevel = (): "A1" | "A2" | "B1" | "B2" | "C1" => {
+    // Score de maîtrise auto-évaluée par index d'option (du plus au moins compétent)
+    const ANSWER_MASTERY = [1, 0.5, 0];
+    // Échelle CEFR testée ; B2 est le plafond (aucune question ne teste C1)
+    const LEVEL_LADDER = ["A1", "A2", "B1", "B2"] as const;
+    // Seuil pour valider un niveau : un niveau à une seule question exige le « Oui » confiant
+    const PASS_THRESHOLD = 0.75;
 
+    // Maîtrise moyenne auto-évaluée par niveau CEFR
+    const masteryByLevel: Record<string, { sum: number; count: number }> = {};
     levelTestQuestions.forEach(q => {
       const answer = testAnswers[q.id];
-      if (answer !== undefined) {
-        scores.A1 += q.weights.A1[answer] || 0;
-        scores.A2 += q.weights.A2[answer] || 0;
-        scores.B1 += q.weights.B1[answer] || 0;
-        scores.B2 += q.weights.B2[answer] || 0;
-      }
+      const mastery = answer !== undefined ? (ANSWER_MASTERY[answer] ?? 0) : 0;
+      const bucket = masteryByLevel[q.level] ?? { sum: 0, count: 0 };
+      bucket.sum += mastery;
+      bucket.count += 1;
+      masteryByLevel[q.level] = bucket;
     });
 
-    // Higher score = more likely that level. "Oui" answers boost B1/B2.
-    const maxScore = Math.max(scores.A1, scores.A2, scores.B1, scores.B2);
-    if (scores.B2 === maxScore) return "B2";
-    if (scores.B1 === maxScore) return "B1";
-    if (scores.A2 === maxScore) return "A2";
-    return "A1";
+    // Monte l'escalier ; s'arrête au premier niveau non maîtrisé. Plancher = A1.
+    let attained: "A1" | "A2" | "B1" | "B2" = "A1";
+    for (const level of LEVEL_LADDER) {
+      const bucket = masteryByLevel[level];
+      const avg = bucket && bucket.count > 0 ? bucket.sum / bucket.count : 0;
+      if (avg >= PASS_THRESHOLD) {
+        attained = level;
+      } else {
+        break;
+      }
+    }
+    return attained;
   };
 
   const handleTestComplete = () => {
