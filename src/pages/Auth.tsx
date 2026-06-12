@@ -148,6 +148,17 @@ const Auth = () => {
           </Button>
         </form>
 
+        {isLogin && (
+          <div className="mt-4 text-center">
+            <a
+              href="/forgot-password"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t('auth.forgotPassword')}
+            </a>
+          </div>
+        )}
+
         <div className="mt-6 text-center">
           <button
             onClick={() => setIsLogin(!isLogin)}
