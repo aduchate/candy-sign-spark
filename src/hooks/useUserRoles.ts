@@ -1,14 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 export type AppRole = Database["public"]["Enums"]["app_role"];
 
 /**
- * Fetches the current user's roles once and exposes derived flags.
+ * Fetches the current user's roles and exposes derived flags.
  * Returns an empty role list when logged out (e.g. offline mode).
+ * Invalidates the cache on auth state changes so a previous session's
+ * roles never leak into the next.
  */
 export function useUserRoles() {
+  const queryClient = useQueryClient();
+
   const query = useQuery({
     queryKey: ["user-roles"],
     queryFn: async (): Promise<AppRole[]> => {
@@ -26,6 +31,15 @@ export function useUserRoles() {
       return (data ?? []).map((r) => r.role);
     },
   });
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      queryClient.invalidateQueries({ queryKey: ["user-roles"] });
+    });
+    return () => subscription.unsubscribe();
+  }, [queryClient]);
 
   const roles = query.data ?? [];
 
