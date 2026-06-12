@@ -522,15 +522,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      set_account_type: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-        }
-        Returns: undefined
-      }
     }
     Enums: {
-      app_role: "admin" | "user" | "pro" | "patient"
+      app_role: "admin" | "user"
       cecrl_level: "A1" | "A2" | "B1" | "B2"
     }
     CompositeTypes: {
@@ -659,7 +653,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "pro", "patient"],
+      app_role: ["admin", "user"],
       cecrl_level: ["A1", "A2", "B1", "B2"],
     },
   },
