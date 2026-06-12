@@ -5,9 +5,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS one_account_type_per_user
   WHERE role IN ('pro', 'patient');
 
 -- Atomic self-service setter for the caller's own account type.
--- SECURITY DEFINER so it can write user_roles without a broad self-INSERT
--- policy (which would risk admin self-escalation). It hard-rejects any role
--- other than pro/patient, so it can never grant admin.
+-- SECURITY DEFINER: this function runs as the function owner and therefore
+-- BYPASSES RLS on user_roles. It is the ONLY non-admin path allowed to
+-- INSERT/DELETE user_roles rows — there is no self-INSERT or self-DELETE
+-- policy for ordinary users (only admins can write user_roles via RLS).
+-- A broad self-INSERT policy would risk admin self-escalation, so we use a
+-- guarded definer function instead. It hard-rejects any role other than
+-- pro/patient, so it can never grant admin.
 CREATE OR REPLACE FUNCTION public.set_account_type(_role public.app_role)
 RETURNS void
 LANGUAGE plpgsql
@@ -23,7 +27,9 @@ BEGIN
     RAISE EXCEPTION 'invalid account type: %', _role;
   END IF;
 
-  -- Remove any existing account type, then set the new one (atomic in one tx).
+  -- DELETE first (then INSERT) so switching pro<->patient cannot transiently
+  -- violate the one_account_type_per_user unique index. Both run in one
+  -- implicit transaction, so the swap is atomic.
   DELETE FROM public.user_roles
     WHERE user_id = auth.uid() AND role IN ('pro', 'patient');
 
