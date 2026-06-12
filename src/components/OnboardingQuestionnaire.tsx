@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 const onboardingSchema = z.object({
   age: z.coerce.number().min(1, "L'âge doit être supérieur à 0").max(120, "Veuillez entrer un âge valide"),
@@ -32,6 +33,7 @@ type OnboardingFormData = z.infer<typeof onboardingSchema>;
 export const OnboardingQuestionnaire = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const {
     register,
@@ -75,6 +77,8 @@ export const OnboardingQuestionnaire = () => {
         _role: data.account_type,
       });
       if (roleError) throw roleError;
+
+      await queryClient.invalidateQueries({ queryKey: ["user-roles"] });
 
       toast.success("Profil complété avec succès !");
       navigate("/dashboard");
