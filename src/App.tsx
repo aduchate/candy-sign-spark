@@ -12,6 +12,7 @@ import Onboarding from "./pages/Onboarding";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { OfflineBanner } from "./components/OfflineBanner";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,14 @@ const App = () => (
           <Route path="/stats" element={<Stats />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireRole="admin">
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
