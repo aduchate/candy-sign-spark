@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -40,12 +40,43 @@ export const OnboardingQuestionnaire = () => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
   });
 
   const selectedStatus = watch("status");
+
+  useEffect(() => {
+    const loadExistingProfile = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("age, status, hearing_status, profession, installation_reason")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile) return;
+
+      // Prefill known fields so returning users only pick an account type.
+      // account_type is a role (not stored on the profile) and is intentionally
+      // left unset so the user must choose it.
+      reset({
+        age: profile.age ?? undefined,
+        status: (profile.status as OnboardingFormData["status"]) ?? undefined,
+        hearing_status: (profile.hearing_status as OnboardingFormData["hearing_status"]) ?? undefined,
+        profession: profile.profession ?? undefined,
+        installation_reason: profile.installation_reason ?? undefined,
+      });
+    };
+
+    loadExistingProfile();
+  }, [reset]);
 
   const onSubmit = async (data: OnboardingFormData) => {
     setIsSubmitting(true);
@@ -118,7 +149,7 @@ export const OnboardingQuestionnaire = () => {
             {/* Statut */}
             <div className="space-y-2">
               <Label>Statut</Label>
-              <RadioGroup onValueChange={(value) => setValue("status", value as OnboardingFormData["status"], { shouldValidate: true })}>
+              <RadioGroup value={selectedStatus} onValueChange={(value) => setValue("status", value as OnboardingFormData["status"], { shouldValidate: true })}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="travail" id="travail" />
                   <Label htmlFor="travail" className="font-normal cursor-pointer">Travail</Label>
@@ -163,7 +194,7 @@ export const OnboardingQuestionnaire = () => {
             {/* Statut auditif */}
             <div className="space-y-2">
               <Label>Statut auditif</Label>
-              <RadioGroup onValueChange={(value) => setValue("hearing_status", value as OnboardingFormData["hearing_status"], { shouldValidate: true })}>
+              <RadioGroup value={watch("hearing_status")} onValueChange={(value) => setValue("hearing_status", value as OnboardingFormData["hearing_status"], { shouldValidate: true })}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="entendant" id="entendant" />
                   <Label htmlFor="entendant" className="font-normal cursor-pointer">Entendant</Label>
@@ -186,6 +217,7 @@ export const OnboardingQuestionnaire = () => {
             <div className="space-y-2">
               <Label>Type de compte</Label>
               <RadioGroup
+                value={watch("account_type")}
                 onValueChange={(value) =>
                   setValue("account_type", value as OnboardingFormData["account_type"], {
                     shouldValidate: true,
