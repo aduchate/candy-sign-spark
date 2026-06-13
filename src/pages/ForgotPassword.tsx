@@ -28,7 +28,7 @@ const ForgotPassword = () => {
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `https://signaccess.cloud/reset-password`,
     });
 
     if (error) {
