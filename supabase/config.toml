@@ -1,13 +1,13 @@
 project_id = "mhingidepseiyozqyova"
 
-[functions.translate-to-lsfb]
-verify_jwt = false
-
-[functions.fetch-and-store-lsfb-video]
-verify_jwt = false
-
-[functions.get-filtered-lessons]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.fetch-and-store-lsfb-video]
+    verify_jwt = false
+  [functions.get-filtered-lessons]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.translate-to-lsfb]
+    verify_jwt = false
