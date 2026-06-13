@@ -25,6 +25,7 @@ const resources = {
         "pleaseWait": "Veuillez patienter...",
         "invalidCredentials": "Email ou mot de passe invalide",
         "emailRegistered": "Cet email est déjà enregistré. Veuillez vous connecter.",
+        "magicLinkSent": "Cet email est déjà enregistré. Nous vous avons envoyé un lien magique pour vous connecter directement. Vérifiez votre boîte de réception.",
         "accountCreated": "Compte créé ! Bienvenue sur SignLearn ! 🎉",
         "welcomeBackMessage": "Bon retour ! 🎉",
         "forgotPassword": "Mot de passe oublié ?",

@@ -61,7 +61,7 @@ const Auth = () => {
       } else {
         const redirectUrl = `${window.location.origin}/`;
         
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: validated.email,
           password: validated.password,
           options: {
@@ -69,12 +69,34 @@ const Auth = () => {
           },
         });
 
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast.error(t('auth.emailRegistered'));
-          } else {
-            toast.error(error.message);
+        // Detect "email already registered":
+        //   - explicit error from Supabase, OR
+        //   - anti-enumeration response: user returned but identities array is empty
+        const alreadyRegistered =
+          (error && /already registered|already exists|user already/i.test(error.message)) ||
+          (!error && data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0);
+
+        if (alreadyRegistered) {
+          const { error: otpError } = await supabase.auth.signInWithOtp({
+            email: validated.email,
+            options: {
+              emailRedirectTo: redirectUrl,
+              shouldCreateUser: false,
+            },
+          });
+
+          if (otpError) {
+            toast.error(otpError.message);
+            return;
           }
+
+          toast.success(t('auth.magicLinkSent'));
+          setIsLogin(true);
+          return;
+        }
+
+        if (error) {
+          toast.error(error.message);
           return;
         }
 
