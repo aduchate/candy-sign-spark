@@ -59,7 +59,7 @@ const Auth = () => {
         toast.success(t('auth.welcomeBackMessage'));
         navigate("/dashboard");
       } else {
-        const redirectUrl = `${window.location.origin}/`;
+        const redirectUrl = `https://signaccess.cloud/`;
         
         const { data, error } = await supabase.auth.signUp({
           email: validated.email,
