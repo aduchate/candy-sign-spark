@@ -208,7 +208,6 @@ export const PostConsultationFollowUp = () => {
               )}
             </CardContent>
           </Card>
-        </div>
       )}
     </div>
   );
