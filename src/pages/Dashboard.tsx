@@ -35,6 +35,7 @@ import { LearningDecisionTree } from "@/components/LearningDecisionTree";
 import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { PostConsultationFollowUp } from "@/components/PostConsultationFollowUp";
+import { MyPatientsSection } from "@/components/MyPatientsSection";
 import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
 import { HealthcareProviderSelector } from "@/components/HealthcareProviderSelector";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -334,7 +335,7 @@ const Dashboard = () => {
             <div>
               <Button
                 onClick={() => setNotionOpen(!notionOpen)}
-                variant={["apprentissage", "starterpack"].includes(activeSection) ? "default" : "ghost"}
+                variant={["apprentissage", "starterpack", "mespatients"].includes(activeSection) ? "default" : "ghost"}
                 className="w-full justify-start text-lg h-14"
               >
                 Pro de santé {notionOpen ? "▾" : "▸"}
@@ -354,6 +355,13 @@ const Dashboard = () => {
                     className="w-full justify-start text-base h-12"
                   >
                     Starter Pack
+                  </Button>
+                  <Button
+                    onClick={() => setActiveSection("mespatients")}
+                    variant={activeSection === "mespatients" ? "secondary" : "ghost"}
+                    className="w-full justify-start text-base h-12"
+                  >
+                    Mes patients
                   </Button>
                 </div>
               )}
@@ -429,6 +437,7 @@ const Dashboard = () => {
               {activeSection === "quizz" && "Section Quizz"}
               {activeSection === "traduction" && "Section Traduction"}
               {activeSection === "starterpack" && "Section Starter Pack"}
+              {activeSection === "mespatients" && "Mes patients"}
               {activeSection === "rendezvous" && "Prise de rendez-vous"}
               {activeSection === "suivipostconsultation" && "Suivi post consultation"}
               {activeSection === "profil" && "Mon Profil"}
@@ -721,6 +730,8 @@ const Dashboard = () => {
               )}
             </div>
           )}
+
+          {activeSection === "mespatients" && <MyPatientsSection providerId={user?.id} />}
 
           {activeSection === "rendezvous" && <AppointmentBookingSection />}
 

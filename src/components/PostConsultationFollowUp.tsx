@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,58 +9,57 @@ import { Badge } from "@/components/ui/badge";
 import {
   ClipboardList,
   Stethoscope,
-  AlertCircle,
   FileText,
   Save,
   Trash2
 } from "lucide-react";
-
-interface ChecklistItem {
-  id: string;
-  label: string;
-  checked: boolean;
-}
-
-interface Note {
-  id: string;
-  date: string;
-  content: string;
-}
-
-const defaultChecklist: ChecklistItem[] = [
-  { id: "2", label: "Comprendre le diagnostic", checked: false },
-  { id: "4", label: "Savoir quand reprendre rendez-vous", checked: false },
-  { id: "5", label: "Demander un récapitulatif écrit si nécessaire", checked: false },
-  { id: "8", label: "Planifier le prochain suivi", checked: false },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { postConsultationChecklist } from "@/lib/postConsultationChecklist";
+import { usePostConsultationData } from "@/hooks/usePostConsultationData";
 
 export const PostConsultationFollowUp = () => {
   const [activeTab, setActiveTab] = useState<"checklist" | "notes">("checklist");
-  const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState("");
 
-  const toggleCheck = (id: string) => {
-    setChecklist(prev => prev.map(item =>
-      item.id === id ? { ...item, checked: !item.checked } : item
-    ));
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
+  const { checkedIds, notes, refetch } = usePostConsultationData(userId);
+
+  const toggleCheck = async (id: string) => {
+    if (!userId) return;
+    if (checkedIds.has(id)) {
+      await supabase
+        .from("post_consultation_checklist")
+        .delete()
+        .eq("user_id", userId)
+        .eq("item_id", id);
+    } else {
+      await supabase
+        .from("post_consultation_checklist")
+        .upsert({ user_id: userId, item_id: id, checked: true });
+    }
+    refetch();
   };
 
-  const addNote = () => {
-    if (!newNote.trim()) return;
-    setNotes(prev => [...prev, {
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString("fr-FR"),
-      content: newNote
-    }]);
+  const addNote = async () => {
+    if (!userId || !newNote.trim()) return;
+    await supabase
+      .from("post_consultation_notes")
+      .insert({ user_id: userId, content: newNote.trim() });
     setNewNote("");
+    refetch();
   };
 
-  const removeNote = (id: string) => {
-    setNotes(prev => prev.filter(n => n.id !== id));
+  const removeNote = async (id: string) => {
+    await supabase.from("post_consultation_notes").delete().eq("id", id);
+    refetch();
   };
 
-  const completedCount = checklist.filter(i => i.checked).length;
+  const totalCount = postConsultationChecklist.length;
+  const completedCount = postConsultationChecklist.filter((i) => checkedIds.has(i.id)).length;
 
   const tabs = [
     { id: "checklist" as const, label: "Liste de vérification", icon: ClipboardList },
@@ -115,44 +114,47 @@ export const PostConsultationFollowUp = () => {
                   Cochez chaque étape pour vous assurer que rien n'est oublié
                 </CardDescription>
               </div>
-              <Badge variant={completedCount === checklist.length ? "default" : "secondary"}>
-                {completedCount} / {checklist.length}
+              <Badge variant={completedCount === totalCount ? "default" : "secondary"}>
+                {completedCount} / {totalCount}
               </Badge>
             </div>
             {/* Barre de progression */}
             <div className="w-full bg-muted rounded-full h-2 mt-3">
               <div
                 className="bg-primary rounded-full h-2 transition-all duration-500"
-                style={{ width: `${(completedCount / checklist.length) * 100}%` }}
+                style={{ width: `${(completedCount / totalCount) * 100}%` }}
               />
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {checklist.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
-                  item.checked
-                    ? "bg-primary/5 border-primary/30"
-                    : "bg-card border-border hover:border-primary/30"
-                }`}
-              >
-                <Checkbox
-                  id={`check-${item.id}`}
-                  checked={item.checked}
-                  onCheckedChange={() => toggleCheck(item.id)}
-                  className="mt-0.5"
-                />
-                <Label
-                  htmlFor={`check-${item.id}`}
-                  className={`cursor-pointer text-sm font-medium leading-relaxed ${
-                    item.checked ? "line-through text-muted-foreground" : ""
+            {postConsultationChecklist.map((item) => {
+              const checked = checkedIds.has(item.id);
+              return (
+                <div
+                  key={item.id}
+                  className={`flex items-start gap-3 p-3 rounded-lg border transition-all ${
+                    checked
+                      ? "bg-primary/5 border-primary/30"
+                      : "bg-card border-border hover:border-primary/30"
                   }`}
                 >
-                  {item.label}
-                </Label>
-              </div>
-            ))}
+                  <Checkbox
+                    id={`check-${item.id}`}
+                    checked={checked}
+                    onCheckedChange={() => toggleCheck(item.id)}
+                    className="mt-0.5"
+                  />
+                  <Label
+                    htmlFor={`check-${item.id}`}
+                    className={`cursor-pointer text-sm font-medium leading-relaxed ${
+                      checked ? "line-through text-muted-foreground" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </Label>
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
       )}
@@ -192,7 +194,9 @@ export const PostConsultationFollowUp = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
-                        <p className="text-xs text-muted-foreground mb-1">{note.date}</p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          {new Date(note.created_at).toLocaleDateString("fr-FR")}
+                        </p>
                         <p className="text-sm leading-relaxed">{note.content}</p>
                       </Card>
                     ))}
