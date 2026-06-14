@@ -38,9 +38,7 @@ interface Medication {
 }
 
 const defaultChecklist: ChecklistItem[] = [
-  { id: "1", label: "Ordonnance récupérée", checked: false },
   { id: "2", label: "Comprendre le diagnostic", checked: false },
-  { id: "3", label: "Comprendre le traitement prescrit", checked: false },
   { id: "4", label: "Savoir quand reprendre rendez-vous", checked: false },
   { id: "5", label: "Demander un récapitulatif écrit si nécessaire", checked: false },
   { id: "8", label: "Planifier le prochain suivi", checked: false },
