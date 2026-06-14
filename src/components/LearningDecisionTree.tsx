@@ -10,6 +10,7 @@ import { QuizExercise } from "./exercises/QuizExercise";
 import { MatchingExercise } from "./exercises/MatchingExercise";
 import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { MedicalGlossary } from "@/components/MedicalGlossary";
+import { CultureQuiz } from "@/components/CultureQuiz";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -939,12 +940,7 @@ export const LearningDecisionTree = () => {
               </ul>
             </Card>
 
-            <Card className="p-6">
-              <h3 className="text-xl font-bold mb-4">Quiz - Testez vos connaissances</h3>
-              <p className="text-muted-foreground text-center py-8">
-                Les quiz sur la culture sourde seront bientôt disponibles
-              </p>
-            </Card>
+            <CultureQuiz />
           </div>
         </div>
       )}
