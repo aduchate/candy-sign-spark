@@ -41,6 +41,36 @@ export type Database = {
         }
         Relationships: []
       }
+      consultation_summaries: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          patient_id: string
+          provider_id: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          patient_id: string
+          provider_id: string
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          patient_id?: string
+          provider_id?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       donation_pages: {
         Row: {
           content: string | null
