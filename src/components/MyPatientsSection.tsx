@@ -15,6 +15,7 @@ import {
   type ProviderPatient,
 } from "@/hooks/usePatientsForProvider";
 import { PatientFollowUpSummary } from "@/components/PatientFollowUpSummary";
+import { ConsultationSummaryUploader } from "@/components/ConsultationSummaryUploader";
 
 interface MyPatientsSectionProps {
   providerId: string | null | undefined;
@@ -86,6 +87,14 @@ export const MyPatientsSection = ({ providerId }: MyPatientsSectionProps) => {
                 <SheetTitle>{patientLabel(selected)}</SheetTitle>
                 <SheetDescription>Résumé du suivi post-consultation</SheetDescription>
               </SheetHeader>
+              {providerId && (
+                <div className="mb-6">
+                  <ConsultationSummaryUploader
+                    patientId={selected.id}
+                    providerId={providerId}
+                  />
+                </div>
+              )}
               <PatientFollowUpSummary patientId={selected.id} />
             </>
           )}
