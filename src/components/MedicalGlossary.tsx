@@ -50,6 +50,16 @@ export const MedicalGlossary = () => {
         (map[key] ||= []).push(row);
       }
       setSignsByKey(map);
+      // Préchargement des vidéos pour qu'elles soient prêtes à l'emploi
+      for (const row of data as DbSign[]) {
+        if (!row.video_url) continue;
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "video";
+        link.href = row.video_url;
+        link.crossOrigin = "anonymous";
+        document.head.appendChild(link);
+      }
     })();
   }, []);
 
@@ -226,7 +236,7 @@ export const MedicalGlossary = () => {
                                 muted
                                 loop
                                 playsInline
-                                preload="metadata"
+                              preload="auto"
                                 className="w-full h-full object-cover cursor-pointer"
                                 onMouseEnter={(e) => e.currentTarget.play()}
                                 onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
