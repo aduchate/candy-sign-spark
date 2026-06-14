@@ -697,10 +697,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_healthcare_provider_of: {
-        Args: { patient: string }
-        Returns: boolean
-      }
+      is_healthcare_provider_of: { Args: { patient: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
