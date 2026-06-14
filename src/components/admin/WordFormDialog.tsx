@@ -23,6 +23,7 @@ interface WordSign {
   phrase: string | null;
   source_url: string | null;
   category: string;
+  profession?: string | null;
 }
 
 interface WordFormDialogProps {
@@ -40,6 +41,14 @@ const UF_LEVELS = [
   { value: 'C1', label: 'UF 10-12 (approfondi)' },
 ];
 
+const PROFESSIONS = [
+  { value: 'none', label: 'Aucune (pas dans le glossaire paramédical)' },
+  { value: 'logopedes', label: 'Logopèdes' },
+  { value: 'audiologues', label: 'Audiologues' },
+  { value: 'kinesitherapeutes', label: 'Kinésithérapeutes' },
+  { value: 'medecins', label: 'Médecins traitants' },
+];
+
 export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDialogProps) => {
   const [formData, setFormData] = useState({
     word: "",
@@ -47,7 +56,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
     signed_grammar: "",
     phrase: "",
     source_url: "",
-    category: "A1"
+    category: "A1",
+    profession: "none",
   });
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
@@ -66,7 +76,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
           signed_grammar: word.signed_grammar || "",
           phrase: word.phrase || "",
           source_url: word.source_url || "",
-          category: word.category || "A1"
+          category: word.category || "A1",
+          profession: word.profession || "none",
         });
         loadWordCategories(word.id);
       } else {
@@ -76,7 +87,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
           signed_grammar: "",
           phrase: "",
           source_url: "",
-          category: "A1"
+          category: "A1",
+          profession: "none",
         });
         setSelectedCategories(new Set());
       }
@@ -181,7 +193,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
             signed_grammar: formData.signed_grammar.trim() || null,
             phrase: formData.phrase.trim() || null,
             source_url: formData.source_url.trim() || null,
-            category: formData.category
+            category: formData.category,
+            profession: formData.profession === 'none' ? null : formData.profession,
           })
           .eq("id", word.id);
 
@@ -215,7 +228,8 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
             signed_grammar: formData.signed_grammar.trim() || null,
             phrase: formData.phrase.trim() || null,
             source_url: formData.source_url.trim() || null,
-            category: formData.category
+            category: formData.category,
+            profession: formData.profession === 'none' ? null : formData.profession,
           }])
           .select()
           .single();
@@ -295,6 +309,28 @@ export const WordFormDialog = ({ open, onOpenChange, word, onSave }: WordFormDia
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="md:col-span-2">
+              <Label htmlFor="profession">Profession (glossaire paramédical)</Label>
+              <Select
+                value={formData.profession}
+                onValueChange={(value) => setFormData({ ...formData, profession: value })}
+              >
+                <SelectTrigger id="profession">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PROFESSIONS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Si une profession est sélectionnée, ce mot apparaîtra dans l'onglet correspondant du glossaire paramédical.
+              </p>
             </div>
 
             <div className="md:col-span-2">

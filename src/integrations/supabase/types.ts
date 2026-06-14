@@ -722,6 +722,7 @@ export type Database = {
           created_at: string
           id: string
           phrase: string | null
+          profession: string | null
           signed_grammar: string | null
           source_url: string | null
           updated_at: string
@@ -733,6 +734,7 @@ export type Database = {
           created_at?: string
           id?: string
           phrase?: string | null
+          profession?: string | null
           signed_grammar?: string | null
           source_url?: string | null
           updated_at?: string
@@ -744,6 +746,7 @@ export type Database = {
           created_at?: string
           id?: string
           phrase?: string | null
+          profession?: string | null
           signed_grammar?: string | null
           source_url?: string | null
           updated_at?: string

@@ -34,6 +34,7 @@ export const MedicalGlossary = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTerm, setSelectedTerm] = useState<GlossaryTerm | null>(null);
   const [signsByKey, setSignsByKey] = useState<Record<string, DbSign[]>>({});
+  const [dictionaryTermsByCat, setDictionaryTermsByCat] = useState<Record<string, GlossaryTerm[]>>({});
 
   const normalize = (s: string) =>
     s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -43,15 +44,52 @@ export const MedicalGlossary = () => {
       const { data, error } = await supabase
         .from("glossary_signs")
         .select("id, term, normalized, category, video_url, source_url, gloss");
-      if (error || !data) return;
       const map: Record<string, DbSign[]> = {};
-      for (const row of data as DbSign[]) {
-        const key = `${row.category}::${row.normalized}`;
-        (map[key] ||= []).push(row);
+      if (!error && data) {
+        for (const row of data as DbSign[]) {
+          const key = `${row.category}::${row.normalized}`;
+          (map[key] ||= []).push(row);
+        }
+      }
+
+      const { data: dictWords } = await supabase
+        .from("word_signs")
+        .select("id, word, video_url, source_url, signed_grammar, phrase, profession")
+        .not("profession", "is", null);
+
+      const dictMap: Record<string, GlossaryTerm[]> = {};
+      const seen: Record<string, boolean> = {};
+      if (dictWords) {
+        for (const w of dictWords as any[]) {
+          if (!w.profession) continue;
+          const norm = normalize(w.word);
+          const key = `${w.profession}::${norm}`;
+          (map[key] ||= []).push({
+            id: w.id,
+            term: w.word,
+            normalized: norm,
+            category: w.profession,
+            video_url: w.video_url,
+            source_url: w.source_url,
+            gloss: w.signed_grammar,
+          });
+          if (!seen[key]) {
+            seen[key] = true;
+            (dictMap[w.profession] ||= []).push({
+              term: w.word.charAt(0).toUpperCase() + w.word.slice(1),
+              definition: w.phrase || w.signed_grammar || "Mot du dictionnaire LSFB",
+            });
+          }
+        }
       }
       setSignsByKey(map);
+      setDictionaryTermsByCat(dictMap);
       // Préchargement des vidéos pour qu'elles soient prêtes à l'emploi
-      for (const row of data as DbSign[]) {
+      const allVideos = [
+        ...(((data as DbSign[]) || []).map((r) => ({ video_url: r.video_url }))),
+        ...(((dictWords as any[]) || []).map((w) => ({ video_url: w.video_url }))),
+      ];
+      for (const row of allVideos) {
         if (!row.video_url) continue;
         const link = document.createElement("link");
         link.rel = "preload";
@@ -195,7 +233,12 @@ export const MedicalGlossary = () => {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filterTerms(category.terms).map((term, index) => {
+              {filterTerms([
+                ...category.terms,
+                ...((dictionaryTermsByCat[category.id] || []).filter(
+                  (dt) => !category.terms.some((t) => normalize(t.term) === normalize(dt.term))
+                )),
+              ]).map((term, index) => {
                 const dbSigns = signsFor(category.id, term.term);
                 return (
                   <Card
