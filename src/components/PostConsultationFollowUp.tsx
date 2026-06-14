@@ -9,13 +9,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
   Pill,
-  CalendarDays,
   ClipboardList,
   Stethoscope,
-  Phone,
   AlertCircle,
   FileText,
-  Check,
   ChevronDown,
   ChevronUp,
   Save,
@@ -53,7 +50,7 @@ const defaultChecklist: ChecklistItem[] = [
 ];
 
 export const PostConsultationFollowUp = () => {
-  const [activeTab, setActiveTab] = useState<"checklist" | "ordonnance" | "notes" | "contacts">("checklist");
+  const [activeTab, setActiveTab] = useState<"checklist" | "ordonnance" | "notes">("checklist");
   const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -98,7 +95,6 @@ export const PostConsultationFollowUp = () => {
     { id: "checklist" as const, label: "Liste de vérification", icon: ClipboardList },
     { id: "ordonnance" as const, label: "Ordonnance", icon: Pill },
     { id: "notes" as const, label: "Mes notes", icon: FileText },
-    { id: "contacts" as const, label: "Contacts", icon: Phone },
   ];
 
   return (
@@ -363,76 +359,6 @@ export const PostConsultationFollowUp = () => {
                   <p>Aucune note pour le moment.</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {activeTab === "contacts" && (
-        <div className="space-y-4">
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle>Contacts utiles</CardTitle>
-              <CardDescription>
-                Numéros et ressources à garder à portée de main
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="p-4 border">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
-                      <Phone className="w-5 h-5 text-destructive" />
-                    </div>
-                    <div>
-                      <p className="font-semibold">Numéros d'urgence</p>
-                      <p className="text-sm text-muted-foreground">112 — Appel d'urgence européen</p>
-                      <p className="text-sm text-muted-foreground">101 — Pompier</p>
-                      <p className="text-sm text-muted-foreground">100 — Police</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 border">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Stethoscope className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-semibold">Gardes médicales</p>
-                      <p className="text-sm text-muted-foreground">1733 — SOS Médecins</p>
-                      <p className="text-sm text-muted-foreground">Numéro de garde de votre région</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 border">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                      <CalendarDays className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <p className="font-semibold">Service d'interprétation</p>
-                      <p className="text-sm text-muted-foreground">SISB — Service d'Interprétation des Sourds de Bruxelles</p>
-                      <p className="text-sm text-muted-foreground">www.infosourds.be</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 border">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center shrink-0">
-                      <Check className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold">Votre médecin traitant</p>
-                      <p className="text-sm text-muted-foreground">Nom : _______________</p>
-                      <p className="text-sm text-muted-foreground">Téléphone : _______________</p>
-                      <p className="text-sm text-muted-foreground">Email : _______________</p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
             </CardContent>
           </Card>
         </div>
