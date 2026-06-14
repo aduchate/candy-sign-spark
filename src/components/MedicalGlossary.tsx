@@ -86,8 +86,6 @@ export const MedicalGlossary = () => {
       terms: [
         { term: "Anamnèse", definition: "Recueil des antécédents médicaux et des symptômes du patient" },
         { term: "Diagnostic", definition: "Identification d'une maladie à partir des symptômes et examens" },
-        { term: "Ordonnance", definition: "Document prescrivant les médicaments et traitements" },
-        { term: "Posologie", definition: "Indication de la dose et de la fréquence de prise d'un médicament" },
         { term: "Pronostic", definition: "Prévision de l'évolution probable d'une maladie" },
         { term: "Bilan sanguin", definition: "Analyse de sang permettant d'évaluer l'état de santé" },
         { term: "Tension artérielle", definition: "Pression exercée par le sang sur les parois des artères" },
