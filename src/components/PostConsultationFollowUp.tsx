@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,8 +12,7 @@ import {
   AlertCircle,
   FileText,
   Save,
-  Trash2,
-  Plus
+  Trash2
 } from "lucide-react";
 
 interface ChecklistItem {
@@ -161,7 +159,6 @@ export const PostConsultationFollowUp = () => {
 
 
       {activeTab === "notes" && (
-        <div className="space-y-4">
           <Card className="border-2">
             <CardHeader>
               <CardTitle>Mes notes de consultation</CardTitle>
