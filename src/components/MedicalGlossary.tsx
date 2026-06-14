@@ -185,43 +185,64 @@ export const MedicalGlossary = () => {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filterTerms(category.terms).map((term, index) => (
-                <Card
-                  key={index}
-                  className={`p-4 cursor-pointer transition-all duration-300 hover:shadow-md ${
-                    selectedTerm?.term === term.term ? 'ring-2 ring-primary' : ''
-                  }`}
-                  onClick={() => setSelectedTerm(term)}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h5 className="font-semibold text-lg flex items-center gap-2">
-                        {term.term}
-                        {term.videoUrl ? (
-                          <Video className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                            Vidéo à venir
-                          </span>
-                        )}
-                      </h5>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {term.definition}
-                      </p>
+              {filterTerms(category.terms).map((term, index) => {
+                const dbSigns = signsFor(category.id, term.term);
+                return (
+                  <Card
+                    key={index}
+                    className={`p-4 transition-all duration-300 hover:shadow-md ${
+                      selectedTerm?.term === term.term ? 'ring-2 ring-primary' : ''
+                    }`}
+                    onClick={() => setSelectedTerm(term)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h5 className="font-semibold text-lg flex items-center gap-2 flex-wrap">
+                          {term.term}
+                          {dbSigns.length > 0 ? (
+                            <span className="inline-flex items-center gap-1 text-xs text-green-600 bg-green-50 dark:bg-green-950/30 px-2 py-0.5 rounded">
+                              <Video className="w-3 h-3" />
+                              {dbSigns.length} signe{dbSigns.length > 1 ? "s" : ""}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                              Vidéo à venir
+                            </span>
+                          )}
+                        </h5>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {term.definition}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {term.videoUrl && (
-                    <div className="mt-3 aspect-video bg-muted rounded-md overflow-hidden">
-                      <video
-                        src={term.videoUrl}
-                        controls
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                </Card>
-              ))}
+                    {dbSigns.length > 0 && (
+                      <div className={`mt-3 grid gap-2 ${dbSigns.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                        {dbSigns.map((s) => (
+                          <div key={s.id} className="space-y-1">
+                            <div className="aspect-video bg-muted rounded-md overflow-hidden">
+                              <video
+                                src={s.video_url}
+                                controls
+                                preload="metadata"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            {s.gloss && (
+                              <p className="text-xs text-muted-foreground italic truncate" title={s.gloss}>
+                                {s.gloss}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                        <p className="col-span-full text-[10px] text-muted-foreground">
+                          Source : mot-signe.be
+                        </p>
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
             </div>
 
             {filterTerms(category.terms).length === 0 && (
