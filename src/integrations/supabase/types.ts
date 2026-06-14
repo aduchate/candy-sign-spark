@@ -333,7 +333,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          account_type: string | null
           age: number | null
           avatar_url: string | null
           created_at: string
@@ -349,7 +348,6 @@ export type Database = {
           username: string | null
         }
         Insert: {
-          account_type?: string | null
           age?: number | null
           avatar_url?: string | null
           created_at?: string
@@ -365,7 +363,6 @@ export type Database = {
           username?: string | null
         }
         Update: {
-          account_type?: string | null
           age?: number | null
           avatar_url?: string | null
           created_at?: string
