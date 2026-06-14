@@ -12,7 +12,6 @@ import {
   CalendarDays,
   ClipboardList,
   Stethoscope,
-  Phone,
   AlertCircle,
   FileText,
   Check,
@@ -53,7 +52,7 @@ const defaultChecklist: ChecklistItem[] = [
 ];
 
 export const PostConsultationFollowUp = () => {
-  const [activeTab, setActiveTab] = useState<"checklist" | "ordonnance" | "notes" | "contacts">("checklist");
+  const [activeTab, setActiveTab] = useState<"checklist" | "ordonnance" | "notes">("checklist");
   const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -98,7 +97,6 @@ export const PostConsultationFollowUp = () => {
     { id: "checklist" as const, label: "Liste de vérification", icon: ClipboardList },
     { id: "ordonnance" as const, label: "Ordonnance", icon: Pill },
     { id: "notes" as const, label: "Mes notes", icon: FileText },
-    { id: "contacts" as const, label: "Contacts", icon: Phone },
   ];
 
   return (
