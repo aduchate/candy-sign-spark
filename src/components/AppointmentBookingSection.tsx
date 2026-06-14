@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Phone, Users, Plus, Stethoscope } from "lucide-react";
+import { ExternalLink, Users, Plus, Stethoscope } from "lucide-react";
 
 interface InterpreterService {
   name: string;
@@ -62,7 +62,6 @@ export const AppointmentBookingSection = () => {
                         onClick={() => window.open(service.url, "_blank")}
                         className="gap-2"
                       >
-                        <Phone className="w-4 h-4" />
                         Accéder au service
                         <ExternalLink className="w-4 h-4" />
                       </Button>
