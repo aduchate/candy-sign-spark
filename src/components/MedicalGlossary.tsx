@@ -223,9 +223,13 @@ export const MedicalGlossary = () => {
                             <div className="aspect-video bg-muted rounded-md overflow-hidden">
                               <video
                                 src={s.video_url}
-                                controls
+                                muted
+                                loop
+                                playsInline
                                 preload="metadata"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover cursor-pointer"
+                                onMouseEnter={(e) => e.currentTarget.play()}
+                                onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
                               />
                             </div>
                             {s.gloss && (
