@@ -341,6 +341,7 @@ export type Database = {
           id: string
           installation_reason: string | null
           learning_level: string | null
+          logopedist_id: string | null
           onboarding_completed: boolean | null
           preferred_age_group: string | null
           profession: string | null
@@ -357,6 +358,7 @@ export type Database = {
           id: string
           installation_reason?: string | null
           learning_level?: string | null
+          logopedist_id?: string | null
           onboarding_completed?: boolean | null
           preferred_age_group?: string | null
           profession?: string | null
@@ -373,6 +375,7 @@ export type Database = {
           id?: string
           installation_reason?: string | null
           learning_level?: string | null
+          logopedist_id?: string | null
           onboarding_completed?: boolean | null
           preferred_age_group?: string | null
           profession?: string | null
@@ -380,7 +383,15 @@ export type Database = {
           updated_at?: string
           username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_logopedist_id_fkey"
+            columns: ["logopedist_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppressed_emails: {
         Row: {
