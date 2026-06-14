@@ -66,7 +66,6 @@ export const PostConsultationFollowUp = () => {
 
   const tabs = [
     { id: "checklist" as const, label: "Liste de vérification", icon: ClipboardList },
-    { id: "ordonnance" as const, label: "Ordonnance", icon: Pill },
     { id: "notes" as const, label: "Mes notes", icon: FileText },
   ];
 
