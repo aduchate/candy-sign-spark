@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useLogopedists, logopedistLabel } from "@/hooks/useLogopedists";
 
 const onboardingSchema = z.object({
   age: z.coerce.number().min(1, "L'âge doit être supérieur à 0").max(120, "Veuillez entrer un âge valide"),
@@ -24,6 +26,9 @@ const onboardingSchema = z.object({
     required_error: "Veuillez sélectionner un type de compte",
   }),
   profession: z.string().optional(),
+  // Required for patients (enforced in onSubmit, where the available-pro list is
+  // known: patients are not blocked when no logopedist exists yet).
+  logopedist_id: z.string().optional(),
   installation_reason: z.string().min(10, "Veuillez expliquer votre raison (minimum 10 caractères)"),
 });
 
@@ -38,6 +43,7 @@ export const OnboardingQuestionnaire = () => {
     handleSubmit,
     watch,
     setValue,
+    setError,
     reset,
     formState: { errors },
   } = useForm<OnboardingFormData>({
@@ -45,6 +51,8 @@ export const OnboardingQuestionnaire = () => {
   });
 
   const selectedStatus = watch("status");
+  const selectedAccountType = watch("account_type");
+  const { logopedists, loading: loadingLogopedists } = useLogopedists();
 
   useEffect(() => {
     const loadExistingProfile = async () => {
@@ -55,7 +63,7 @@ export const OnboardingQuestionnaire = () => {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("age, status, hearing_status, profession, installation_reason, account_type")
+        .select("age, status, hearing_status, profession, installation_reason, account_type, logopedist_id")
         .eq("id", user.id)
         .single();
 
@@ -69,6 +77,7 @@ export const OnboardingQuestionnaire = () => {
         profession: profile.profession ?? undefined,
         installation_reason: profile.installation_reason ?? undefined,
         account_type: (profile.account_type as OnboardingFormData["account_type"]) ?? undefined,
+        logopedist_id: profile.logopedist_id ?? undefined,
       });
     };
 
@@ -87,6 +96,19 @@ export const OnboardingQuestionnaire = () => {
         return;
       }
 
+      const isPatient = data.account_type === "patient";
+
+      // A patient must pick a logopedist — but only when at least one pro exists
+      // (otherwise they'd be locked out; they get re-prompted at next login).
+      if (isPatient && logopedists.length > 0 && !data.logopedist_id) {
+        setError("logopedist_id", {
+          type: "manual",
+          message: "Veuillez sélectionner votre logopède",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // account_type is written atomically with the rest of the profile, so it
       // can never half-succeed (the old role-RPC path could).
       const { error } = await supabase
@@ -98,6 +120,7 @@ export const OnboardingQuestionnaire = () => {
           profession: (data.status === "travail" || data.status === "retraite" || data.status === "autre") ? data.profession : null,
           installation_reason: data.installation_reason,
           account_type: data.account_type,
+          logopedist_id: isPatient ? (data.logopedist_id || null) : null,
           onboarding_completed: true,
         })
         .eq("id", user.id);
@@ -234,6 +257,42 @@ export const OnboardingQuestionnaire = () => {
                 <p className="text-sm text-destructive">{errors.account_type.message}</p>
               )}
             </div>
+
+            {/* Logopède (uniquement pour les patients) */}
+            {selectedAccountType === "patient" && (
+              <div className="space-y-2">
+                <Label htmlFor="logopedist">Mon·ma logopède</Label>
+                {loadingLogopedists ? (
+                  <p className="text-sm text-muted-foreground">Chargement des logopèdes...</p>
+                ) : logopedists.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Aucun·e logopède n'est disponible pour le moment. Vous pourrez en
+                    sélectionner un·e plus tard.
+                  </p>
+                ) : (
+                  <Select
+                    value={watch("logopedist_id") ?? ""}
+                    onValueChange={(value) =>
+                      setValue("logopedist_id", value, { shouldValidate: true })
+                    }
+                  >
+                    <SelectTrigger id="logopedist">
+                      <SelectValue placeholder="Sélectionnez votre logopède" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {logopedists.map((logopedist) => (
+                        <SelectItem key={logopedist.id} value={logopedist.id}>
+                          {logopedistLabel(logopedist)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {errors.logopedist_id && (
+                  <p className="text-sm text-destructive">{errors.logopedist_id.message}</p>
+                )}
+              </div>
+            )}
 
             {/* Raison d'installation */}
             <div className="space-y-2">

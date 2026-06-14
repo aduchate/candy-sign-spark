@@ -36,6 +36,7 @@ import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { PostConsultationFollowUp } from "@/components/PostConsultationFollowUp";
 import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
+import { LogopedistSelector } from "@/components/LogopedistSelector";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
@@ -92,6 +93,12 @@ const Dashboard = () => {
   const [accountType, setAccountType] = useState<"pro" | "patient" | null>(null);
   const isPro = accountType === "pro";
   const isPatient = accountType === "patient";
+  // A patient who hasn't chosen a logopedist is sent (back) to onboarding,
+  // same as a missing account_type. Read in the same fetch — no race.
+  const [logopedistId, setLogopedistId] = useState<string | null>(null);
+  // Only force a patient to pick a logopedist when one actually exists —
+  // otherwise the onboarding gate would loop with no selectable option.
+  const { logopedists: availableLogopedists } = useLogopedists(isPatient);
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [starterProfile, setStarterProfile] = useState<"adult" | "child" | "profession" | null>(null);
 
@@ -109,7 +116,7 @@ const Dashboard = () => {
       } else {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("age, status, account_type")
+          .select("age, status, account_type, logopedist_id")
           .eq("id", session.user.id)
           .single();
 
@@ -123,6 +130,7 @@ const Dashboard = () => {
         }
 
         setAccountType((profile?.account_type as "pro" | "patient" | null) ?? null);
+        setLogopedistId(profile?.logopedist_id ?? null);
         setUser(session.user);
         fetchUserProgress(session.user.id);
       }
@@ -148,15 +156,18 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate, isOnline]);
 
-  // Send logged-in users who have not picked an account type to onboarding.
-  // accountType is loaded in the same fetch that clears `loading`, so once
-  // loading is false this value reflects the DB (no role-cache race).
+  // Send logged-in users who have not finished onboarding back to it: no
+  // account type picked, or a patient who hasn't chosen a logopedist. These are
+  // loaded in the same fetch that clears `loading`, so once loading is false
+  // they reflect the DB (no role-cache race).
   useEffect(() => {
     if (loading || isOfflineMode) return;
-    if (user && !accountType) {
+    const needsLogopedist =
+      accountType === "patient" && !logopedistId && availableLogopedists.length > 0;
+    if (user && (!accountType || needsLogopedist)) {
       navigate("/onboarding");
     }
-  }, [loading, isOfflineMode, user, accountType, navigate]);
+  }, [loading, isOfflineMode, user, accountType, logopedistId, availableLogopedists, navigate]);
 
   const loadCachedData = () => {
     const cachedLessons = offlineCache.get<LessonProgress[]>(CACHE_KEYS.LESSONS);
@@ -714,7 +725,18 @@ const Dashboard = () => {
 
           {activeSection === "suivipostconsultation" && <PostConsultationFollowUp />}
 
-          {activeSection === "profil" && <ProfileSection user={user} />}
+          {activeSection === "profil" && (
+            <div className="space-y-6">
+              {isPatient && user && (
+                <LogopedistSelector
+                  userId={user.id}
+                  currentLogopedistId={logopedistId}
+                  onSaved={setLogopedistId}
+                />
+              )}
+              <ProfileSection user={user} />
+            </div>
+          )}
         </div>
       </main>
     </div>
