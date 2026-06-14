@@ -199,6 +199,51 @@ export type Database = {
           },
         ]
       }
+      glossary_signs: {
+        Row: {
+          category: string
+          created_at: string
+          definition: string | null
+          external_id: string | null
+          gloss: string | null
+          id: string
+          normalized: string
+          source: string
+          source_url: string | null
+          term: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          definition?: string | null
+          external_id?: string | null
+          gloss?: string | null
+          id?: string
+          normalized: string
+          source?: string
+          source_url?: string | null
+          term: string
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          definition?: string | null
+          external_id?: string | null
+          gloss?: string | null
+          id?: string
+          normalized?: string
+          source?: string
+          source_url?: string | null
+          term?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       job_listings: {
         Row: {
           category: string | null
