@@ -337,11 +337,11 @@ export type Database = {
           age: number | null
           avatar_url: string | null
           created_at: string
+          healthcare_provider_id: string | null
           hearing_status: string | null
           id: string
           installation_reason: string | null
           learning_level: string | null
-          healthcare_provider_id: string | null
           onboarding_completed: boolean | null
           preferred_age_group: string | null
           profession: string | null
@@ -354,11 +354,11 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          healthcare_provider_id?: string | null
           hearing_status?: string | null
           id: string
           installation_reason?: string | null
           learning_level?: string | null
-          healthcare_provider_id?: string | null
           onboarding_completed?: boolean | null
           preferred_age_group?: string | null
           profession?: string | null
@@ -371,11 +371,11 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           created_at?: string
+          healthcare_provider_id?: string | null
           hearing_status?: string | null
           id?: string
           installation_reason?: string | null
           learning_level?: string | null
-          healthcare_provider_id?: string | null
           onboarding_completed?: boolean | null
           preferred_age_group?: string | null
           profession?: string | null
