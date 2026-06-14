@@ -29,14 +29,6 @@ interface Note {
   content: string;
 }
 
-interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  frequency: string;
-  duration: string;
-}
-
 const defaultChecklist: ChecklistItem[] = [
   { id: "2", label: "Comprendre le diagnostic", checked: false },
   { id: "4", label: "Savoir quand reprendre rendez-vous", checked: false },
@@ -45,29 +37,15 @@ const defaultChecklist: ChecklistItem[] = [
 ];
 
 export const PostConsultationFollowUp = () => {
-  const [activeTab, setActiveTab] = useState<"checklist" | "ordonnance" | "notes">("checklist");
+  const [activeTab, setActiveTab] = useState<"checklist" | "notes">("checklist");
   const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
-  const [medications, setMedications] = useState<Medication[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState("");
-  const [showNewMed, setShowNewMed] = useState(false);
-  const [newMed, setNewMed] = useState({ name: "", dosage: "", frequency: "", duration: "" });
 
   const toggleCheck = (id: string) => {
     setChecklist(prev => prev.map(item =>
       item.id === id ? { ...item, checked: !item.checked } : item
     ));
-  };
-
-  const addMedication = () => {
-    if (!newMed.name.trim()) return;
-    setMedications(prev => [...prev, { ...newMed, id: Date.now().toString() }]);
-    setNewMed({ name: "", dosage: "", frequency: "", duration: "" });
-    setShowNewMed(false);
-  };
-
-  const removeMedication = (id: string) => {
-    setMedications(prev => prev.filter(m => m.id !== id));
   };
 
   const addNote = () => {
