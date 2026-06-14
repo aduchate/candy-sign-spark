@@ -331,6 +331,48 @@ export type Database = {
         }
         Relationships: []
       }
+      post_consultation_checklist: {
+        Row: {
+          checked: boolean
+          item_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checked?: boolean
+          item_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checked?: boolean
+          item_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      post_consultation_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_type: string | null
@@ -655,6 +697,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_healthcare_provider_of: { Args: { patient: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
