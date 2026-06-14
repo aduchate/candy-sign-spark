@@ -48,8 +48,7 @@ const defaultChecklist: ChecklistItem[] = [
   { id: "2", label: "Comprendre le diagnostic", checked: false },
   { id: "3", label: "Comprendre le traitement prescrit", checked: false },
   { id: "4", label: "Savoir quand reprendre rendez-vous", checked: false },
-  { id: "5", label: "Numéro d'urgence noté", checked: false },
-  { id: "6", label: "Demander un récapitulatif écrit si nécessaire", checked: false },
+  { id: "5", label: "Demander un récapitulatif écrit si nécessaire", checked: false },
   { id: "7", label: "Retirer les médicaments à la pharmacie", checked: false },
   { id: "8", label: "Planifier le prochain suivi", checked: false },
 ];
