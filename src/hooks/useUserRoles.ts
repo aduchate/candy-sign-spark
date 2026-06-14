@@ -6,10 +6,13 @@ import type { Database } from "@/integrations/supabase/types";
 export type AppRole = Database["public"]["Enums"]["app_role"];
 
 /**
- * Fetches the current user's roles and exposes derived flags.
+ * Fetches the current user's security roles and exposes derived flags.
  * Returns an empty role list when logged out (e.g. offline mode).
  * Invalidates the cache on auth state changes so a previous session's
  * roles never leak into the next.
+ *
+ * NOTE: account type (pro/patient) is NOT a role — it lives on
+ * profiles.account_type and is read alongside the rest of the profile.
  */
 export function useUserRoles() {
   const queryClient = useQueryClient();
@@ -47,8 +50,5 @@ export function useUserRoles() {
     roles,
     isLoadingRoles: query.isLoading,
     isAdmin: roles.includes("admin"),
-    isPro: roles.includes("pro"),
-    isPatient: roles.includes("patient"),
-    hasAccountType: roles.includes("pro") || roles.includes("patient"),
   };
 }

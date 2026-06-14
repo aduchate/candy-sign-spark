@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 
 const onboardingSchema = z.object({
   age: z.coerce.number().min(1, "L'âge doit être supérieur à 0").max(120, "Veuillez entrer un âge valide"),
@@ -33,8 +32,7 @@ type OnboardingFormData = z.infer<typeof onboardingSchema>;
 export const OnboardingQuestionnaire = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  
+
   const {
     register,
     handleSubmit,
@@ -57,21 +55,20 @@ export const OnboardingQuestionnaire = () => {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("age, status, hearing_status, profession, installation_reason")
+        .select("age, status, hearing_status, profession, installation_reason, account_type")
         .eq("id", user.id)
         .single();
 
       if (!profile) return;
 
-      // Prefill known fields so returning users only pick an account type.
-      // account_type is a role (not stored on the profile) and is intentionally
-      // left unset so the user must choose it.
+      // Prefill all known fields, including the previously chosen account type.
       reset({
         age: profile.age ?? undefined,
         status: (profile.status as OnboardingFormData["status"]) ?? undefined,
         hearing_status: (profile.hearing_status as OnboardingFormData["hearing_status"]) ?? undefined,
         profession: profile.profession ?? undefined,
         installation_reason: profile.installation_reason ?? undefined,
+        account_type: (profile.account_type as OnboardingFormData["account_type"]) ?? undefined,
       });
     };
 
@@ -90,6 +87,8 @@ export const OnboardingQuestionnaire = () => {
         return;
       }
 
+      // account_type is written atomically with the rest of the profile, so it
+      // can never half-succeed (the old role-RPC path could).
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -98,18 +97,12 @@ export const OnboardingQuestionnaire = () => {
           hearing_status: data.hearing_status,
           profession: (data.status === "travail" || data.status === "retraite" || data.status === "autre") ? data.profession : null,
           installation_reason: data.installation_reason,
+          account_type: data.account_type,
           onboarding_completed: true,
         })
         .eq("id", user.id);
 
       if (error) throw error;
-
-      const { error: roleError } = await supabase.rpc("set_account_type", {
-        _role: data.account_type,
-      });
-      if (roleError) throw roleError;
-
-      await queryClient.invalidateQueries({ queryKey: ["user-roles"] });
 
       toast.success("Profil complété avec succès !");
       navigate("/dashboard");

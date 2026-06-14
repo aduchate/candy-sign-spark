@@ -86,7 +86,12 @@ const Dashboard = () => {
   const [ageGroup, setAgeGroup] = useState<"enfant" | "adulte">("adulte");
   const [level, setLevel] = useState<"A1" | "A2" | "B1" | "B2">("A1");
   const [newLessons, setNewLessons] = useState<any[]>([]);
-  const { isAdmin, isPro, isPatient, hasAccountType, isLoadingRoles } = useUserRoles();
+  const { isAdmin } = useUserRoles();
+  // Account type (pro/patient) lives on the profile, read in the same fetch as
+  // the session below — no separate cache, so it can't race auth hydration.
+  const [accountType, setAccountType] = useState<"pro" | "patient" | null>(null);
+  const isPro = accountType === "pro";
+  const isPatient = accountType === "patient";
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [starterProfile, setStarterProfile] = useState<"adult" | "child" | "profession" | null>(null);
 
@@ -104,7 +109,7 @@ const Dashboard = () => {
       } else {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("age, status")
+          .select("age, status, account_type")
           .eq("id", session.user.id)
           .single();
 
@@ -117,6 +122,7 @@ const Dashboard = () => {
           setStarterProfile("adult");
         }
 
+        setAccountType((profile?.account_type as "pro" | "patient" | null) ?? null);
         setUser(session.user);
         fetchUserProgress(session.user.id);
       }
@@ -143,12 +149,14 @@ const Dashboard = () => {
   }, [navigate, isOnline]);
 
   // Send logged-in users who have not picked an account type to onboarding.
+  // accountType is loaded in the same fetch that clears `loading`, so once
+  // loading is false this value reflects the DB (no role-cache race).
   useEffect(() => {
-    if (loading || isLoadingRoles || isOfflineMode) return;
-    if (user && !hasAccountType) {
+    if (loading || isOfflineMode) return;
+    if (user && !accountType) {
       navigate("/onboarding");
     }
-  }, [loading, isLoadingRoles, isOfflineMode, user, hasAccountType, navigate]);
+  }, [loading, isOfflineMode, user, accountType, navigate]);
 
   const loadCachedData = () => {
     const cachedLessons = offlineCache.get<LessonProgress[]>(CACHE_KEYS.LESSONS);
