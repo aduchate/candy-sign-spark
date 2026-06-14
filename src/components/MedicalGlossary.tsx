@@ -1,14 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Video, Stethoscope, Ear, Activity, UserRound } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GlossaryTerm {
   term: string;
   definition: string;
   videoUrl?: string;
+}
+
+interface DbSign {
+  id: string;
+  term: string;
+  normalized: string;
+  category: string;
+  video_url: string;
+  source_url: string | null;
+  gloss: string | null;
 }
 
 interface ProfessionCategory {
@@ -22,6 +33,28 @@ interface ProfessionCategory {
 export const MedicalGlossary = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTerm, setSelectedTerm] = useState<GlossaryTerm | null>(null);
+  const [signsByKey, setSignsByKey] = useState<Record<string, DbSign[]>>({});
+
+  const normalize = (s: string) =>
+    s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase
+        .from("glossary_signs")
+        .select("id, term, normalized, category, video_url, source_url, gloss");
+      if (error || !data) return;
+      const map: Record<string, DbSign[]> = {};
+      for (const row of data as DbSign[]) {
+        const key = `${row.category}::${row.normalized}`;
+        (map[key] ||= []).push(row);
+      }
+      setSignsByKey(map);
+    })();
+  }, []);
+
+  const signsFor = (catId: string, term: string) =>
+    signsByKey[`${catId}::${normalize(term)}`] || [];
 
   const professionCategories: ProfessionCategory[] = [
     {
