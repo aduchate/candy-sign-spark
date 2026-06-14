@@ -661,10 +661,6 @@ export type Database = {
           read_ct: number
         }[]
       }
-      set_account_type: {
-        Args: { _role: Database["public"]["Enums"]["app_role"] }
-        Returns: undefined
-      }
     }
     Enums: {
       app_role: "admin" | "user" | "pro" | "patient"
