@@ -39,6 +39,7 @@ import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
 import { LogopedistSelector } from "@/components/LogopedistSelector";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { useLogopedists } from "@/hooks/useLogopedists";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
 import { StarterPackVideoLoader } from "@/components/StarterPackVideoLoader";
