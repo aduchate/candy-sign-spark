@@ -5,10 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Returns the list of "pro" profiles a patient can pick as their logopedist.
-// Emails live in auth.users (not the profiles table), so we use the admin
-// client to join them in. Any authenticated user may call this — the response
-// is intentionally limited to id / username / email of pros, nothing more.
+// Returns the list of "pro" profiles a patient can pick as their healthcare
+// provider (prestataire de soins). Emails live in auth.users (not the profiles
+// table), so we use the admin client to join them in. Any authenticated user
+// may call this — the response is intentionally limited to id / username /
+// email of pros, nothing more.
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -45,7 +46,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Only "pro" profiles are eligible logopedists.
+    // Only "pro" profiles are eligible healthcare providers.
     const { data: pros, error: prosError } = await supabaseAdmin
       .from('profiles')
       .select('id, username')
@@ -63,7 +64,7 @@ Deno.serve(async (req) => {
       throw authError
     }
 
-    const logopedists = (pros ?? []).map(pro => {
+    const providers = (pros ?? []).map(pro => {
       const authUser = authUsers.find(au => au.id === pro.id)
       return {
         id: pro.id,
@@ -73,12 +74,12 @@ Deno.serve(async (req) => {
     })
 
     return new Response(
-      JSON.stringify({ logopedists }),
+      JSON.stringify({ providers }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error in get-logopedists:', error)
+    console.error('Error in get-healthcare-providers:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(
       JSON.stringify({ error: errorMessage }),

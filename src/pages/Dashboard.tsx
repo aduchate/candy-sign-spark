@@ -36,10 +36,10 @@ import { StereotypeQuiz } from "@/components/StereotypeQuiz";
 import { AppointmentBookingSection } from "@/components/AppointmentBookingSection";
 import { PostConsultationFollowUp } from "@/components/PostConsultationFollowUp";
 import { ProfileSection, addHistoryEntry } from "@/components/ProfileSection";
-import { LogopedistSelector } from "@/components/LogopedistSelector";
+import { HealthcareProviderSelector } from "@/components/HealthcareProviderSelector";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import { useLogopedists } from "@/hooks/useLogopedists";
+import { useHealthcareProviders } from "@/hooks/useHealthcareProviders";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { offlineSync } from "@/lib/offlineSync";
 import { StarterPackVideoLoader } from "@/components/StarterPackVideoLoader";
@@ -94,12 +94,12 @@ const Dashboard = () => {
   const [accountType, setAccountType] = useState<"pro" | "patient" | null>(null);
   const isPro = accountType === "pro";
   const isPatient = accountType === "patient";
-  // A patient who hasn't chosen a logopedist is sent (back) to onboarding,
-  // same as a missing account_type. Read in the same fetch — no race.
-  const [logopedistId, setLogopedistId] = useState<string | null>(null);
-  // Only force a patient to pick a logopedist when one actually exists —
+  // A patient who hasn't chosen a healthcare provider is sent (back) to
+  // onboarding, same as a missing account_type. Read in the same fetch — no race.
+  const [providerId, setProviderId] = useState<string | null>(null);
+  // Only force a patient to pick a provider when one actually exists —
   // otherwise the onboarding gate would loop with no selectable option.
-  const { logopedists: availableLogopedists } = useLogopedists(isPatient);
+  const { providers: availableProviders } = useHealthcareProviders(isPatient);
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [starterProfile, setStarterProfile] = useState<"adult" | "child" | "profession" | null>(null);
 
@@ -117,7 +117,7 @@ const Dashboard = () => {
       } else {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("age, status, account_type, logopedist_id")
+          .select("age, status, account_type, healthcare_provider_id")
           .eq("id", session.user.id)
           .single();
 
@@ -131,7 +131,7 @@ const Dashboard = () => {
         }
 
         setAccountType((profile?.account_type as "pro" | "patient" | null) ?? null);
-        setLogopedistId(profile?.logopedist_id ?? null);
+        setProviderId(profile?.healthcare_provider_id ?? null);
         setUser(session.user);
         fetchUserProgress(session.user.id);
       }
@@ -158,17 +158,17 @@ const Dashboard = () => {
   }, [navigate, isOnline]);
 
   // Send logged-in users who have not finished onboarding back to it: no
-  // account type picked, or a patient who hasn't chosen a logopedist. These are
+  // account type picked, or a patient who hasn't chosen a provider. These are
   // loaded in the same fetch that clears `loading`, so once loading is false
   // they reflect the DB (no role-cache race).
   useEffect(() => {
     if (loading || isOfflineMode) return;
-    const needsLogopedist =
-      accountType === "patient" && !logopedistId && availableLogopedists.length > 0;
-    if (user && (!accountType || needsLogopedist)) {
+    const needsProvider =
+      accountType === "patient" && !providerId && availableProviders.length > 0;
+    if (user && (!accountType || needsProvider)) {
       navigate("/onboarding");
     }
-  }, [loading, isOfflineMode, user, accountType, logopedistId, availableLogopedists, navigate]);
+  }, [loading, isOfflineMode, user, accountType, providerId, availableProviders, navigate]);
 
   const loadCachedData = () => {
     const cachedLessons = offlineCache.get<LessonProgress[]>(CACHE_KEYS.LESSONS);
@@ -729,10 +729,10 @@ const Dashboard = () => {
           {activeSection === "profil" && (
             <div className="space-y-6">
               {isPatient && user && (
-                <LogopedistSelector
+                <HealthcareProviderSelector
                   userId={user.id}
-                  currentLogopedistId={logopedistId}
-                  onSaved={setLogopedistId}
+                  currentProviderId={providerId}
+                  onSaved={setProviderId}
                 />
               )}
               <ProfileSection user={user} />

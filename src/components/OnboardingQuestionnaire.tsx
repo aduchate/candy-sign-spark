@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useLogopedists, logopedistLabel } from "@/hooks/useLogopedists";
+import { useHealthcareProviders, healthcareProviderLabel } from "@/hooks/useHealthcareProviders";
 
 const onboardingSchema = z.object({
   age: z.coerce.number().min(1, "L'âge doit être supérieur à 0").max(120, "Veuillez entrer un âge valide"),
@@ -27,8 +27,8 @@ const onboardingSchema = z.object({
   }),
   profession: z.string().optional(),
   // Required for patients (enforced in onSubmit, where the available-pro list is
-  // known: patients are not blocked when no logopedist exists yet).
-  logopedist_id: z.string().optional(),
+  // known: patients are not blocked when no provider exists yet).
+  healthcare_provider_id: z.string().optional(),
   installation_reason: z.string().min(10, "Veuillez expliquer votre raison (minimum 10 caractères)"),
 });
 
@@ -52,7 +52,7 @@ export const OnboardingQuestionnaire = () => {
 
   const selectedStatus = watch("status");
   const selectedAccountType = watch("account_type");
-  const { logopedists, loading: loadingLogopedists } = useLogopedists();
+  const { providers, loading: loadingProviders } = useHealthcareProviders();
 
   useEffect(() => {
     const loadExistingProfile = async () => {
@@ -63,7 +63,7 @@ export const OnboardingQuestionnaire = () => {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("age, status, hearing_status, profession, installation_reason, account_type, logopedist_id")
+        .select("age, status, hearing_status, profession, installation_reason, account_type, healthcare_provider_id")
         .eq("id", user.id)
         .single();
 
@@ -77,7 +77,7 @@ export const OnboardingQuestionnaire = () => {
         profession: profile.profession ?? undefined,
         installation_reason: profile.installation_reason ?? undefined,
         account_type: (profile.account_type as OnboardingFormData["account_type"]) ?? undefined,
-        logopedist_id: profile.logopedist_id ?? undefined,
+        healthcare_provider_id: profile.healthcare_provider_id ?? undefined,
       });
     };
 
@@ -98,12 +98,12 @@ export const OnboardingQuestionnaire = () => {
 
       const isPatient = data.account_type === "patient";
 
-      // A patient must pick a logopedist — but only when at least one pro exists
+      // A patient must pick a provider — but only when at least one pro exists
       // (otherwise they'd be locked out; they get re-prompted at next login).
-      if (isPatient && logopedists.length > 0 && !data.logopedist_id) {
-        setError("logopedist_id", {
+      if (isPatient && providers.length > 0 && !data.healthcare_provider_id) {
+        setError("healthcare_provider_id", {
           type: "manual",
-          message: "Veuillez sélectionner votre logopède",
+          message: "Veuillez sélectionner votre prestataire de soins",
         });
         setIsSubmitting(false);
         return;
@@ -120,7 +120,7 @@ export const OnboardingQuestionnaire = () => {
           profession: (data.status === "travail" || data.status === "retraite" || data.status === "autre") ? data.profession : null,
           installation_reason: data.installation_reason,
           account_type: data.account_type,
-          logopedist_id: isPatient ? (data.logopedist_id || null) : null,
+          healthcare_provider_id: isPatient ? (data.healthcare_provider_id || null) : null,
           onboarding_completed: true,
         })
         .eq("id", user.id);
@@ -258,38 +258,38 @@ export const OnboardingQuestionnaire = () => {
               )}
             </div>
 
-            {/* Logopède (uniquement pour les patients) */}
+            {/* Prestataire de soins (uniquement pour les patients) */}
             {selectedAccountType === "patient" && (
               <div className="space-y-2">
-                <Label htmlFor="logopedist">Mon·ma logopède</Label>
-                {loadingLogopedists ? (
-                  <p className="text-sm text-muted-foreground">Chargement des logopèdes...</p>
-                ) : logopedists.length === 0 ? (
+                <Label htmlFor="provider">Mon·ma prestataire de soins</Label>
+                {loadingProviders ? (
+                  <p className="text-sm text-muted-foreground">Chargement des prestataires de soins...</p>
+                ) : providers.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    Aucun·e logopède n'est disponible pour le moment. Vous pourrez en
-                    sélectionner un·e plus tard.
+                    Aucun·e prestataire de soins n'est disponible pour le moment. Vous
+                    pourrez en sélectionner un·e plus tard.
                   </p>
                 ) : (
                   <Select
-                    value={watch("logopedist_id") ?? ""}
+                    value={watch("healthcare_provider_id") ?? ""}
                     onValueChange={(value) =>
-                      setValue("logopedist_id", value, { shouldValidate: true })
+                      setValue("healthcare_provider_id", value, { shouldValidate: true })
                     }
                   >
-                    <SelectTrigger id="logopedist">
-                      <SelectValue placeholder="Sélectionnez votre logopède" />
+                    <SelectTrigger id="provider">
+                      <SelectValue placeholder="Sélectionnez votre prestataire de soins" />
                     </SelectTrigger>
                     <SelectContent>
-                      {logopedists.map((logopedist) => (
-                        <SelectItem key={logopedist.id} value={logopedist.id}>
-                          {logopedistLabel(logopedist)}
+                      {providers.map((provider) => (
+                        <SelectItem key={provider.id} value={provider.id}>
+                          {healthcareProviderLabel(provider)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
-                {errors.logopedist_id && (
-                  <p className="text-sm text-destructive">{errors.logopedist_id.message}</p>
+                {errors.healthcare_provider_id && (
+                  <p className="text-sm text-destructive">{errors.healthcare_provider_id.message}</p>
                 )}
               </div>
             )}
