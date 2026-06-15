@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Video, Stethoscope, Ear, Activity, UserRound } from "lucide-react";
+import { Search, Video, Stethoscope, Ear, Activity, UserRound, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface GlossaryTerm {
@@ -201,6 +201,29 @@ export const MedicalGlossary = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
+        </div>
+      </Card>
+
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-primary/10 text-primary">
+            <ExternalLink className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <h4 className="font-semibold text-sm">Lien utile</h4>
+            <p className="text-xs text-muted-foreground">
+              Ressources et informations sur la surdité et l&apos;implant cochléaire
+            </p>
+          </div>
+          <a
+            href="https://isasi.be"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            isasi.be
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
       </Card>
 
