@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Video, Stethoscope, Ear, Activity, UserRound } from "lucide-react";
+import { Search, Video, Stethoscope, Ear, Activity, UserRound, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface GlossaryTerm {
