@@ -941,6 +941,8 @@ export const LearningDecisionTree = () => {
               </ul>
             </Card>
 
+            <FamousDeafPerson />
+
             <CultureQuiz />
           </div>
         </div>
