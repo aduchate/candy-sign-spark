@@ -11,6 +11,7 @@ import { MatchingExercise } from "./exercises/MatchingExercise";
 import { MultiVideoPlayer } from "@/components/MultiVideoPlayer";
 import { MedicalGlossary } from "@/components/MedicalGlossary";
 import { CultureQuiz } from "@/components/CultureQuiz";
+import { FamousDeafPerson } from "@/components/FamousDeafPerson";
 import { supabase } from "@/integrations/supabase/client";
 import { offlineCache, CACHE_KEYS } from "@/lib/offlineCache";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -939,6 +940,8 @@ export const LearningDecisionTree = () => {
                 </li>
               </ul>
             </Card>
+
+            <FamousDeafPerson />
 
             <CultureQuiz />
           </div>
