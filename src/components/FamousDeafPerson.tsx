@@ -9,21 +9,21 @@ const TRANSLATION_BLOCKS: { label: string; sentence: string }[] = [
   {
     label: "Qui ?",
     sentence:
-      "{Emmanuelle} {Laborit} {sourde} {naissance}. {actrice}, {directrice} {IVT}, {ambassadrice} {LSF}, {autrice}.",
+      "{Emmanuelle} {Laborit} {naitre} {sourde}. {actrice}, {directeur} {IVT}, {ambassade} {LSF}, {auteur}.",
   },
   {
     label: "Quoi ?",
-    sentence: "{prix} {molière} {1993}. {première} {comédienne} {sourde} {France}.",
+    sentence: "{prix} {molière} {1993}. {première} {comédienne} {sourde} {France}. {acteur} {théâtre}.",
   },
   {
     label: "Quand ?",
     sentence:
-      "{née} {18} {octobre} {1971}. {1978} {père} {apprendre} {LSF}. {1993} {gagner} {molière}. {2003} {directrice} {IVT}. {2012} {officière} {ordre} {arts}.",
+      "{née} {18} {octobre} {1971}. {1978} {père} {apprendre} {LSF}. {1993} {gagner} {molière}. {2003} {directeur} {IVT}. {2012} {officière} {ordre} {arts}.",
   },
   { label: "Où ?", sentence: "{née} {Paris} {France}. {nationalité} {française}." },
   {
     label: "Pourquoi connue ?",
-    sentence: "{27} {ans} {carrière}. {11} {films}. {beaucoup} {spectateurs}.",
+    sentence: "{27} {ans} {carrière}. {11} {films}. {beaucoup} {spectateurs}. {chef} {film}.",
   },
 ];
 
